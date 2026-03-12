@@ -101,7 +101,7 @@ function startDashboard() {
     res.json({ ok: true });
   });
 
-  const port = process.env.DASHBOARD_PORT || 3000;
+  const port = process.env.PORT || process.env.DASHBOARD_PORT || 3000;
   app.listen(port, () => console.log(`Dashboard: http://localhost:${port}`));
 }
 
