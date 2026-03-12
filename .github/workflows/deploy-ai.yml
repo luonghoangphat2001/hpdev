@@ -1,0 +1,24 @@
+name: Deploy AI Bot
+
+on:
+  push:
+    branches:
+      - ai
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          script: |
+            cd ~/ai.hpdev.name.vn
+            git pull origin ai
+            source ~/nodevenv/ai.hpdev.name.vn/19/bin/activate
+            npm install
