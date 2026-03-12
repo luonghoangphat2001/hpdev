@@ -19,6 +19,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /home/user/public_html
+            cd /home/hpdev/public_html
             git pull origin main
             echo "Deploy completed at $(date)"
