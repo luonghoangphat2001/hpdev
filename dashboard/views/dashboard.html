@@ -58,6 +58,12 @@
         </div>
       </div>
 
+      <div class="mb-5" id="claude-base-url-wrap">
+        <label class="block text-sm text-gray-400 mb-2">Claude Base URL <span class="text-gray-500 font-normal">(proxy endpoint)</span></label>
+        <input type="url" id="claude-base-url" placeholder="https://proxy-api.example.com/"
+          class="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm" />
+      </div>
+
       <div class="mb-5">
         <label class="block text-sm text-gray-400 mb-2">System Prompt</label>
         <textarea id="system-prompt" rows="4"
@@ -104,7 +110,14 @@
       const data = await res.json();
       activeModel = data.active_model;
       document.getElementById("system-prompt").value = data.system_prompt || "";
+      document.getElementById("claude-base-url").value = data.claude_base_url || "";
+      toggleBaseUrl(activeModel);
       updateModelButtons();
+    }
+
+    function toggleBaseUrl(model) {
+      const wrap = document.getElementById("claude-base-url-wrap");
+      wrap.style.display = model === "claude" ? "block" : "none";
     }
 
     async function loadStats() {
@@ -149,6 +162,7 @@
 
     async function setModel(model) {
       activeModel = model;
+      toggleBaseUrl(model);
       updateModelButtons();
       await fetch("/api/config", {
         method: "POST",
@@ -159,10 +173,11 @@
 
     async function saveConfig() {
       const system_prompt = document.getElementById("system-prompt").value;
+      const claude_base_url = document.getElementById("claude-base-url").value;
       await fetch("/api/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active_model: activeModel, system_prompt }),
+        body: JSON.stringify({ active_model: activeModel, system_prompt, claude_base_url }),
       });
       const msg = document.getElementById("save-msg");
       msg.classList.remove("hidden");

@@ -39,6 +39,7 @@ async function initDb() {
   const defaults = {
     active_model: "gemini",
     system_prompt: "You are a helpful assistant.",
+    claude_base_url: process.env.CLAUDE_BASE_URL || "",
   };
   for (const [key, value] of Object.entries(defaults)) {
     await pool.execute(

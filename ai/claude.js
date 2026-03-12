@@ -1,12 +1,13 @@
 const Anthropic = require("@anthropic-ai/sdk");
+const { getConfig } = require("../db");
 
-const client = new Anthropic({
-  apiKey: process.env.CLAUDE_KEY,
-  baseURL: process.env.CLAUDE_BASE_URL || undefined,
-});
+function getClient() {
+  const baseURL = getConfig("claude_base_url") || process.env.CLAUDE_BASE_URL || undefined;
+  return new Anthropic({ apiKey: process.env.CLAUDE_KEY, baseURL });
+}
 
 async function askClaude(messages, systemPrompt) {
-  const response = await client.messages.create({
+  const response = await getClient().messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 1024,
     system: systemPrompt,

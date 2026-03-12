@@ -51,13 +51,15 @@ function startDashboard() {
     res.json({
       active_model: getConfig("active_model"),
       system_prompt: getConfig("system_prompt"),
+      claude_base_url: getConfig("claude_base_url"),
     });
   });
 
   app.post("/api/config", auth, async (req, res) => {
-    const { active_model, system_prompt } = req.body;
+    const { active_model, system_prompt, claude_base_url } = req.body;
     if (active_model) await setConfig("active_model", active_model);
     if (system_prompt !== undefined) await setConfig("system_prompt", system_prompt);
+    if (claude_base_url !== undefined) await setConfig("claude_base_url", claude_base_url);
     res.json({ ok: true });
   });
 
