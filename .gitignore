@@ -3,18 +3,356 @@
 !.gitignore
 !README.md
 !.github/
+!app.js
+!package.json
+!CLAUDE.md
+.env
 
-# Only track the custom theme
-!wp-content/
-wp-content/*
-!wp-content/themes/
-wp-content/themes/*
-!wp-content/themes/hpthemes/
-
-# Ignore CLAUDE.md and Claude AI files
+# ============================================================
+# Claude AI files
+# ============================================================
 CLAUDE.md
 .claude/
 
-# Misc
+# ============================================================
+# OS
+# ============================================================
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encdata
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================
+# IDE / Editors
+# ============================================================
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains (PhpStorm, WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim / Neovim
+*.swp
+*.swo
+*~
+.netrwhist
+Session.vim
+.vim/
+
+# Emacs
+*~
+\#*\#
+.\#*
+.emacs.desktop
+.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+
+# TextMate
+*.tmproj
+*.tmproject
+.tmtags
+
+# ============================================================
+# Logs & Debug
+# ============================================================
+logs/
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+debug.log
+error.log
+
+# ============================================================
+# Environment & Secrets
+# ============================================================
+.env
+.env.*
+!.env.example
+!.env.sample
+*.key
+*.pem
+*.p12
+*.pfx
+*.secret
+*.secrets
+.secrets/
+secrets/
+credentials/
+*.credentials
+
+# ============================================================
+# AI / ML
+# ============================================================
+# Model files
+*.model
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+*.onnx
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.gguf
+*.ggml
+*.q4_0
+*.q4_1
+*.q8_0
+models/
+checkpoints/
+
+# Datasets
+data/
+datasets/
+*.csv
+*.tsv
+*.jsonl
+*.parquet
+*.arrow
+*.feather
+
+# Vector stores / embeddings
+chroma/
+faiss/
+pinecone/
+weaviate/
+qdrant/
+milvus/
+embeddings/
+vector_store/
+
+# LLM cache
+.cache/
+llm_cache/
+langchain_cache/
+.langchain/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+profile_default/
+ipython_config.py
+
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+venv/
+.venv/
+env/
+.env/
+ENV/
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+share/python-wheels/
+*.manifest
+*.spec
+.installed.cfg
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pytestdebug.log
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
+
+# ============================================================
+# PHP
+# ============================================================
+vendor/
+composer.lock
+.phpunit.result.cache
+.phpunit.cache/
+*.phar
+
+# ============================================================
+# Ruby
+# ============================================================
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+.bundle/
+vendor/bundle
+.byebug_history
+
+# ============================================================
+# Java / Kotlin
+# ============================================================
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+target/
+.mvn/
+hs_err_pid*
+replay_pid*
+
+# ============================================================
+# Go
+# ============================================================
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.sum
+
+# ============================================================
+# Rust
+# ============================================================
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# ============================================================
+# Docker
+# ============================================================
+.docker/
+docker-compose.override.yml
+
+# ============================================================
+# Terraform / Infrastructure
+# ============================================================
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# ============================================================
+# Database
+# ============================================================
+*.sqlite
+*.sqlite3
+*.db
+*.mdb
+*.accdb
+dump.sql
+*.dump
+
+# ============================================================
+# Build outputs
+# ============================================================
+dist/
+build/
+out/
+.output/
+.next/
+.nuxt/
+.svelte-kit/
+public/build/
+
+# ============================================================
+# Temp / Cache
+# ============================================================
+tmp/
+temp/
+.temp/
+.tmp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.swp
+
+# ============================================================
+# Misc
+# ============================================================
 .ftpquota
+.htpasswd
+*.pid
+*.seed
+*.pid.lock
+.grunt/
+.lock-wscript
+.node_repl_history
+.yarn-integrity
