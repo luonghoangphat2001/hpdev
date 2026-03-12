@@ -6,7 +6,7 @@ const { getConfig, saveMessage, getHistory } = require("../db");
 function startBot() {
   const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-  client.on("ready", () => {
+  client.on("clientReady", () => {
     console.log(`Bot online: ${client.user.tag}`);
   });
 
