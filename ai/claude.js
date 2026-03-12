@@ -1,6 +1,9 @@
 const Anthropic = require("@anthropic-ai/sdk");
 
-const client = new Anthropic({ apiKey: process.env.CLAUDE_KEY });
+const client = new Anthropic({
+  apiKey: process.env.CLAUDE_KEY,
+  baseURL: process.env.CLAUDE_BASE_URL || undefined,
+});
 
 async function askClaude(messages, systemPrompt) {
   const response = await client.messages.create({
