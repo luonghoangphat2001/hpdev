@@ -1,22 +1,29 @@
 require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
+const key = process.env.GEMINI_KEY;
+if (!key) { console.error("GEMINI_KEY not set"); process.exit(1); }
 
 async function main() {
   console.log("🔍 Listing available Gemini models...\n");
 
-  const { models } = await genAI.listModels();
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`
+  );
+  const data = await res.json();
 
-  for (const model of models) {
+  if (!res.ok) {
+    console.error("API Error:", data);
+    return;
+  }
+
+  for (const model of data.models || []) {
     const supportChat = model.supportedGenerationMethods?.includes("generateContent");
-    if (supportChat) {
-      console.log(`✅ ${model.name}`);
-      console.log(`   Display: ${model.displayName}`);
-      console.log(`   Input tokens: ${model.inputTokenLimit}`);
-      console.log(`   Output tokens: ${model.outputTokenLimit}`);
-      console.log();
-    }
+    if (!supportChat) continue;
+    console.log(`✅ ${model.name}`);
+    console.log(`   Display    : ${model.displayName}`);
+    console.log(`   Input limit: ${model.inputTokenLimit} tokens`);
+    console.log(`   Output limit: ${model.outputTokenLimit} tokens`);
+    console.log();
   }
 }
 
