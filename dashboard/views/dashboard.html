@@ -19,12 +19,119 @@
     </form>
   </header>
 
-  <main class="max-w-5xl mx-auto px-6 py-8 space-y-8">
+  <!-- Tabs -->
+  <div class="bg-gray-800 border-b border-gray-700 px-6">
+    <div class="flex gap-1 max-w-5xl mx-auto">
+      <button onclick="switchTab('chat')" id="tab-chat"
+        class="tab-btn px-5 py-3 text-sm font-semibold border-b-2 transition">💬 Chat</button>
+      <button onclick="switchTab('config')" id="tab-config"
+        class="tab-btn px-5 py-3 text-sm font-semibold border-b-2 transition">⚙️ Config</button>
+      <button onclick="switchTab('history')" id="tab-history"
+        class="tab-btn px-5 py-3 text-sm font-semibold border-b-2 transition">📜 History</button>
+      <button onclick="switchTab('stats')" id="tab-stats"
+        class="tab-btn px-5 py-3 text-sm font-semibold border-b-2 transition">📊 Stats</button>
+    </div>
+  </div>
 
-    <!-- Stats -->
-    <section>
-      <h2 class="text-lg font-semibold mb-4 text-gray-300">📊 Statistics</h2>
-      <div class="grid grid-cols-3 gap-4" id="stats">
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <!-- TAB: CHAT -->
+    <div id="pane-chat" class="tab-pane space-y-4">
+      <!-- Model selector for chat -->
+      <div class="flex items-center gap-3">
+        <span class="text-sm text-gray-400">Model:</span>
+        <button onclick="setChatModel('gemini')" id="chat-btn-gemini"
+          class="px-4 py-1.5 rounded-lg text-sm font-semibold border-2 transition">🌟 Gemini</button>
+        <button onclick="setChatModel('claude')" id="chat-btn-claude"
+          class="px-4 py-1.5 rounded-lg text-sm font-semibold border-2 transition">✳️ Claude</button>
+        <span id="chat-model-badge" class="ml-auto text-xs px-3 py-1 rounded-full bg-indigo-900 text-indigo-300"></span>
+      </div>
+
+      <!-- Chat window -->
+      <div id="chat-window"
+        class="bg-gray-800 rounded-xl p-4 h-96 overflow-y-auto space-y-3 flex flex-col">
+        <p class="text-gray-500 text-sm text-center m-auto">Bắt đầu hội thoại...</p>
+      </div>
+
+      <!-- Input -->
+      <div class="flex gap-3">
+        <input id="chat-input" type="text" placeholder="Nhập câu hỏi..."
+          class="flex-1 px-4 py-3 bg-gray-800 rounded-xl border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm"
+          onkeydown="if(event.key==='Enter')sendChat()" />
+        <button onclick="sendChat()" id="chat-send"
+          class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold text-sm transition">Send</button>
+      </div>
+    </div>
+
+    <!-- TAB: CONFIG -->
+    <div id="pane-config" class="tab-pane hidden space-y-6">
+
+      <!-- Default model -->
+      <div class="bg-gray-800 rounded-xl p-6">
+        <h2 class="text-lg font-semibold mb-1 text-gray-300">🤖 Default Model</h2>
+        <p class="text-xs text-gray-500 mb-4">Model mặc định dùng cho Discord bot và chat web</p>
+        <div class="flex gap-3">
+          <button onclick="setDefaultModel('gemini')" id="btn-gemini"
+            class="flex-1 py-4 rounded-xl font-semibold border-2 transition text-sm">
+            🌟 Gemini 2.5 Flash
+          </button>
+          <button onclick="setDefaultModel('claude')" id="btn-claude"
+            class="flex-1 py-4 rounded-xl font-semibold border-2 transition text-sm">
+            ✳️ Claude Sonnet
+          </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-3">Đang dùng: <span id="current-model-label" class="text-indigo-400 font-semibold"></span></p>
+      </div>
+
+      <!-- Claude Base URL -->
+      <div class="bg-gray-800 rounded-xl p-6" id="claude-base-url-wrap">
+        <h2 class="text-lg font-semibold mb-1 text-gray-300">🔗 Claude Base URL</h2>
+        <p class="text-xs text-gray-500 mb-4">Proxy endpoint cho Claude API</p>
+        <input type="url" id="claude-base-url" placeholder="https://proxy-api.example.com/"
+          class="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm" />
+      </div>
+
+      <!-- System Prompt -->
+      <div class="bg-gray-800 rounded-xl p-6">
+        <h2 class="text-lg font-semibold mb-1 text-gray-300">📝 System Prompt</h2>
+        <p class="text-xs text-gray-500 mb-4">Hướng dẫn persona cho AI bot</p>
+        <textarea id="system-prompt" rows="5"
+          class="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none resize-none text-sm"></textarea>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="saveConfig()"
+          class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold text-sm transition">
+          💾 Save Config
+        </button>
+        <span id="save-msg" class="text-sm text-green-400 hidden">✓ Saved!</span>
+      </div>
+
+      <!-- Change password -->
+      <div class="bg-gray-800 rounded-xl p-6">
+        <h2 class="text-lg font-semibold mb-4 text-gray-300">🔑 Change Password</h2>
+        <div class="flex gap-3">
+          <input type="password" id="new-password" placeholder="New password (min 6 chars)"
+            class="flex-1 px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm" />
+          <button onclick="changePassword()"
+            class="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-semibold transition">Update</button>
+        </div>
+        <p id="pw-msg" class="mt-2 text-sm hidden"></p>
+      </div>
+    </div>
+
+    <!-- TAB: HISTORY -->
+    <div id="pane-history" class="tab-pane hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-300">Discord Conversation History</h2>
+        <button onclick="loadHistory()" class="text-sm text-indigo-400 hover:text-indigo-300">↻ Refresh</button>
+      </div>
+      <div id="history" class="space-y-2 text-sm"></div>
+    </div>
+
+    <!-- TAB: STATS -->
+    <div id="pane-stats" class="tab-pane hidden">
+      <div class="grid grid-cols-3 gap-4 mb-6">
         <div class="bg-gray-800 rounded-xl p-5 text-center">
           <div class="text-3xl font-bold text-indigo-400" id="stat-total">—</div>
           <div class="text-sm text-gray-400 mt-1">Total Messages</div>
@@ -34,150 +141,80 @@
           <div class="text-sm text-gray-400 mt-1">Today</div>
         </div>
         <div class="bg-gray-800 rounded-xl p-5 text-center">
-          <div class="text-3xl font-bold text-yellow-400" id="stat-model">—</div>
+          <div class="text-3xl font-bold text-yellow-400" id="stat-model-name">—</div>
           <div class="text-sm text-gray-400 mt-1">Active Model</div>
         </div>
       </div>
-    </section>
-
-    <!-- Model + System Prompt -->
-    <section class="bg-gray-800 rounded-xl p-6">
-      <h2 class="text-lg font-semibold mb-5 text-gray-300">⚙️ Configuration</h2>
-
-      <div class="mb-5">
-        <label class="block text-sm text-gray-400 mb-2">AI Model</label>
-        <div class="flex gap-3">
-          <button onclick="setModel('gemini')" id="btn-gemini"
-            class="flex-1 py-3 rounded-lg font-semibold border-2 transition text-sm">
-            🌟 Gemini 2.5 Flash
-          </button>
-          <button onclick="setModel('claude')" id="btn-claude"
-            class="flex-1 py-3 rounded-lg font-semibold border-2 transition text-sm">
-            ✳️ Claude Sonnet
-          </button>
-        </div>
+      <div class="bg-gray-800 rounded-xl p-6">
+        <h3 class="text-sm font-semibold text-gray-400 mb-3">Messages by Model</h3>
+        <div id="stat-by-model" class="space-y-2"></div>
       </div>
-
-      <div class="mb-5" id="claude-base-url-wrap">
-        <label class="block text-sm text-gray-400 mb-2">Claude Base URL <span class="text-gray-500 font-normal">(proxy endpoint)</span></label>
-        <input type="url" id="claude-base-url" placeholder="https://proxy-api.example.com/"
-          class="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm" />
-      </div>
-
-      <div class="mb-5">
-        <label class="block text-sm text-gray-400 mb-2">System Prompt</label>
-        <textarea id="system-prompt" rows="4"
-          class="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none resize-none text-sm"></textarea>
-      </div>
-
-      <button onclick="saveConfig()"
-        class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold text-sm transition">
-        Save Changes
-      </button>
-      <span id="save-msg" class="ml-3 text-sm text-green-400 hidden">✓ Saved!</span>
-    </section>
-
-    <!-- Conversation History -->
-    <section class="bg-gray-800 rounded-xl p-6">
-      <div class="flex items-center justify-between mb-5">
-        <h2 class="text-lg font-semibold text-gray-300">💬 Conversation History</h2>
-        <button onclick="loadHistory()" class="text-sm text-indigo-400 hover:text-indigo-300">Refresh</button>
-      </div>
-      <div id="history" class="space-y-2 max-h-96 overflow-y-auto text-sm"></div>
-    </section>
-
-    <!-- Change Password -->
-    <section class="bg-gray-800 rounded-xl p-6">
-      <h2 class="text-lg font-semibold mb-5 text-gray-300">🔑 Change Password</h2>
-      <div class="flex gap-3">
-        <input type="password" id="new-password" placeholder="New password (min 6 chars)"
-          class="flex-1 px-4 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm" />
-        <button onclick="changePassword()"
-          class="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-semibold transition">
-          Update
-        </button>
-      </div>
-      <p id="pw-msg" class="mt-2 text-sm hidden"></p>
-    </section>
+    </div>
 
   </main>
 
   <script>
     let activeModel = "gemini";
+    let chatModel = "gemini";
 
+    // ── Tabs ──────────────────────────────────────────────
+    function switchTab(name) {
+      document.querySelectorAll(".tab-pane").forEach(p => p.classList.add("hidden"));
+      document.querySelectorAll(".tab-btn").forEach(b => {
+        b.classList.remove("border-indigo-500", "text-white");
+        b.classList.add("border-transparent", "text-gray-400");
+      });
+      document.getElementById("pane-" + name).classList.remove("hidden");
+      const btn = document.getElementById("tab-" + name);
+      btn.classList.add("border-indigo-500", "text-white");
+      btn.classList.remove("border-transparent", "text-gray-400");
+
+      if (name === "history") loadHistory();
+      if (name === "stats") loadStats();
+    }
+
+    // ── Config ────────────────────────────────────────────
     async function loadConfig() {
       const res = await fetch("/api/config");
       const data = await res.json();
-      activeModel = data.active_model;
+      activeModel = data.active_model || "gemini";
+      chatModel = activeModel;
       document.getElementById("system-prompt").value = data.system_prompt || "";
       document.getElementById("claude-base-url").value = data.claude_base_url || "";
-      toggleBaseUrl(activeModel);
-      updateModelButtons();
+      updateDefaultModelUI();
+      updateChatModelUI();
     }
 
-    function toggleBaseUrl(model) {
-      const wrap = document.getElementById("claude-base-url-wrap");
-      wrap.style.display = model === "claude" ? "block" : "none";
+    function updateDefaultModelUI() {
+      const btnG = document.getElementById("btn-gemini");
+      const btnC = document.getElementById("btn-claude");
+      const label = document.getElementById("current-model-label");
+      const active = activeModel === "claude";
+      btnC.className = `flex-1 py-4 rounded-xl font-semibold border-2 transition text-sm ${active ? "border-indigo-500 bg-indigo-900 text-white" : "border-gray-600 text-gray-400"}`;
+      btnG.className = `flex-1 py-4 rounded-xl font-semibold border-2 transition text-sm ${!active ? "border-indigo-500 bg-indigo-900 text-white" : "border-gray-600 text-gray-400"}`;
+      label.textContent = activeModel === "claude" ? "✳️ Claude Sonnet" : "🌟 Gemini 2.5 Flash";
+      document.getElementById("claude-base-url-wrap").style.display = activeModel === "claude" ? "block" : "none";
     }
 
-    async function loadStats() {
-      const res = await fetch("/api/stats");
-      const data = await res.json();
-      document.getElementById("stat-total").textContent = data.total;
-      document.getElementById("stat-today").textContent = data.today;
-      document.getElementById("stat-model").textContent = activeModel === "claude" ? "Claude" : "Gemini";
-    }
-
-    async function loadHistory() {
-      const res = await fetch("/api/history?limit=50");
-      const data = await res.json();
-      const container = document.getElementById("history");
-      if (!data.length) {
-        container.innerHTML = '<p class="text-gray-500 text-center py-4">No messages yet.</p>';
-        return;
-      }
-      container.innerHTML = data.map((m) => `
-        <div class="flex gap-3 p-3 rounded-lg ${m.role === "user" ? "bg-gray-700" : "bg-gray-750"}">
-          <span class="shrink-0 font-semibold ${m.role === "user" ? "text-blue-400" : "text-green-400"}">
-            ${m.role === "user" ? "👤 " + m.username : "🤖 Bot"}
-          </span>
-          <span class="text-gray-300 break-words min-w-0">${escapeHtml(m.content)}</span>
-          <span class="ml-auto shrink-0 text-gray-500 text-xs">${new Date(m.created_at).toLocaleString()}</span>
-        </div>
-      `).join("");
-    }
-
-    function updateModelButtons() {
-      const btnGemini = document.getElementById("btn-gemini");
-      const btnClaude = document.getElementById("btn-claude");
-      if (activeModel === "claude") {
-        btnClaude.className = "flex-1 py-3 rounded-lg font-semibold border-2 transition text-sm border-indigo-500 bg-indigo-900 text-white";
-        btnGemini.className = "flex-1 py-3 rounded-lg font-semibold border-2 transition text-sm border-gray-600 text-gray-400";
-      } else {
-        btnGemini.className = "flex-1 py-3 rounded-lg font-semibold border-2 transition text-sm border-indigo-500 bg-indigo-900 text-white";
-        btnClaude.className = "flex-1 py-3 rounded-lg font-semibold border-2 transition text-sm border-gray-600 text-gray-400";
-      }
-      document.getElementById("stat-model").textContent = activeModel === "claude" ? "Claude" : "Gemini";
-    }
-
-    async function setModel(model) {
+    async function setDefaultModel(model) {
       activeModel = model;
-      toggleBaseUrl(model);
-      updateModelButtons();
+      chatModel = model;
+      updateDefaultModelUI();
+      updateChatModelUI();
       await fetch("/api/config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ active_model: model }),
       });
     }
 
     async function saveConfig() {
-      const system_prompt = document.getElementById("system-prompt").value;
-      const claude_base_url = document.getElementById("claude-base-url").value;
       await fetch("/api/config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active_model: activeModel, system_prompt, claude_base_url }),
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          active_model: activeModel,
+          system_prompt: document.getElementById("system-prompt").value,
+          claude_base_url: document.getElementById("claude-base-url").value,
+        }),
       });
       const msg = document.getElementById("save-msg");
       msg.classList.remove("hidden");
@@ -188,29 +225,126 @@
       const password = document.getElementById("new-password").value;
       const msgEl = document.getElementById("pw-msg");
       const res = await fetch("/api/password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
       const data = await res.json();
-      msgEl.classList.remove("hidden", "text-red-400", "text-green-400");
-      if (data.ok) {
-        msgEl.textContent = "✓ Password updated!";
-        msgEl.classList.add("text-green-400");
-        document.getElementById("new-password").value = "";
-      } else {
-        msgEl.textContent = "✗ " + (data.error || "Failed");
-        msgEl.classList.add("text-red-400");
+      msgEl.className = "mt-2 text-sm " + (data.ok ? "text-green-400" : "text-red-400");
+      msgEl.textContent = data.ok ? "✓ Password updated!" : "✗ " + (data.error || "Failed");
+      msgEl.classList.remove("hidden");
+    }
+
+    // ── Chat ──────────────────────────────────────────────
+    function updateChatModelUI() {
+      const btnG = document.getElementById("chat-btn-gemini");
+      const btnC = document.getElementById("chat-btn-claude");
+      const badge = document.getElementById("chat-model-badge");
+      const isClaude = chatModel === "claude";
+      btnC.className = `px-4 py-1.5 rounded-lg text-sm font-semibold border-2 transition ${isClaude ? "border-indigo-500 bg-indigo-900 text-white" : "border-gray-600 text-gray-400"}`;
+      btnG.className = `px-4 py-1.5 rounded-lg text-sm font-semibold border-2 transition ${!isClaude ? "border-indigo-500 bg-indigo-900 text-white" : "border-gray-600 text-gray-400"}`;
+      badge.textContent = isClaude ? "✳️ Claude Sonnet" : "🌟 Gemini 2.5 Flash";
+    }
+
+    function setChatModel(model) {
+      chatModel = model;
+      updateChatModelUI();
+    }
+
+    function appendMessage(role, text) {
+      const win = document.getElementById("chat-window");
+      const isEmpty = win.querySelector("p.text-gray-500");
+      if (isEmpty) isEmpty.remove();
+
+      const div = document.createElement("div");
+      div.className = `flex gap-2 ${role === "user" ? "justify-end" : "justify-start"}`;
+      div.innerHTML = `
+        <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap
+          ${role === "user" ? "bg-indigo-600 text-white rounded-br-sm" : "bg-gray-700 text-gray-100 rounded-bl-sm"}">
+          ${escapeHtml(text)}
+        </div>`;
+      win.appendChild(div);
+      win.scrollTop = win.scrollHeight;
+    }
+
+    async function sendChat() {
+      const input = document.getElementById("chat-input");
+      const message = input.value.trim();
+      if (!message) return;
+
+      input.value = "";
+      appendMessage("user", message);
+
+      const sendBtn = document.getElementById("chat-send");
+      sendBtn.disabled = true;
+      sendBtn.textContent = "...";
+
+      // Typing indicator
+      const typing = document.createElement("div");
+      typing.id = "typing";
+      typing.className = "flex gap-2 justify-start";
+      typing.innerHTML = `<div class="px-4 py-2.5 rounded-2xl bg-gray-700 text-gray-400 text-sm rounded-bl-sm">⏳ Đang xử lý...</div>`;
+      document.getElementById("chat-window").appendChild(typing);
+      document.getElementById("chat-window").scrollTop = 9999;
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, model: chatModel }),
+        });
+        const data = await res.json();
+        typing.remove();
+        appendMessage("assistant", data.response || data.error || "Error");
+      } catch {
+        typing.remove();
+        appendMessage("assistant", "❌ Lỗi kết nối server");
       }
+
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Send";
+      input.focus();
+    }
+
+    // ── History ───────────────────────────────────────────
+    async function loadHistory() {
+      const res = await fetch("/api/history?limit=50");
+      const data = await res.json();
+      const container = document.getElementById("history");
+      if (!data.length) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-8">Chưa có tin nhắn nào.</p>';
+        return;
+      }
+      container.innerHTML = data.map(m => `
+        <div class="flex gap-3 p-3 rounded-lg bg-gray-800">
+          <span class="shrink-0 font-semibold ${m.role === "user" ? "text-blue-400" : "text-green-400"}">
+            ${m.role === "user" ? "👤 " + m.username : "🤖 Bot"}
+          </span>
+          <span class="text-gray-300 break-words min-w-0 text-sm">${escapeHtml(m.content)}</span>
+          <span class="ml-auto shrink-0 text-gray-500 text-xs whitespace-nowrap">${new Date(m.created_at).toLocaleString()}</span>
+        </div>`).join("");
+    }
+
+    // ── Stats ─────────────────────────────────────────────
+    async function loadStats() {
+      const res = await fetch("/api/stats");
+      const data = await res.json();
+      document.getElementById("stat-total").textContent = data.total;
+      document.getElementById("stat-today").textContent = data.today;
+      document.getElementById("stat-model-name").textContent = activeModel === "claude" ? "Claude" : "Gemini";
+      document.getElementById("stat-by-model").innerHTML = data.byModel.map(m =>
+        `<div class="flex justify-between text-sm py-1 border-b border-gray-700">
+          <span class="text-gray-300">${m.model || "unknown"}</span>
+          <span class="text-indigo-400 font-semibold">${m.count} msgs</span>
+        </div>`
+      ).join("") || '<p class="text-gray-500 text-sm">Chưa có dữ liệu.</p>';
     }
 
     function escapeHtml(str) {
-      return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+      return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     }
 
     // Init
-    loadConfig().then(() => loadStats());
-    loadHistory();
+    switchTab("chat");
+    loadConfig();
   </script>
 </body>
 </html>

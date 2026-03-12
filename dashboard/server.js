@@ -3,6 +3,8 @@ const session = require("express-session");
 const bcrypt = require("bcryptjs");
 const path = require("path");
 const { getConfig, setConfig, getAllHistory, getStats } = require("../db");
+const { askClaude } = require("../ai/claude");
+const { askGemini } = require("../ai/gemini");
 
 function startDashboard() {
   const app = express();
@@ -71,6 +73,24 @@ function startDashboard() {
 
   app.get("/api/stats", auth, async (_req, res) => {
     res.json(await getStats());
+  });
+
+  app.post("/api/chat", auth, async (req, res) => {
+    const { message, model } = req.body;
+    if (!message) return res.status(400).json({ error: "No message" });
+
+    const activeModel = model || getConfig("active_model") || "gemini";
+    const systemPrompt = getConfig("system_prompt") || "You are a helpful assistant.";
+
+    try {
+      const response =
+        activeModel === "claude"
+          ? await askClaude([{ role: "user", content: message }], systemPrompt)
+          : await askGemini([{ role: "user", content: message }], systemPrompt);
+      res.json({ response, model: activeModel });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   });
 
   app.post("/api/password", auth, async (req, res) => {
