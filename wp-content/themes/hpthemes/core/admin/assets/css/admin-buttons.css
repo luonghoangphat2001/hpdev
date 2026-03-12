@@ -1,0 +1,75 @@
+.hp-row.wrap-sticky .hp-col-xl {
+    height: 100%;
+}
+
+.hp-row.wrap-sticky .col-sticky {
+    position: -webkit-sticky; 
+    position: sticky;
+    top: 0;
+    align-self: flex-start; 
+    top: 120px;
+    margin-bottom: 0rem;
+}
+
+.hp--adminPreview .admin-preview-buttons {
+    margin-bottom: 3rem;
+    margin-left: 2rem;
+}
+
+.admin-preview-buttons.preview-disabled,
+.admin-preview-buttons.preview-disabled a {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.hp-filter-admin .box-field-radio .box-field-content .radio-text label, 
+.hp-filter-admin .box-field-checkbox .box-field-content .checkbox-text label {
+    line-height: 1.1;
+}
+
+.hp--adminPreview .hp-card {
+    background: #000;
+}
+
+.hp--adminPreview .admin-preview-buttons {
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0;
+    margin-left: 0;
+}
+
+.hp--adminPreview .card-title {
+    color: #ffffff;
+}
+
+.hp--adminPreview .preview-bottom {
+    display: block;
+    width: 50px;
+    height: 30px;
+    background: #000;
+    margin: 0 auto;
+    position: relative;
+}
+
+.hp--adminPreview .preview-bottom:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 200%;
+    left: 0;
+    right: 0;
+    height: 9px;
+    background: #000;
+    margin-left: -50%;
+}
+
+.hp--adminPreview .hp-call-buttons {
+    height: 17.2rem;
+    overflow-y: auto;
+}
+
+.hp--adminPreview .support-content, 
+.hp--adminPreview .btn-support {
+    margin-left: 2rem;
+}

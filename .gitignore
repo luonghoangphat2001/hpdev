@@ -1,0 +1,19 @@
+# Ignore everything
+/*
+!.gitignore
+!README.md
+
+# Only track the custom theme
+!wp-content/
+wp-content/*
+!wp-content/themes/
+wp-content/themes/*
+!wp-content/themes/hpthemes/
+
+# Ignore CLAUDE.md and Claude AI files
+CLAUDE.md
+.claude/
+
+# Misc
+.DS_Store
+.ftpquota
