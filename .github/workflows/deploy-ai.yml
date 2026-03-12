@@ -23,4 +23,5 @@ jobs:
             git pull origin ai
             source ~/nodevenv/ai.hpdev.name.vn/19/bin/activate
             npm install
+            which pm2 || npm install -g pm2
             pm2 restart app || pm2 start app.js --name app
