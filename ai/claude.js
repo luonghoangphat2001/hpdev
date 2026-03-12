@@ -7,8 +7,10 @@ function getClient() {
 }
 
 async function askClaude(messages, systemPrompt) {
+  const model = getConfig("claude_model") || "claude-sonnet-4-6";
+
   const response = await getClient().messages.create({
-    model: "claude-sonnet-4-6",
+    model,
     max_tokens: 1024,
     system: systemPrompt,
     messages: messages.map((m) => ({ role: m.role, content: m.content })),

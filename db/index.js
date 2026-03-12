@@ -40,6 +40,8 @@ async function initDb() {
     active_model: "gemini",
     system_prompt: "You are a helpful assistant.",
     claude_base_url: process.env.CLAUDE_BASE_URL || "",
+    gemini_model: "models/gemini-2.5-flash",
+    claude_model: "claude-sonnet-4-6",
   };
   for (const [key, value] of Object.entries(defaults)) {
     await pool.execute(

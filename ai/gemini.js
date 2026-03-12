@@ -1,10 +1,13 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { getConfig } = require("../db");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
 
 async function askGemini(messages, systemPrompt) {
+  const modelName = getConfig("gemini_model") || "models/gemini-2.5-flash";
+
   const model = genAI.getGenerativeModel({
-    model: "models/gemini-2.5-flash",
+    model: modelName,
     systemInstruction: systemPrompt,
   });
 

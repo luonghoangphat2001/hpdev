@@ -54,14 +54,18 @@ function startDashboard() {
       active_model: getConfig("active_model"),
       system_prompt: getConfig("system_prompt"),
       claude_base_url: getConfig("claude_base_url"),
+      gemini_model: getConfig("gemini_model"),
+      claude_model: getConfig("claude_model"),
     });
   });
 
   app.post("/api/config", auth, async (req, res) => {
-    const { active_model, system_prompt, claude_base_url } = req.body;
+    const { active_model, system_prompt, claude_base_url, gemini_model, claude_model } = req.body;
     if (active_model) await setConfig("active_model", active_model);
     if (system_prompt !== undefined) await setConfig("system_prompt", system_prompt);
     if (claude_base_url !== undefined) await setConfig("claude_base_url", claude_base_url);
+    if (gemini_model) await setConfig("gemini_model", gemini_model);
+    if (claude_model) await setConfig("claude_model", claude_model);
     res.json({ ok: true });
   });
 
