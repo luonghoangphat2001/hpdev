@@ -6,6 +6,12 @@
 !app.js
 !package.json
 !CLAUDE.md
+!.env.example
+!bot/
+!ai/
+!db/
+!dashboard/
+db/*.db
 .env
 
 # ============================================================
