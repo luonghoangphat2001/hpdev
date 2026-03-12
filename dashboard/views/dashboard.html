@@ -291,12 +291,17 @@
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message, model: chatModel }),
         });
-        const data = await res.json();
+        const text = await res.text();
         typing.remove();
-        appendMessage("assistant", data.response || data.error || "Error");
-      } catch {
+        try {
+          const data = JSON.parse(text);
+          appendMessage("assistant", data.response || ("❌ " + (data.error || "Unknown error")));
+        } catch {
+          appendMessage("assistant", "❌ Server error: " + text.substring(0, 200));
+        }
+      } catch (err) {
         typing.remove();
-        appendMessage("assistant", "❌ Lỗi kết nối server");
+        appendMessage("assistant", "❌ " + err.message);
       }
 
       sendBtn.disabled = false;
