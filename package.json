@@ -4,7 +4,8 @@
   "description": "Discord AI Bot with Claude & Gemini support",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "register": "node scripts/register.js"
   },
   "keywords": [],
   "author": "",
@@ -13,10 +14,10 @@
     "@anthropic-ai/sdk": "^0.30.0",
     "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^9.4.0",
     "discord.js": "^14.15.0",
     "dotenv": "^16.0.0",
     "express": "^4.18.0",
-    "express-session": "^1.17.0"
+    "express-session": "^1.17.0",
+    "sqlite3": "^5.1.7"
   }
 }

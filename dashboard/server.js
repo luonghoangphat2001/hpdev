@@ -39,44 +39,43 @@ function startDashboard() {
     res.redirect("/?error=1");
   });
 
-  app.post("/logout", (req, res) => {
-    req.session.destroy();
+  app.post("/logout", (_req, res) => {
     res.redirect("/");
   });
 
-  app.get("/dashboard", auth, (req, res) => {
+  app.get("/dashboard", auth, (_req, res) => {
     res.sendFile(path.join(__dirname, "views/dashboard.html"));
   });
 
-  app.get("/api/config", auth, (req, res) => {
+  app.get("/api/config", auth, (_req, res) => {
     res.json({
       active_model: getConfig("active_model"),
       system_prompt: getConfig("system_prompt"),
     });
   });
 
-  app.post("/api/config", auth, (req, res) => {
+  app.post("/api/config", auth, async (req, res) => {
     const { active_model, system_prompt } = req.body;
-    if (active_model) setConfig("active_model", active_model);
-    if (system_prompt !== undefined) setConfig("system_prompt", system_prompt);
+    if (active_model) await setConfig("active_model", active_model);
+    if (system_prompt !== undefined) await setConfig("system_prompt", system_prompt);
     res.json({ ok: true });
   });
 
-  app.get("/api/history", auth, (req, res) => {
+  app.get("/api/history", auth, async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 50, 200);
     const offset = parseInt(req.query.offset) || 0;
-    res.json(getAllHistory(limit, offset));
+    res.json(await getAllHistory(limit, offset));
   });
 
-  app.get("/api/stats", auth, (req, res) => {
-    res.json(getStats());
+  app.get("/api/stats", auth, async (_req, res) => {
+    res.json(await getStats());
   });
 
-  app.post("/api/password", auth, (req, res) => {
+  app.post("/api/password", auth, async (req, res) => {
     const { password } = req.body;
     if (!password || password.length < 6)
       return res.status(400).json({ error: "Password must be at least 6 characters" });
-    setConfig("dashboard_password", bcrypt.hashSync(password, 10));
+    await setConfig("dashboard_password", bcrypt.hashSync(password, 10));
     res.json({ ok: true });
   });
 

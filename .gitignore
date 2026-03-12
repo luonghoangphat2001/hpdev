@@ -11,6 +11,7 @@
 !ai/
 !db/
 !dashboard/
+!scripts/
 db/*.db
 .env
 

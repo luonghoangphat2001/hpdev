@@ -1,11 +1,36 @@
-const Database = require("better-sqlite3");
+const sqlite3 = require("sqlite3").verbose();
 const bcrypt = require("bcryptjs");
 const path = require("path");
 
-const db = new Database(path.join(__dirname, "data.db"));
+const dbPath = path.join(__dirname, "data.db");
+const db = new sqlite3.Database(dbPath);
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS conversations (
+// Helper: run query
+const run = (sql, params = []) =>
+  new Promise((resolve, reject) =>
+    db.run(sql, params, function (err) {
+      if (err) reject(err);
+      else resolve(this);
+    })
+  );
+
+// Helper: get one row
+const get = (sql, params = []) =>
+  new Promise((resolve, reject) =>
+    db.get(sql, params, (err, row) => (err ? reject(err) : resolve(row)))
+  );
+
+// Helper: get all rows
+const all = (sql, params = []) =>
+  new Promise((resolve, reject) =>
+    db.all(sql, params, (err, rows) => (err ? reject(err) : resolve(rows)))
+  );
+
+// Sync wrappers using shared in-memory cache for config (fast reads)
+const configCache = {};
+
+async function initDb() {
+  await run(`CREATE TABLE IF NOT EXISTS conversations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     channel_id TEXT NOT NULL,
     user_id TEXT NOT NULL,
@@ -14,62 +39,74 @@ db.exec(`
     content TEXT NOT NULL,
     model TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+  )`);
 
-  CREATE TABLE IF NOT EXISTS config (
+  await run(`CREATE TABLE IF NOT EXISTS config (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
-  );
-`);
+  )`);
+
+  // Load defaults
+  const defaults = {
+    active_model: "gemini",
+    system_prompt: "You are a helpful assistant.",
+  };
+  for (const [key, value] of Object.entries(defaults)) {
+    await run("INSERT OR IGNORE INTO config (key, value) VALUES (?, ?)", [key, value]);
+  }
+
+  // Init dashboard password from env
+  const pwRow = await get("SELECT value FROM config WHERE key = 'dashboard_password'");
+  if (!pwRow && process.env.DASHBOARD_PASSWORD) {
+    const hashed = bcrypt.hashSync(process.env.DASHBOARD_PASSWORD, 10);
+    await run("INSERT INTO config (key, value) VALUES (?, ?)", ["dashboard_password", hashed]);
+  }
+
+  // Warm up config cache
+  const rows = await all("SELECT key, value FROM config");
+  for (const r of rows) configCache[r.key] = r.value;
+
+  console.log("DB ready");
+}
 
 function getConfig(key) {
-  const row = db.prepare("SELECT value FROM config WHERE key = ?").get(key);
-  return row ? row.value : null;
+  return configCache[key] ?? null;
 }
 
-function setConfig(key, value) {
-  db.prepare("INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)").run(key, String(value));
+async function setConfig(key, value) {
+  configCache[key] = String(value);
+  await run("INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)", [key, String(value)]);
 }
 
-// Initialize defaults on first run
-const defaults = {
-  active_model: "gemini",
-  system_prompt: "You are a helpful assistant.",
-};
-
-for (const [key, value] of Object.entries(defaults)) {
-  if (!getConfig(key)) setConfig(key, value);
+async function saveMessage({ channelId, userId, username, role, content, model }) {
+  await run(
+    "INSERT INTO conversations (channel_id, user_id, username, role, content, model) VALUES (?, ?, ?, ?, ?, ?)",
+    [channelId, userId, username, role, content, model]
+  );
 }
 
-if (!getConfig("dashboard_password") && process.env.DASHBOARD_PASSWORD) {
-  setConfig("dashboard_password", bcrypt.hashSync(process.env.DASHBOARD_PASSWORD, 10));
+async function getHistory(channelId, limit = 10) {
+  const rows = await all(
+    "SELECT * FROM conversations WHERE channel_id = ? ORDER BY created_at DESC LIMIT ?",
+    [channelId, limit]
+  );
+  return rows.reverse();
 }
 
-function saveMessage({ channelId, userId, username, role, content, model }) {
-  db.prepare(
-    "INSERT INTO conversations (channel_id, user_id, username, role, content, model) VALUES (?, ?, ?, ?, ?, ?)"
-  ).run(channelId, userId, username, role, content, model);
+async function getAllHistory(limit = 50, offset = 0) {
+  return all(
+    "SELECT * FROM conversations ORDER BY created_at DESC LIMIT ? OFFSET ?",
+    [limit, offset]
+  );
 }
 
-function getHistory(channelId, limit = 10) {
-  return db
-    .prepare("SELECT * FROM conversations WHERE channel_id = ? ORDER BY created_at DESC LIMIT ?")
-    .all(channelId, limit)
-    .reverse();
+async function getStats() {
+  const [total, today, byModel] = await Promise.all([
+    get("SELECT COUNT(*) as c FROM conversations"),
+    get("SELECT COUNT(*) as c FROM conversations WHERE date(created_at) = date('now')"),
+    all("SELECT model, COUNT(*) as count FROM conversations GROUP BY model"),
+  ]);
+  return { total: total.c, today: today.c, byModel };
 }
 
-function getAllHistory(limit = 50, offset = 0) {
-  return db
-    .prepare("SELECT * FROM conversations ORDER BY created_at DESC LIMIT ? OFFSET ?")
-    .all(limit, offset);
-}
-
-function getStats() {
-  return {
-    total: db.prepare("SELECT COUNT(*) as c FROM conversations").get().c,
-    today: db.prepare("SELECT COUNT(*) as c FROM conversations WHERE date(created_at) = date('now')").get().c,
-    byModel: db.prepare("SELECT model, COUNT(*) as count FROM conversations GROUP BY model").all(),
-  };
-}
-
-module.exports = { getConfig, setConfig, saveMessage, getHistory, getAllHistory, getStats };
+module.exports = { initDb, getConfig, setConfig, saveMessage, getHistory, getAllHistory, getStats };
