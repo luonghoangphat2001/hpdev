@@ -101,9 +101,11 @@ class App {
   }
 
   #updateModelUI(model) {
-    const meta = MODEL_META[model] || MODEL_META.gemini;
+    const meta    = MODEL_META[model] || MODEL_META.gemini;
+    const sel     = document.getElementById(`${model}-model`);
+    const label   = sel?.options[sel.selectedIndex]?.text || meta.label;
     document.getElementById('model-icon').textContent    = meta.icon;
-    document.getElementById('model-display').textContent = meta.label;
+    document.getElementById('model-display').textContent = label;
     ['gemini', 'claude', 'chatgpt'].forEach(m => {
       document.getElementById('check-' + m).classList.toggle('hidden', m !== model);
     });
