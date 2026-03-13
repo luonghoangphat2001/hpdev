@@ -63,6 +63,26 @@ class AIService {
     return result.text ?? result;
   }
 
+  /**
+   * Get the currently active model key and its display label.
+   * @returns {{ key: string, label: string }}
+   */
+  currentModel() {
+    const labels = { claude: 'Claude 🧠', chatgpt: 'ChatGPT 🤖', gemini: 'Gemini ✨' };
+    const key = this.#configRepo.get('active_model') || 'gemini';
+    return { key, label: labels[key] ?? key };
+  }
+
+  /**
+   * Switch the active model and persist it.
+   * @param {'gemini'|'claude'|'chatgpt'} modelKey
+   * @returns {Promise<string>} Display label of the new model
+   */
+  async setModel(modelKey) {
+    await this.#configRepo.set('active_model', modelKey);
+    return this.currentModel().label;
+  }
+
   /** @param {string} model */
   #createProvider(model) {
     return AIFactory.create(model, {

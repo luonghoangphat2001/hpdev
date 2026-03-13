@@ -1,27 +1,19 @@
 'use strict';
 
 const { Client, GatewayIntentBits } = require('discord.js');
+const BaseBot = require('./BaseBot');
 
 /**
  * Discord bot.
- * Handles slash commands and natural-language "đần" triggers,
- * including model-switching commands.
+ * Handles slash commands and natural-language "đần" triggers.
  */
-class DiscordBot {
+class DiscordBot extends BaseBot {
   /** @type {Client} */
   #client;
-  /** @type {import('../services/AIService')} */
-  #aiService;
-  /** @type {import('../models/ConfigRepository')} */
-  #configRepo;
 
-  /**
-   * @param {import('../services/AIService')} aiService
-   * @param {import('../models/ConfigRepository')} configRepo
-   */
-  constructor(aiService, configRepo) {
-    this.#aiService  = aiService;
-    this.#configRepo = configRepo;
+  /** @param {import('../services/AIService')} aiService */
+  constructor(aiService) {
+    super(aiService);
 
     this.#client = new Client({
       intents: [
@@ -48,7 +40,7 @@ class DiscordBot {
 
     await interaction.deferReply();
     try {
-      const text = await this.#aiService.chat({
+      const text = await this._aiService.chat({
         channelId: interaction.channelId,
         userId:    interaction.user.id,
         username:  interaction.user.username,
@@ -63,44 +55,15 @@ class DiscordBot {
 
   /** Handle plain messages that mention "đần" */
   async #handleMessage(msg) {
-    if (msg.author.bot)         return;
+    if (msg.author.bot)            return;
     if (!/đần/i.test(msg.content)) return;
 
-    const lower = msg.content.toLowerCase();
-
-    // ── Model-switching commands ──────────────────────────
-    if (/chuy[eê]n\s+model\s+sang\s+claude/i.test(lower)) {
-      await this.#configRepo.set('active_model', 'claude');
-      return msg.reply('✅ Đã chuyển sang **Claude**! Tao sẽ dùng Claude từ giờ 🧠');
-    }
-
-    if (/chuy[eê]n\s+model\s+sang\s+gemini/i.test(lower)) {
-      await this.#configRepo.set('active_model', 'gemini');
-      return msg.reply('✅ Đã chuyển sang **Gemini**! Tao sẽ dùng Gemini từ giờ ✨');
-    }
-
-    if (/chuy[eê]n\s+model\s+sang\s+(chatgpt|gpt|openai)/i.test(lower)) {
-      await this.#configRepo.set('active_model', 'chatgpt');
-      return msg.reply('✅ Đã chuyển sang **ChatGPT**! Tao sẽ dùng GPT từ giờ 🤖');
-    }
-
-    if (/đang\s+d[uù]ng\s+model\s+g[ìi]/i.test(lower) ||
-        /model\s+(hi[eệ]n\s+t[aạ]i|đang\s+d[uù]ng)/i.test(lower)) {
-      const labels = { claude: 'Claude 🧠', chatgpt: 'ChatGPT 🤖', gemini: 'Gemini ✨' };
-      const current = this.#configRepo.get('active_model') || 'gemini';
-      return msg.reply(`🤖 Tao đang dùng **${labels[current] ?? current}** nè!`);
-    }
-
-    // ── Regular AI query ──────────────────────────────────
-    const prompt = msg.content
-      .replace(/^(ê|này|hey|oi|ơi|à)?\s*đần\s*(ơi|oi|à|ê|hey)?\s*/i, '')
-      .trim();
-
-    if (!prompt) return msg.reply('Gọi tao hả? Hỏi gì đi 😤');
+    const result = await this._handleDanCommand(msg.content, (s) => msg.reply(s));
+    if (result.handled) return;
 
     msg.channel.sendTyping();
     try {
-      const text = await this.#aiService.chat({
+      const text = await this._aiService.chat({
         channelId: msg.channelId,
         userId:    msg.author.id,
         username:  msg.author.username,

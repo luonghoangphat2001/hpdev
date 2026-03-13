@@ -1,20 +1,19 @@
 'use strict';
 
 const { Telegraf } = require('telegraf');
+const BaseBot = require('./BaseBot');
 
 /**
  * Telegram bot.
- * Responds to /ai commands and messages that mention "đần".
+ * Responds to /ai, /model, /setmodel commands and "đần" mentions.
  */
-class TelegramBot {
+class TelegramBot extends BaseBot {
   /** @type {Telegraf|null} */
   #bot = null;
-  /** @type {import('../services/AIService')} */
-  #aiService;
 
   /** @param {import('../services/AIService')} aiService */
   constructor(aiService) {
-    this.#aiService = aiService;
+    super(aiService);
   }
 
   start() {
@@ -44,12 +43,24 @@ class TelegramBot {
       await this.#handleAI(ctx, prompt);
     });
 
+    this.#bot.command('model', (ctx) => {
+      const { label } = this._aiService.currentModel();
+      return ctx.reply(`🤖 Tao đang dùng **${label}** nè!`, { parse_mode: 'Markdown' });
+    });
+
+    this.#bot.command('setmodel', async (ctx) => {
+      const arg = ctx.message.text.replace(/^\/setmodel\s*/i, '').trim().toLowerCase();
+      const map = { gemini: 'gemini', claude: 'claude', chatgpt: 'chatgpt', gpt: 'chatgpt', openai: 'chatgpt' };
+      const key = map[arg];
+      if (!key) return ctx.reply('❓ Dùng: /setmodel gemini | claude | chatgpt');
+      const label = await this._aiService.setModel(key);
+      return ctx.reply(`✅ Đã chuyển sang **${label}**!`, { parse_mode: 'Markdown' });
+    });
+
     this.#bot.hears(/đần/i, async (ctx) => {
-      const prompt = ctx.message.text
-        .replace(/^(ê|này|hey|oi|ơi|à)?\s*đần\s*(ơi|oi|à|ê|hey)?\s*/i, '')
-        .trim();
-      if (!prompt) return ctx.reply('Gọi tao hả? Hỏi gì đi 😤');
-      await this.#handleAI(ctx, prompt);
+      const reply = (s) => ctx.reply(s, { parse_mode: 'Markdown' });
+      const result = await this._handleDanCommand(ctx.message.text, reply);
+      if (!result.handled) await this.#handleAI(ctx, result.prompt);
     });
   }
 
@@ -61,7 +72,7 @@ class TelegramBot {
 
     const thinking = await ctx.reply('⏳ Đang xử lý...');
     try {
-      const response = await this.#aiService.chat({ channelId, userId, username, prompt });
+      const response = await this._aiService.chat({ channelId, userId, username, prompt });
       await ctx.telegram.deleteMessage(ctx.chat.id, thinking.message_id);
       await ctx.reply(response);
     } catch (err) {

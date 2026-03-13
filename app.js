@@ -46,7 +46,7 @@ async function bootstrap() {
   const aiService = new AIService(configRepo, conversationRepo);
 
   // 5. Start bots
-  new DiscordBot(aiService, configRepo).start();
+  new DiscordBot(aiService).start();
   new TelegramBot(aiService).start();
 
   // 6. Start web dashboard
