@@ -61,7 +61,9 @@ class ModelsController {
     const client  = new Anthropic({ apiKey, baseURL: baseURL || undefined });
     const res     = await client.models.list({ limit: 100 });
 
-    return res.data.map(m => ({ id: m.id, label: m.display_name || m.id }));
+    return res.data
+      .map(m => ({ id: m.id, label: m.display_name || m.id }))
+      .sort((a, b) => b.id.localeCompare(a.id)); // newest first — Opus 4.6 > Opus 4.5, Sonnet 4.6 > Sonnet 4.5
   }
 
   // ── ChatGPT / OpenAI ──────────────────────────────────────────────────────
