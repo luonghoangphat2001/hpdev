@@ -79,6 +79,7 @@ class AIService {
    * @returns {Promise<string>}
    */
   async chatOnce(messages, modelOverride = null) {
+    await this.#configRepo.refreshIfNeeded();
     const model = modelOverride || this.#configRepo.get('active_model') || 'gemini';
     const systemPrompt = this.#configRepo.get('system_prompt') || 'You are a helpful assistant.';
     const result = await this.#createProvider(model).chat(messages, systemPrompt);

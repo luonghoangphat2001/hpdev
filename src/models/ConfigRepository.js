@@ -13,7 +13,7 @@ class ConfigRepository {
 
   /** Timestamp of last cache warm — used for TTL-based inter-process refresh */
   #cacheAt = 0;
-  static #CACHE_TTL = 15_000; // 15 s — bot picks up dashboard changes within 15 s
+  static #CACHE_TTL = 5_000; // 5 s — bot/dashboard picks up config changes quickly
 
   static #DEFAULTS = {
     active_model:          'gemini',
