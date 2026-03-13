@@ -14,15 +14,23 @@ class AuthController {
   /** @param {import('../models/UserRepository')} userRepo */
   constructor(userRepo) {
     this.#userRepo = userRepo;
-    this.showLogin   = this.showLogin.bind(this);
-    this.login       = this.login.bind(this);
-    this.logout      = this.logout.bind(this);
-    this.getMe       = this.getMe.bind(this);
+    this.showHome = this.showHome.bind(this);
+    this.login    = this.login.bind(this);
+    this.logout   = this.logout.bind(this);
+    this.getMe    = this.getMe.bind(this);
   }
 
-  showLogin(req, res) {
-    if (req.session?.loggedIn) return res.redirect('/dashboard');
-    res.sendFile(path.join(VIEWS_DIR, 'login.html'));
+  /** GET /  — login page OR chat page based on session */
+  showHome(req, res) {
+    if (!req.session?.loggedIn) {
+      return res.sendFile(path.join(VIEWS_DIR, 'login.html'));
+    }
+    if (req.session.role === 'admin') {
+      return res.redirect('/admin');
+    }
+    // Regular user → serve dashboard (JS will show chat-only)
+    res.setHeader('Cache-Control', 'no-store');
+    res.sendFile(path.join(VIEWS_DIR, 'dashboard.html'));
   }
 
   async login(req, res) {
@@ -34,7 +42,7 @@ class AuthController {
       req.session.loggedIn = true;
       req.session.username = user.username;
       req.session.role     = user.role;
-      return res.redirect('/dashboard');
+      return res.redirect(user.role === 'admin' ? '/admin' : '/');
     }
     res.redirect('/?error=1');
   }
