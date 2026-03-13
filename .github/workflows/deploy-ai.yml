@@ -24,5 +24,8 @@ jobs:
             git pull origin ai
             source ~/nodevenv/ai.hpdev.name.vn/19/bin/activate
             npm install
+            # Restart Phusion Passenger (cPanel's web server) to load new code
+            mkdir -p tmp && touch tmp/restart.txt
+            # Also restart pm2 for background bots (Discord/Telegram)
             which pm2 || npm install -g pm2
             pm2 restart app || pm2 start app.js --name app
