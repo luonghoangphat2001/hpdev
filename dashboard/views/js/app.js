@@ -125,7 +125,7 @@ class App {
     window.toggleModelDropdown = ()   => this.toggleModelDropdown();
     window.closeModelDropdown  = ()   => this.closeModelDropdown();
     window.setChatModel        = (m)  => this.setChatModel(m);
-    window.setDefaultModel     = (m)  => this.#config.setDefaultModel(m);
+    window.setDefaultModel     = (m, p) => this.#config.setDefaultModel(m, p);
     window.saveConfig          = ()   => this.#config.save();
     window.sendChat            = ()   => this.#chat.send();
     window.loadHistory         = ()   => this.#history.load();

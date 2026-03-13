@@ -28,8 +28,9 @@ class AIService {
    * @param {{ channelId: string, userId: string, username: string, prompt: string }} opts
    * @returns {Promise<string>}
    */
-  async chat({ channelId, userId, username, prompt }) {
-    const activeModel = this.#configRepo.get('active_model') || 'gemini';
+  async chat({ channelId, userId, username, prompt, platform = null }) {
+    const configKey   = platform ? `${platform}_active_model` : 'active_model';
+    const activeModel = this.#configRepo.get(configKey) || this.#configRepo.get('active_model') || 'gemini';
     const systemPrompt = this.#configRepo.get('system_prompt') || 'You are a helpful assistant.';
 
     const history = await this.#conversationRepo.findByChannel(channelId, 10);
@@ -38,7 +39,17 @@ class AIService {
       { role: 'user', content: prompt },
     ];
 
-    const result = await this.#createProvider(activeModel).chat(messages, systemPrompt);
+    let result;
+    try {
+      result = await this.#createProvider(activeModel).chat(messages, systemPrompt);
+    } catch (err) {
+      if (err.status === 429 && activeModel !== 'gemini') {
+        console.warn(`[AIService] 429 from ${activeModel}, falling back to gemini`);
+        result = await this.#createProvider('gemini').chat(messages, systemPrompt);
+      } else {
+        throw err;
+      }
+    }
     const text      = result.text      ?? result;
     const tokensIn  = result.tokensIn  ?? 0;
     const tokensOut = result.tokensOut ?? 0;
@@ -67,20 +78,28 @@ class AIService {
    * Get the currently active model key and its display label.
    * @returns {{ key: string, label: string }}
    */
-  currentModel() {
+  /**
+   * Get the currently active model key and its display label.
+   * @param {string|null} [platform]
+   * @returns {{ key: string, label: string }}
+   */
+  currentModel(platform = null) {
     const labels = { claude: 'Claude 🧠', chatgpt: 'ChatGPT 🤖', gemini: 'Gemini ✨' };
-    const key = this.#configRepo.get('active_model') || 'gemini';
+    const configKey = platform ? `${platform}_active_model` : 'active_model';
+    const key = this.#configRepo.get(configKey) || 'gemini';
     return { key, label: labels[key] ?? key };
   }
 
   /**
    * Switch the active model and persist it.
    * @param {'gemini'|'claude'|'chatgpt'} modelKey
+   * @param {string|null} [platform]
    * @returns {Promise<string>} Display label of the new model
    */
-  async setModel(modelKey) {
-    await this.#configRepo.set('active_model', modelKey);
-    return this.currentModel().label;
+  async setModel(modelKey, platform = null) {
+    const configKey = platform ? `${platform}_active_model` : 'active_model';
+    await this.#configRepo.set(configKey, modelKey);
+    return this.currentModel(platform).label;
   }
 
   /** @param {string} model */

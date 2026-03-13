@@ -13,7 +13,7 @@ class TelegramBot extends BaseBot {
 
   /** @param {import('../services/AIService')} aiService */
   constructor(aiService) {
-    super(aiService);
+    super(aiService, 'telegram');
   }
 
   start() {
@@ -44,7 +44,7 @@ class TelegramBot extends BaseBot {
     });
 
     this.#bot.command('model', (ctx) => {
-      const { label } = this._aiService.currentModel();
+      const { label } = this._aiService.currentModel(this._platform);
       return ctx.reply(`🤖 Tao đang dùng **${label}** nè!`, { parse_mode: 'Markdown' });
     });
 
@@ -53,7 +53,7 @@ class TelegramBot extends BaseBot {
       const map = { gemini: 'gemini', claude: 'claude', chatgpt: 'chatgpt', gpt: 'chatgpt', openai: 'chatgpt' };
       const key = map[arg];
       if (!key) return ctx.reply('❓ Dùng: /setmodel gemini | claude | chatgpt');
-      const label = await this._aiService.setModel(key);
+      const label = await this._aiService.setModel(key, this._platform);
       return ctx.reply(`✅ Đã chuyển sang **${label}**!`, { parse_mode: 'Markdown' });
     });
 
@@ -72,7 +72,7 @@ class TelegramBot extends BaseBot {
 
     const thinking = await ctx.reply('⏳ Đang xử lý...');
     try {
-      const response = await this._aiService.chat({ channelId, userId, username, prompt });
+      const response = await this._aiService.chat({ channelId, userId, username, prompt, platform: this._platform });
       await ctx.telegram.deleteMessage(ctx.chat.id, thinking.message_id);
       await ctx.reply(response);
     } catch (err) {

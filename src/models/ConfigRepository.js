@@ -12,7 +12,9 @@ class ConfigRepository {
   #cache = new Map();
 
   static #DEFAULTS = {
-    active_model: 'gemini',
+    active_model:          'gemini',
+    discord_active_model:  'claude',
+    telegram_active_model: 'gemini',
     system_prompt: 'You are a helpful assistant.',
     claude_base_url: '',
     gemini_model:  'models/gemini-1.5-flash',

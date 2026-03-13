@@ -164,23 +164,43 @@
         <h1 class="text-2xl font-bold">⚙️ Config</h1>
 
         <div class="bg-gray-800 rounded-xl p-6">
-          <h2 class="font-semibold mb-1 text-gray-300">🤖 Default Model (Discord/Telegram Bot)</h2>
-          <p class="text-xs text-gray-500 mb-4">Model mặc định dùng cho Discord & Telegram</p>
+          <h2 class="font-semibold mb-1 text-gray-300">💬 Discord — Model mặc định</h2>
+          <p class="text-xs text-gray-500 mb-4">Model dùng riêng cho Discord bot</p>
           <div class="flex gap-3">
-            <button onclick="setDefaultModel('gemini')" id="btn-gemini"
+            <button onclick="setDefaultModel('gemini','discord')" id="btn-discord-gemini"
               class="flex-1 py-3 rounded-xl font-semibold border-2 transition text-sm border-gray-600 text-gray-400">
-              🌟 Gemini 2.5 Flash
+              🌟 Gemini
             </button>
-            <button onclick="setDefaultModel('claude')" id="btn-claude"
+            <button onclick="setDefaultModel('claude','discord')" id="btn-discord-claude"
               class="flex-1 py-3 rounded-xl font-semibold border-2 transition text-sm border-gray-600 text-gray-400">
-              ✳️ Claude Sonnet
+              ✳️ Claude
             </button>
-            <button onclick="setDefaultModel('chatgpt')" id="btn-chatgpt"
+            <button onclick="setDefaultModel('chatgpt','discord')" id="btn-discord-chatgpt"
               class="flex-1 py-3 rounded-xl font-semibold border-2 transition text-sm border-gray-600 text-gray-400">
               🤖 ChatGPT
             </button>
           </div>
-          <p class="text-xs text-gray-500 mt-3">Đang dùng: <span id="current-model-label" class="text-indigo-400 font-semibold"></span></p>
+          <p class="text-xs text-gray-500 mt-3">Đang dùng: <span id="discord-model-label" class="text-indigo-400 font-semibold"></span></p>
+        </div>
+
+        <div class="bg-gray-800 rounded-xl p-6">
+          <h2 class="font-semibold mb-1 text-gray-300">📱 Telegram — Model mặc định</h2>
+          <p class="text-xs text-gray-500 mb-4">Model dùng riêng cho Telegram bot</p>
+          <div class="flex gap-3">
+            <button onclick="setDefaultModel('gemini','telegram')" id="btn-telegram-gemini"
+              class="flex-1 py-3 rounded-xl font-semibold border-2 transition text-sm border-gray-600 text-gray-400">
+              🌟 Gemini
+            </button>
+            <button onclick="setDefaultModel('claude','telegram')" id="btn-telegram-claude"
+              class="flex-1 py-3 rounded-xl font-semibold border-2 transition text-sm border-gray-600 text-gray-400">
+              ✳️ Claude
+            </button>
+            <button onclick="setDefaultModel('chatgpt','telegram')" id="btn-telegram-chatgpt"
+              class="flex-1 py-3 rounded-xl font-semibold border-2 transition text-sm border-gray-600 text-gray-400">
+              🤖 ChatGPT
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 mt-3">Đang dùng: <span id="telegram-model-label" class="text-indigo-400 font-semibold"></span></p>
         </div>
 
         <div class="bg-gray-800 rounded-xl p-6" id="gemini-model-wrap">

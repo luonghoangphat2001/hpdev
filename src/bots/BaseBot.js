@@ -9,13 +9,23 @@ class BaseBot {
   /** @type {import('../services/AIService')} */
   #aiService;
 
-  /** @param {import('../services/AIService')} aiService */
-  constructor(aiService) {
+  /** @type {string|null} */
+  #platform;
+
+  /**
+   * @param {import('../services/AIService')} aiService
+   * @param {string|null} [platform]
+   */
+  constructor(aiService, platform = null) {
     this.#aiService = aiService;
+    this.#platform  = platform;
   }
 
   /** Expose aiService to subclasses (read-only). */
   get _aiService() { return this.#aiService; }
+
+  /** Platform identifier ('discord' | 'telegram' | null). */
+  get _platform() { return this.#platform; }
 
   /**
    * Handle a "đần" message end-to-end:
@@ -27,30 +37,46 @@ class BaseBot {
    * @param {(s: string) => Promise<void>} reply - Platform reply callback
    * @returns {Promise<{ handled: true } | { handled: false, prompt: string }>}
    */
+  /**
+   * Strip Vietnamese diacritics → plain ASCII lowercase for easy regex matching.
+   * e.g. "Đần mày đang Sài model nào" → "dan may dang sai model nao"
+   * @param {string} str
+   * @returns {string}
+   */
+  static #norm(str) {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')   // remove combining diacritics
+      .replace(/[đĐ]/g, (c) => c === 'đ' ? 'd' : 'D')
+      .toLowerCase();
+  }
+
   async _handleDanCommand(text, reply) {
-    const lower = text.toLowerCase();
+    const n = BaseBot.#norm(text);
 
     const MODEL_SWITCHES = [
-      { re: /chuy[eê]n\s+model\s+sang\s+claude/i,                key: 'claude'  },
-      { re: /chuy[eê]n\s+model\s+sang\s+gemini/i,                key: 'gemini'  },
-      { re: /chuy[eê]n\s+model\s+sang\s+(chatgpt|gpt|openai)/i,  key: 'chatgpt' },
+      { re: /chuyen\s+model\s+sang\s+claude/,               key: 'claude'  },
+      { re: /chuyen\s+model\s+sang\s+gemini/,               key: 'gemini'  },
+      { re: /chuyen\s+model\s+sang\s+(chatgpt|gpt|openai)/, key: 'chatgpt' },
     ];
 
     for (const { re, key } of MODEL_SWITCHES) {
-      if (re.test(lower)) {
-        const label = await this.#aiService.setModel(key);
+      if (re.test(n)) {
+        const label = await this.#aiService.setModel(key, this.#platform);
         await reply(`✅ Đã chuyển sang **${label}**!`);
         return { handled: true };
       }
     }
 
-    if (/đang\s+d[uù]ng\s+model\s+g[ìi]/i.test(lower) ||
-        /model\s+(hi[eệ]n\s+t[aạ]i|đang\s+d[uù]ng)/i.test(lower)) {
-      const { label } = this.#aiService.currentModel();
+    if (/dang\s+(dung|sai|su\s*dung)\s+model/.test(n) ||
+        /model\s+(hien\s+tai|dang\s+(dung|sai))/.test(n) ||
+        /model\s+(nao|gi)/.test(n)) {
+      const { label } = this.#aiService.currentModel(this.#platform);
       await reply(`🤖 Tao đang dùng **${label}** nè!`);
       return { handled: true };
     }
 
+    // Strip "đần" greeting prefix — keep original diacritics for the AI prompt
     const prompt = text
       .replace(/^(ê|này|hey|oi|ơi|à)?\s*đần\s*(ơi|oi|à|ê|hey)?\s*/i, '')
       .trim();

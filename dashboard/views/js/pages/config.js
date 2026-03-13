@@ -2,7 +2,9 @@ export class ConfigPage {
   #api;
   #onModelChange;   // (model: string) => void
 
-  activeModel = 'gemini';
+  activeModel         = 'gemini';
+  discordActiveModel  = 'claude';
+  telegramActiveModel = 'gemini';
 
   constructor(api, onModelChange) {
     this.#api           = api;
@@ -12,9 +14,11 @@ export class ConfigPage {
   // ── Public ──────────────────────────────────────────────
   async load() {
     const data = await this.#api.getConfig();
-    this.activeModel = data.active_model || 'gemini';
+    this.activeModel         = data.active_model          || 'gemini';
+    this.discordActiveModel  = data.discord_active_model  || 'claude';
+    this.telegramActiveModel = data.telegram_active_model || 'gemini';
 
-    document.getElementById('system-prompt').value     = data.system_prompt  || '';
+    document.getElementById('system-prompt').value     = data.system_prompt   || '';
     document.getElementById('claude-base-url').value   = data.claude_base_url || '';
     if (data.gemini_model)  document.getElementById('gemini-model').value  = data.gemini_model;
     if (data.claude_model)  document.getElementById('claude-model').value  = data.claude_model;
@@ -25,21 +29,31 @@ export class ConfigPage {
     return data;
   }
 
-  async setDefaultModel(model) {
-    this.activeModel = model;
+  async setDefaultModel(model, platform) {
+    if (platform === 'discord') {
+      this.discordActiveModel = model;
+      await this.#api.saveConfig({ discord_active_model: model });
+    } else if (platform === 'telegram') {
+      this.telegramActiveModel = model;
+      await this.#api.saveConfig({ telegram_active_model: model });
+    } else {
+      this.activeModel = model;
+      this.#onModelChange(model);
+      await this.#api.saveConfig({ active_model: model });
+    }
     this.#updateUI();
-    this.#onModelChange(model);
-    await this.#api.saveConfig({ active_model: model });
   }
 
   async save() {
     await this.#api.saveConfig({
-      active_model:    this.activeModel,
-      system_prompt:   document.getElementById('system-prompt').value,
-      claude_base_url: document.getElementById('claude-base-url').value,
-      gemini_model:    document.getElementById('gemini-model').value,
-      claude_model:    document.getElementById('claude-model').value,
-      chatgpt_model:   document.getElementById('chatgpt-model').value,
+      active_model:          this.activeModel,
+      discord_active_model:  this.discordActiveModel,
+      telegram_active_model: this.telegramActiveModel,
+      system_prompt:         document.getElementById('system-prompt').value,
+      claude_base_url:       document.getElementById('claude-base-url').value,
+      gemini_model:          document.getElementById('gemini-model').value,
+      claude_model:          document.getElementById('claude-model').value,
+      chatgpt_model:         document.getElementById('chatgpt-model').value,
     });
     this.#updateUI();
     const msg = document.getElementById('save-msg');
@@ -52,17 +66,19 @@ export class ConfigPage {
     const ON   = 'border-indigo-500 bg-indigo-900 text-white';
     const OFF  = 'border-gray-600 text-gray-400';
     const BASE = 'flex-1 py-3 rounded-xl font-semibold border-2 transition text-sm';
-    ['gemini', 'claude', 'chatgpt'].forEach(m => {
-      const btn = document.getElementById('btn-' + m);
-      if (btn) btn.className = `${BASE} ${this.activeModel === m ? ON : OFF}`;
-    });
 
-    const geminiLabel  = document.getElementById('gemini-model')?.value?.replace('models/', '') || 'Gemini';
-    const claudeLabel  = document.getElementById('claude-model')?.value  || 'Claude';
-    const chatgptLabel = document.getElementById('chatgpt-model')?.value || 'GPT-4o';
-    const labelMap     = { gemini: `🌟 ${geminiLabel}`, claude: `✳️ ${claudeLabel}`, chatgpt: `🤖 ${chatgptLabel}` };
-    const label = document.getElementById('current-model-label');
-    if (label) label.textContent = labelMap[this.activeModel] || this.activeModel;
+    for (const m of ['gemini', 'claude', 'chatgpt']) {
+      const d = document.getElementById(`btn-discord-${m}`);
+      if (d) d.className = `${BASE} ${this.discordActiveModel === m ? ON : OFF}`;
+      const t = document.getElementById(`btn-telegram-${m}`);
+      if (t) t.className = `${BASE} ${this.telegramActiveModel === m ? ON : OFF}`;
+    }
+
+    const labelMap = { gemini: '🌟 Gemini', claude: '✳️ Claude', chatgpt: '🤖 ChatGPT' };
+    const dl = document.getElementById('discord-model-label');
+    if (dl) dl.textContent = labelMap[this.discordActiveModel] || this.discordActiveModel;
+    const tl = document.getElementById('telegram-model-label');
+    if (tl) tl.textContent = labelMap[this.telegramActiveModel] || this.telegramActiveModel;
 
     this.#toggleSections(this.activeModel);
   }

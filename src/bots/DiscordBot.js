@@ -13,7 +13,7 @@ class DiscordBot extends BaseBot {
 
   /** @param {import('../services/AIService')} aiService */
   constructor(aiService) {
-    super(aiService);
+    super(aiService, 'discord');
 
     this.#client = new Client({
       intents: [
@@ -45,6 +45,7 @@ class DiscordBot extends BaseBot {
         userId:    interaction.user.id,
         username:  interaction.user.username,
         prompt:    interaction.options.getString('prompt'),
+        platform:  this._platform,
       });
       await interaction.editReply(this.#truncate(text));
     } catch (err) {
@@ -67,7 +68,8 @@ class DiscordBot extends BaseBot {
         channelId: msg.channelId,
         userId:    msg.author.id,
         username:  msg.author.username,
-        prompt,
+        prompt:    result.prompt,
+        platform:  this._platform,
       });
       await msg.reply(this.#truncate(text));
     } catch (err) {
