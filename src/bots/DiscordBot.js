@@ -27,7 +27,7 @@ class DiscordBot extends BaseBot {
   }
 
   #registerHandlers() {
-    this.#client.on('ready', () => {
+    this.#client.on('clientReady', () => {
       console.log(`Discord bot online: ${this.#client.user.tag}`);
     });
     this.#client.on('interactionCreate', (i)   => this.#handleInteraction(i));

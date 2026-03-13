@@ -70,9 +70,14 @@ class TelegramBot extends BaseBot {
     const userId    = String(ctx.from.id);
     const username  = ctx.from.username || ctx.from.first_name || 'user';
 
-    const thinking = await ctx.reply('⏳ Đang xử lý...');
-    const deleteThinking = () =>
-      ctx.telegram.deleteMessage(ctx.chat.id, thinking.message_id).catch(() => {});
+    let thinking = null;
+    try {
+      thinking = await ctx.reply('⏳ Đang xử lý...');
+    } catch (_) { /* rate-limited or permission error — proceed silently */ }
+
+    const deleteThinking = () => thinking
+      ? ctx.telegram.deleteMessage(ctx.chat.id, thinking.message_id).catch(() => {})
+      : Promise.resolve();
 
     try {
       const response = await this._aiService.chat({ channelId, userId, username, prompt, platform: this._platform });
@@ -81,7 +86,7 @@ class TelegramBot extends BaseBot {
     } catch (err) {
       console.error('[Telegram] Error:', err);
       await deleteThinking();
-      await ctx.reply('❌ Lỗi: ' + err.message);
+      await ctx.reply('❌ Lỗi: ' + err.message).catch(() => {});
     }
   }
 }
