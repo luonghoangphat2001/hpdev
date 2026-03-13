@@ -11,7 +11,9 @@ class AuthMiddleware {
    */
   static user(req, res, next) {
     if (req.session?.loggedIn) return next();
-    if (req.path.startsWith('/api')) return res.status(401).json({ error: 'Unauthorized' });
+    // Inside the /api router, req.path is e.g. '/me' not '/api/me'
+    // Use originalUrl to detect API requests reliably
+    if (req.originalUrl.startsWith('/api')) return res.status(401).json({ error: 'Unauthorized' });
     return res.redirect('/');
   }
 
