@@ -20,6 +20,9 @@ function createApiRouter(controllers) {
   const router = Router();
   const { user: authUser, admin: authAdmin } = AuthMiddleware;
 
+  // ─── Public health check (no auth) ───────────────────
+  router.get('/health', (_req, res) => res.json({ ok: true }));
+
   // ─── Any authenticated user ───────────────────────────
   router.get('/me',       authUser, controllers.auth.getMe);
   router.post('/chat',    authUser, controllers.chat.handle);
