@@ -1,7 +1,6 @@
 'use strict';
 
-const Anthropic = require('@anthropic-ai/sdk');
-const OpenAI    = require('openai');
+const OpenAI = require('openai');
 
 /**
  * Returns available model IDs for a given AI provider.
@@ -54,16 +53,22 @@ class ModelsController {
 
   // ── Claude ────────────────────────────────────────────────────────────────
   async #claudeModels() {
-    const apiKey  = process.env.CLAUDE_KEY;
+    const apiKey = process.env.CLAUDE_KEY;
     if (!apiKey) return [];
 
-    const baseURL = this.#configRepo.get('claude_base_url') || undefined;
-    const client  = new Anthropic({ apiKey, baseURL: baseURL || undefined });
-    const res     = await client.models.list({ limit: 100 });
+    const base = (this.#configRepo.get('claude_base_url') || process.env.CLAUDE_BASE_URL || 'https://api.anthropic.com').replace(/\/$/, '');
+    const res  = await fetch(`${base}/v1/models?limit=100`, {
+      headers: {
+        'x-api-key':         apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+    });
+    if (!res.ok) throw new Error(`Claude API ${res.status}`);
+    const data = await res.json();
 
-    return res.data
+    return (data.data || [])
       .map(m => ({ id: m.id, label: m.display_name || m.id }))
-      .sort((a, b) => b.id.localeCompare(a.id)); // newest first — Opus 4.6 > Opus 4.5, Sonnet 4.6 > Sonnet 4.5
+      .sort((a, b) => b.id.localeCompare(a.id)); // newest first
   }
 
   // ── ChatGPT / OpenAI ──────────────────────────────────────────────────────
