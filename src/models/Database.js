@@ -56,9 +56,6 @@ class Database {
     await this.#addColumnIfMissing('conversations', 'tokens_in',  'INT NOT NULL DEFAULT 0 AFTER model');
     await this.#addColumnIfMissing('conversations', 'tokens_out', 'INT NOT NULL DEFAULT 0 AFTER tokens_in');
 
-    // Migration: track last active time per user
-    await this.#addColumnIfMissing('users', 'last_active', 'DATETIME NULL AFTER role');
-
     await this.query(`
       CREATE TABLE IF NOT EXISTS config (
         \`key\` VARCHAR(64) PRIMARY KEY,
@@ -75,6 +72,9 @@ class Database {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
+
+    // Migration: track last active time per user (must run after CREATE TABLE users)
+    await this.#addColumnIfMissing('users', 'last_active', 'DATETIME NULL AFTER role');
   }
 
   /**
