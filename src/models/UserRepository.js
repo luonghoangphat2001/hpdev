@@ -46,8 +46,13 @@ class UserRepository {
    */
   async findAll() {
     return this.#db.query(
-      'SELECT id, username, role, created_at FROM users ORDER BY created_at ASC'
+      'SELECT id, username, role, created_at, last_active FROM users ORDER BY created_at ASC'
     );
+  }
+
+  /** @param {string} username */
+  async updateLastActive(username) {
+    await this.#db.query('UPDATE users SET last_active = NOW() WHERE username = ?', [username]);
   }
 
   /**

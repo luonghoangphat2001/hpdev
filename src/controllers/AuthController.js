@@ -40,7 +40,10 @@ class AuthController {
   }
 
   logout(req, res) {
-    req.session.destroy(() => res.redirect('/'));
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.redirect('/');
+    });
   }
 
   getMe(req, res) {

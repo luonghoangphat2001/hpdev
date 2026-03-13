@@ -44,7 +44,7 @@ class AIService {
     const tokensOut = result.tokensOut ?? 0;
 
     await this.#conversationRepo.save({ channelId, userId, username, role: 'user', content: prompt, model: activeModel });
-    await this.#conversationRepo.save({ channelId, userId: 'bot', username: 'Bot', role: 'assistant', content: text, model: activeModel, tokensIn, tokensOut });
+    await this.#conversationRepo.save({ channelId, userId: 'bot', username: 'Đần', role: 'assistant', content: text, model: activeModel, tokensIn, tokensOut });
 
     return text;
   }

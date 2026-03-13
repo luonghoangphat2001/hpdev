@@ -34,7 +34,7 @@ class DashboardServer {
   constructor({ aiService, configRepo, conversationRepo, userRepo }) {
     this.#app = express();
     const controllers = this.#buildControllers({ aiService, configRepo, conversationRepo, userRepo });
-    this.#configure(controllers);
+    this.#configure(controllers, userRepo);
   }
 
   /**
@@ -56,7 +56,7 @@ class DashboardServer {
    * Attach global middleware and mount routers.
    * @private
    */
-  #configure(controllers) {
+  #configure(controllers, userRepo) {
     const app = this.#app;
 
     app.use(express.json());
@@ -68,6 +68,14 @@ class DashboardServer {
       saveUninitialized: false,
       cookie:            { maxAge: 24 * 60 * 60 * 1000 },
     }));
+
+    // Track last active time for every authenticated request
+    app.use((req, _res, next) => {
+      if (req.session?.loggedIn && req.session?.username) {
+        userRepo.updateLastActive(req.session.username).catch(() => {});
+      }
+      next();
+    });
 
     app.use('/',    createWebRouter(controllers.auth));
     app.use('/api', createApiRouter(controllers));
