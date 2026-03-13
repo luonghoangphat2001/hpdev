@@ -3,49 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Bot — Login</title>
+  <title>Đần AI — Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 min-h-screen flex items-center justify-center">
-  <div class="bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-sm">
-    <div class="text-center mb-6">
-      <div class="text-4xl mb-2">🤖</div>
-      <h1 class="text-2xl font-bold text-white">AI Bot Dashboard</h1>
-      <p class="text-gray-400 text-sm mt-1">Đăng nhập để tiếp tục</p>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-sm">
+
+    <!-- Avatar + branding -->
+    <div class="text-center mb-8">
+      <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 ring-4 ring-indigo-500/40">
+        <img src="/images/dan.png" alt="Đần" class="w-full h-full object-cover" />
+      </div>
+      <h1 class="text-3xl font-bold text-white">Xin chào! Tôi là Đần</h1>
+      <p class="text-gray-400 text-sm mt-2 leading-relaxed max-w-xs mx-auto">
+        Một AI agent được tạo bởi <span class="text-indigo-400 font-medium">Phát</span>,
+        tổng hợp nhiều model —
+        <span class="text-yellow-400">Gemini</span>,
+        <span class="text-purple-400">Claude</span>,
+        <span class="text-green-400">GPT</span> —
+        để tương tác cá nhân.
+      </p>
     </div>
 
-    <form method="POST" action="/login" class="space-y-4">
-      <input
-        type="text"
-        name="username"
-        placeholder="Username"
-        autofocus
-        autocomplete="username"
-        class="w-full px-4 py-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:border-indigo-500 focus:outline-none"
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        autocomplete="current-password"
-        class="w-full px-4 py-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:border-indigo-500 focus:outline-none"
-      />
-      <button
-        type="submit"
-        class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
-      >
-        Login
-      </button>
-    </form>
+    <!-- Login card -->
+    <div class="bg-gray-800 rounded-2xl shadow-xl p-8">
+      <p class="text-gray-400 text-sm text-center mb-5">Đăng nhập để tiếp tục</p>
 
-    <script>
-      if (new URLSearchParams(location.search).get("error")) {
-        const el = document.createElement("p");
-        el.className = "text-red-400 text-sm text-center mt-4";
-        el.textContent = "Sai username hoặc password. Thử lại.";
-        document.querySelector("form").after(el);
-      }
-    </script>
+      <form method="POST" action="/login" class="space-y-4">
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          autofocus
+          autocomplete="username"
+          class="w-full px-4 py-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:border-indigo-500 focus:outline-none"
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          autocomplete="current-password"
+          class="w-full px-4 py-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 border border-gray-600 focus:border-indigo-500 focus:outline-none"
+        />
+        <button
+          type="submit"
+          class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+        >
+          Đăng nhập
+        </button>
+      </form>
+
+      <script>
+        if (new URLSearchParams(location.search).get("error")) {
+          const el = document.createElement("p");
+          el.className = "text-red-400 text-sm text-center mt-4";
+          el.textContent = "Sai username hoặc password. Thử lại.";
+          document.querySelector("form").after(el);
+        }
+      </script>
+    </div>
   </div>
 </body>
 </html>

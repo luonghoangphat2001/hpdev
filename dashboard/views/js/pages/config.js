@@ -13,16 +13,20 @@ export class ConfigPage {
 
   // ── Public ──────────────────────────────────────────────
   async load() {
-    const data = await this.#api.getConfig();
+    const [data] = await Promise.all([
+      this.#api.getConfig(),
+      this.#loadModelOptions(),
+    ]);
+
     this.activeModel         = data.active_model          || 'gemini';
     this.discordActiveModel  = data.discord_active_model  || 'claude';
     this.telegramActiveModel = data.telegram_active_model || 'gemini';
 
-    document.getElementById('system-prompt').value     = data.system_prompt   || '';
-    document.getElementById('claude-base-url').value   = data.claude_base_url || '';
-    if (data.gemini_model)  document.getElementById('gemini-model').value  = data.gemini_model;
-    if (data.claude_model)  document.getElementById('claude-model').value  = data.claude_model;
-    if (data.chatgpt_model) document.getElementById('chatgpt-model').value = data.chatgpt_model;
+    document.getElementById('system-prompt').value   = data.system_prompt   || '';
+    document.getElementById('claude-base-url').value = data.claude_base_url || '';
+    if (data.gemini_model)  this.#selectOrAdd('gemini-model',  data.gemini_model);
+    if (data.claude_model)  this.#selectOrAdd('claude-model',  data.claude_model);
+    if (data.chatgpt_model) this.#selectOrAdd('chatgpt-model', data.chatgpt_model);
 
     this.#updateUI();
     this.#onModelChange(this.activeModel);
@@ -62,6 +66,58 @@ export class ConfigPage {
   }
 
   // ── Private ─────────────────────────────────────────────
+
+  /** Fetch model lists from all three providers in parallel and populate selects. */
+  async #loadModelOptions() {
+    const [gemini, claude, chatgpt] = await Promise.allSettled([
+      this.#api.getModels('gemini'),
+      this.#api.getModels('claude'),
+      this.#api.getModels('chatgpt'),
+    ]);
+
+    if (gemini.status  === 'fulfilled' && gemini.value.models?.length)  this.#populateSelect('gemini-model',  gemini.value.models);
+    if (claude.status  === 'fulfilled' && claude.value.models?.length)  this.#populateSelect('claude-model',  claude.value.models);
+    if (chatgpt.status === 'fulfilled' && chatgpt.value.models?.length) this.#populateSelect('chatgpt-model', chatgpt.value.models);
+  }
+
+  /**
+   * Replace a <select>'s options with a live model list.
+   * @param {string} selectId
+   * @param {{ id: string, label: string }[]} models
+   */
+  #populateSelect(selectId, models) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const current = sel.value;
+    sel.innerHTML = '';
+    for (const { id, label } of models) {
+      const opt = document.createElement('option');
+      opt.value       = id;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    }
+    // Restore previously selected value if it still exists in the new list
+    if (current && [...sel.options].some(o => o.value === current)) {
+      sel.value = current;
+    }
+  }
+
+  /**
+   * Select an option by value; append it if not present so saved config is not lost.
+   * @param {string} selectId
+   * @param {string} value
+   */
+  #selectOrAdd(selectId, value) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    if (![...sel.options].some(o => o.value === value)) {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = value;
+      sel.appendChild(opt);
+    }
+    sel.value = value;
+  }
+
   #updateUI() {
     const ON   = 'border-indigo-500 bg-indigo-900 text-white';
     const OFF  = 'border-gray-600 text-gray-400';
@@ -80,13 +136,10 @@ export class ConfigPage {
     const tl = document.getElementById('telegram-model-label');
     if (tl) tl.textContent = labelMap[this.telegramActiveModel] || this.telegramActiveModel;
 
-    this.#toggleSections(this.activeModel);
-  }
-
-  #toggleSections(model) {
-    document.getElementById('gemini-model-wrap').style.display    = model === 'gemini'  ? 'block' : 'none';
-    document.getElementById('claude-model-wrap').style.display    = model === 'claude'  ? 'block' : 'none';
-    document.getElementById('claude-base-url-wrap').style.display = model === 'claude'  ? 'block' : 'none';
-    document.getElementById('chatgpt-model-wrap').style.display   = model === 'chatgpt' ? 'block' : 'none';
+    // Always show all model version pickers
+    for (const id of ['gemini-model-wrap', 'claude-model-wrap', 'claude-base-url-wrap', 'chatgpt-model-wrap']) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'block';
+    }
   }
 }

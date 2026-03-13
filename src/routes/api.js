@@ -32,6 +32,8 @@ function createApiRouter(controllers) {
   router.get('/config',    authAdmin, controllers.config.get);
   router.post('/config',   authAdmin, controllers.config.update);
 
+  router.get('/models/:provider', authAdmin, controllers.models.list);
+
   router.get('/history',   authAdmin, controllers.history.get);
   router.get('/stats',     authAdmin, controllers.stats.get);
 

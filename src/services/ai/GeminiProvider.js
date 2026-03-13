@@ -12,7 +12,7 @@ class GeminiProvider extends AIProvider {
   /** @type {string} */
   #modelName;
 
-  static #FALLBACK_MODEL = 'models/gemini-1.5-flash';
+  static #FALLBACK_MODEL = 'models/gemini-2.5-flash';
 
   /**
    * @param {string} apiKey

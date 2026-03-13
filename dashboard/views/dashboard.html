@@ -302,12 +302,29 @@
             <div class="text-sm text-gray-400 mt-1">Active Model</div>
           </div>
         </div>
+        <!-- Today's usage — like provider API dashboards -->
+        <div class="bg-gray-800 rounded-xl p-6 mb-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-semibold text-gray-400">⚡ Hôm nay</h3>
+            <span class="text-xs text-gray-600" id="stat-today-date"></span>
+          </div>
+          <div id="stat-today-by-model" class="space-y-3">
+            <p class="text-gray-500 text-sm">Chưa có dữ liệu hôm nay.</p>
+          </div>
+        </div>
+
+        <!-- 7-day daily breakdown -->
+        <div class="bg-gray-800 rounded-xl p-6 mb-4">
+          <h3 class="text-sm font-semibold text-gray-400 mb-3">📅 7 ngày gần nhất</h3>
+          <div id="stat-daily" class="space-y-1 text-xs"></div>
+        </div>
+
         <div class="bg-gray-800 rounded-xl p-6 mb-4">
           <h3 class="text-sm font-semibold text-gray-400 mb-3">Messages by Model</h3>
           <div id="stat-by-model" class="space-y-2"></div>
         </div>
         <div class="bg-gray-800 rounded-xl p-6">
-          <h3 class="text-sm font-semibold text-gray-400 mb-3">🪙 Token Usage by Model</h3>
+          <h3 class="text-sm font-semibold text-gray-400 mb-3">🪙 Token Usage (tổng)</h3>
           <div id="stat-tokens" class="space-y-3"></div>
           <p class="text-xs text-gray-600 mt-4">* Chỉ tính từ lúc bắt đầu theo dõi. Gemini free tier: ~1,000 req/ngày.</p>
         </div>

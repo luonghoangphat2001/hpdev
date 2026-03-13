@@ -56,13 +56,40 @@ class ConversationRepository {
     const todayRow = await this.#db.queryOne(
       'SELECT COUNT(*) AS c FROM conversations WHERE DATE(created_at) = CURDATE()'
     );
+    // Count only user messages (one per Q&A exchange) to avoid double-counting
     const byModel = await this.#db.query(
-      'SELECT model, COUNT(*) AS count FROM conversations GROUP BY model'
+      'SELECT model, COUNT(*) AS count FROM conversations WHERE role = "user" GROUP BY model ORDER BY count DESC'
     );
     const tokensByModel = await this.#db.query(
-      'SELECT model, SUM(tokens_in) AS tokens_in, SUM(tokens_out) AS tokens_out FROM conversations WHERE role = "assistant" GROUP BY model'
+      'SELECT model, SUM(tokens_in) AS tokens_in, SUM(tokens_out) AS tokens_out FROM conversations WHERE role = "assistant" GROUP BY model ORDER BY (SUM(tokens_in) + SUM(tokens_out)) DESC'
     );
-    return { total: totalRow.c, today: todayRow.c, byModel, tokensByModel };
+    // Today's usage per model (for rate-limit awareness)
+    const todayByModel = await this.#db.query(
+      `SELECT model,
+              COUNT(*)         AS requests,
+              SUM(tokens_in)   AS tokens_in,
+              SUM(tokens_out)  AS tokens_out
+       FROM conversations
+       WHERE role = 'assistant' AND DATE(created_at) = CURDATE()
+       GROUP BY model
+       ORDER BY (SUM(tokens_in) + SUM(tokens_out)) DESC`
+    );
+
+    // Last 7 days daily breakdown per model
+    const dailyUsage = await this.#db.query(
+      `SELECT DATE(created_at)  AS day,
+              model,
+              COUNT(*)          AS requests,
+              SUM(tokens_in)    AS tokens_in,
+              SUM(tokens_out)   AS tokens_out
+       FROM conversations
+       WHERE role = 'assistant'
+         AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+       GROUP BY DATE(created_at), model
+       ORDER BY day DESC, (SUM(tokens_in) + SUM(tokens_out)) DESC`
+    );
+
+    return { total: totalRow.c, today: todayRow.c, byModel, tokensByModel, todayByModel, dailyUsage };
   }
 }
 

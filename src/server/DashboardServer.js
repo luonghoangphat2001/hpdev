@@ -8,6 +8,7 @@ const AuthController    = require('../controllers/AuthController');
 const ChatController    = require('../controllers/ChatController');
 const ConfigController  = require('../controllers/ConfigController');
 const HistoryController = require('../controllers/HistoryController');
+const ModelsController  = require('../controllers/ModelsController');
 const StatsController   = require('../controllers/StatsController');
 const UserController    = require('../controllers/UserController');
 const createApiRouter   = require('../routes/api');
@@ -47,6 +48,7 @@ class DashboardServer {
       chat:    new ChatController(aiService),
       config:  new ConfigController(configRepo),
       history: new HistoryController(conversationRepo),
+      models:  new ModelsController(configRepo),
       stats:   new StatsController(conversationRepo),
       user:    new UserController(userRepo),
     };

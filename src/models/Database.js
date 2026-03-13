@@ -56,6 +56,9 @@ class Database {
     await this.#addColumnIfMissing('conversations', 'tokens_in',  'INT NOT NULL DEFAULT 0 AFTER model');
     await this.#addColumnIfMissing('conversations', 'tokens_out', 'INT NOT NULL DEFAULT 0 AFTER tokens_in');
 
+    // Migration: widen model column so full model names fit (e.g. models/gemini-2.5-flash-preview-04-17)
+    await this.#widenColumnIfNeeded('conversations', 'model', 'VARCHAR(64)', 32);
+
     await this.query(`
       CREATE TABLE IF NOT EXISTS config (
         \`key\` VARCHAR(64) PRIMARY KEY,
@@ -83,6 +86,24 @@ class Database {
    * @param {string} column
    * @param {string} definition  e.g. 'INT NOT NULL DEFAULT 0 AFTER model'
    */
+  /**
+   * Widen a VARCHAR column if its current max length is less than needed.
+   * @param {string} table
+   * @param {string} column
+   * @param {string} newType   e.g. 'VARCHAR(64)'
+   * @param {number} maxOldLen only alter if current CHARACTER_MAXIMUM_LENGTH <= this value
+   */
+  async #widenColumnIfNeeded(table, column, newType, maxOldLen) {
+    const db = process.env.DB_NAME;
+    const row = await this.queryOne(
+      'SELECT CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+      [db, table, column]
+    );
+    if (row && Number(row.CHARACTER_MAXIMUM_LENGTH) <= maxOldLen) {
+      await this.query(`ALTER TABLE \`${table}\` MODIFY COLUMN \`${column}\` ${newType}`);
+    }
+  }
+
   async #addColumnIfMissing(table, column, definition) {
     const db = process.env.DB_NAME;
     const exists = await this.queryOne(

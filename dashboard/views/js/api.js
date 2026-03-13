@@ -57,4 +57,8 @@ export class ApiClient {
       body:    JSON.stringify({ password }),
     }).then(r => r.json());
   }
+
+  async getModels(provider) {
+    return fetch(`/api/models/${encodeURIComponent(provider)}`).then(r => r.json());
+  }
 }

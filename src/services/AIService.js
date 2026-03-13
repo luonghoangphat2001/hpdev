@@ -29,6 +29,10 @@ class AIService {
    * @returns {Promise<string>}
    */
   async chat({ channelId, userId, username, prompt, platform = null }) {
+    // Refresh config cache so model changes from the dashboard are picked up
+    // even though bot.js and app.js run in separate processes.
+    await this.#configRepo.refreshIfNeeded();
+
     const configKey   = platform ? `${platform}_active_model` : 'active_model';
     const activeModel = this.#configRepo.get(configKey) || this.#configRepo.get('active_model') || 'gemini';
     const systemPrompt = this.#configRepo.get('system_prompt') || 'You are a helpful assistant.';
@@ -39,13 +43,17 @@ class AIService {
       { role: 'user', content: prompt },
     ];
 
+    // Resolve the specific model version string for accurate stats
+    // (e.g. "models/gemini-2.5-flash" instead of just "gemini")
+    let usedProvider = activeModel;
     let result;
     try {
       result = await this.#createProvider(activeModel).chat(messages, systemPrompt);
     } catch (err) {
       if (err.status === 429 && activeModel !== 'gemini') {
         console.warn(`[AIService] 429 from ${activeModel}, falling back to gemini`);
-        result = await this.#createProvider('gemini').chat(messages, systemPrompt);
+        result      = await this.#createProvider('gemini').chat(messages, systemPrompt);
+        usedProvider = 'gemini'; // credit tokens to the provider that actually ran
       } else {
         throw err;
       }
@@ -54,8 +62,11 @@ class AIService {
     const tokensIn  = result.tokensIn  ?? 0;
     const tokensOut = result.tokensOut ?? 0;
 
-    await this.#conversationRepo.save({ channelId, userId, username, role: 'user', content: prompt, model: activeModel });
-    await this.#conversationRepo.save({ channelId, userId: 'bot', username: 'Đần', role: 'assistant', content: text, model: activeModel, tokensIn, tokensOut });
+    // Save the actual model version name so stats are meaningful
+    const savedModel = this.#resolveModelVersion(usedProvider);
+
+    await this.#conversationRepo.save({ channelId, userId, username, role: 'user', content: prompt, model: savedModel });
+    await this.#conversationRepo.save({ channelId, userId: 'bot', username: 'Đần', role: 'assistant', content: text, model: savedModel, tokensIn, tokensOut });
 
     return text;
   }
@@ -100,6 +111,21 @@ class AIService {
     const configKey = platform ? `${platform}_active_model` : 'active_model';
     await this.#configRepo.set(configKey, modelKey);
     return this.currentModel(platform).label;
+  }
+
+  /**
+   * Map a provider key ('gemini'|'claude'|'chatgpt') to the actual model version
+   * string stored in config, so stats show meaningful names.
+   * @param {string} providerKey
+   * @returns {string}
+   */
+  #resolveModelVersion(providerKey) {
+    const map = {
+      gemini:  this.#configRepo.get('gemini_model')  || 'models/gemini-2.5-flash',
+      claude:  this.#configRepo.get('claude_model')  || 'claude-sonnet-4-6',
+      chatgpt: this.#configRepo.get('chatgpt_model') || 'gpt-4o',
+    };
+    return map[providerKey] ?? providerKey;
   }
 
   /** @param {string} model */
