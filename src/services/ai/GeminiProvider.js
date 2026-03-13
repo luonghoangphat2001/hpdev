@@ -28,8 +28,8 @@ class GeminiProvider extends AIProvider {
     try {
       return await this.#callGemini(this.#modelName, messages, systemPrompt);
     } catch (err) {
-      if (err.status === 429 && this.#modelName !== GeminiProvider.#FALLBACK_MODEL) {
-        console.warn(`[Gemini] 429 on ${this.#modelName}, falling back to ${GeminiProvider.#FALLBACK_MODEL}`);
+      if ((err.status === 429 || err.status === 404) && this.#modelName !== GeminiProvider.#FALLBACK_MODEL) {
+        console.warn(`[Gemini] ${err.status} on ${this.#modelName}, falling back to ${GeminiProvider.#FALLBACK_MODEL}`);
         return await this.#callGemini(GeminiProvider.#FALLBACK_MODEL, messages, systemPrompt);
       }
       throw err;
