@@ -27,7 +27,8 @@ class App {
   #users;
 
   async init() {
-    const me      = await this.#api.me();
+    const me = await this.#api.me();
+    if (!me) { window.location.href = '/'; return; }
     this.#role     = me.role;
     this.#username = me.username;
 
@@ -48,12 +49,12 @@ class App {
     if (me.role === 'admin') {
       document.getElementById('admin-nav').classList.remove('hidden');
       await this.#config.load();
+      this.showPage('config');
     } else {
       // Regular user: hide model selector, use server default
       document.getElementById('model-bar').classList.add('hidden');
+      this.showPage('chat');
     }
-
-    this.showPage('chat');
     this.#exposeGlobals();
   }
 

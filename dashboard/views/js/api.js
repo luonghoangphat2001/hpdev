@@ -1,6 +1,8 @@
 export class ApiClient {
   async me() {
-    return fetch('/api/me').then(r => r.json());
+    const r = await fetch('/api/me');
+    if (!r.ok) return null;
+    return r.json();
   }
 
   async chat(message, model) {
