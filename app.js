@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * Web dashboard entry point — runs the HTTP dashboard only.
+ * Served by Phusion Passenger. Bots run separately via bot.js (pm2).
+ */
+
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 
 const bcrypt = require('bcryptjs');
@@ -14,8 +19,6 @@ const UserRepository         = require('./src/models/UserRepository');
 const AIService = require('./src/services/AIService');
 
 // ── Presentation / transport layer ─────────────────────
-const DiscordBot      = require('./src/bots/DiscordBot');
-const TelegramBot     = require('./src/bots/TelegramBot');
 const DashboardServer = require('./src/server/DashboardServer');
 
 async function bootstrap() {
@@ -45,11 +48,7 @@ async function bootstrap() {
   // 4. Compose services
   const aiService = new AIService(configRepo, conversationRepo);
 
-  // 5. Start bots
-  new DiscordBot(aiService).start();
-  new TelegramBot(aiService).start();
-
-  // 6. Start web dashboard
+  // 5. Start web dashboard only (bots are in bot.js, managed by pm2)
   const port = process.env.PORT || process.env.DASHBOARD_PORT || 3000;
   new DashboardServer({ aiService, configRepo, conversationRepo, userRepo }).start(port);
 }

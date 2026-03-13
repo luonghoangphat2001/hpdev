@@ -4,6 +4,7 @@
 !README.md
 !.github/
 !app.js
+!bot.js
 !package.json
 !package-lock.json
 !.env.example
