@@ -28,4 +28,5 @@ jobs:
             mkdir -p tmp && touch tmp/restart.txt
             # Restart pm2 for Discord/Telegram bots (bot.js) — separate from dashboard
             which pm2 || npm install -g pm2
-            pm2 restart bot || pm2 start bot.js --name bot
+            pm2 delete bot 2>/dev/null || true
+            pm2 start bot.js --name bot

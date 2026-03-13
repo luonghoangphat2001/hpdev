@@ -71,13 +71,16 @@ class TelegramBot extends BaseBot {
     const username  = ctx.from.username || ctx.from.first_name || 'user';
 
     const thinking = await ctx.reply('⏳ Đang xử lý...');
+    const deleteThinking = () =>
+      ctx.telegram.deleteMessage(ctx.chat.id, thinking.message_id).catch(() => {});
+
     try {
       const response = await this._aiService.chat({ channelId, userId, username, prompt, platform: this._platform });
-      await ctx.telegram.deleteMessage(ctx.chat.id, thinking.message_id);
+      await deleteThinking();
       await ctx.reply(response);
     } catch (err) {
       console.error('[Telegram] Error:', err);
-      await ctx.telegram.deleteMessage(ctx.chat.id, thinking.message_id);
+      await deleteThinking();
       await ctx.reply('❌ Lỗi: ' + err.message);
     }
   }
