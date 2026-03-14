@@ -25,6 +25,7 @@ class ConfigRepository {
     claude_model:  'claude-sonnet-4-6',
     chatgpt_model: 'gpt-4o',
     schedule_discord_channel_id: '',
+    schedule_timezone: 'Asia/Ho_Chi_Minh',
   };
 
   /** @param {import('./Database')} db */
