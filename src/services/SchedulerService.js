@@ -1,6 +1,7 @@
 'use strict';
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const TimeUtils = require('../utils/TimeUtils');
 
 /**
  * Scheduler service: ticks every minute to fire due reminders,
@@ -28,6 +29,11 @@ class SchedulerService {
     this.#discordClient = client;
   }
 
+  /** Current configured timezone (IANA). */
+  getTimezone() {
+    return this.#configRepo.get('schedule_timezone') || 'Asia/Ho_Chi_Minh';
+  }
+
   /** Start the 60-second tick loop. */
   start() {
     setInterval(() => this.#tick(), 60_000);
@@ -36,9 +42,11 @@ class SchedulerService {
 
   async #tick() {
     try {
-      const rows = await this.#scheduleRepo.findUpcoming();
+      const tz     = this.#configRepo.get('schedule_timezone') || 'Asia/Ho_Chi_Minh';
+      const nowStr = TimeUtils.nowString(tz);
+      const rows   = await this.#scheduleRepo.findUpcoming(nowStr);
       if (rows.length) {
-        console.log(`[Scheduler] Tick | ${rows.length} schedule(s) due`);
+        console.log(`[Scheduler] Tick | ${rows.length} schedule(s) due | now=${nowStr} (${tz})`);
       }
       for (const row of rows) {
         await this.#fireReminder(row);
@@ -62,9 +70,9 @@ class SchedulerService {
 
     let nextRemindAt = null;
     if (row.repeat_type === 'daily') {
-      nextRemindAt = this.#addDays(row.remind_at, 1);
+      nextRemindAt = TimeUtils.addDays(row.remind_at, 1);
     } else if (row.repeat_type === 'weekly') {
-      nextRemindAt = this.#addDays(row.remind_at, 7);
+      nextRemindAt = TimeUtils.addDays(row.remind_at, 7);
     }
     await this.#scheduleRepo.markFired(row.id, nextRemindAt);
     console.log(`[Scheduler] Marked #${row.id} | next=${nextRemindAt ?? 'deactivated'}`);
@@ -129,6 +137,88 @@ class SchedulerService {
    */
   async deleteSchedule(id, userId) {
     return this.#scheduleRepo.delete(id, userId);
+  }
+
+  /**
+   * Parse an edit request with Gemini, find the target schedule, and update it.
+   *
+   * Flow:
+   *   1. Gemini extracts { id?, search_keyword?, title?, remind_at?, repeat_type? }
+   *   2. Locate schedule by id OR by keyword search in user's schedules
+   *   3. If multiple matches → return them so caller can ask user to pick
+   *   4. Update and return the updated schedule row
+   *
+   * @param {string} text
+   * @param {string} userId
+   * @param {string} platform
+   * @returns {Promise<
+   *   { status: 'updated', schedule: object } |
+   *   { status: 'ambiguous', matches: object[] } |
+   *   { status: 'not_found' }
+   * >}
+   */
+  async parseAndUpdate(text, userId, platform) {
+    const tz      = this.getTimezone();
+    const nowStr  = TimeUtils.promptNow(tz);
+    const apiKey  = process.env.GEMINI_KEY;
+    if (!apiKey) throw new Error('GEMINI_KEY not configured');
+
+    const modelName = this.#configRepo.get('gemini_model') || 'models/gemini-2.5-flash';
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelName });
+
+    const prompt = `Hôm nay là ${nowStr}. Parse yêu cầu chỉnh sửa lịch từ text sau (tiếng Việt).
+Text: "${text}"
+Trả về JSON:
+{
+  "id": <số ID nếu người dùng nhắc đến ID, ngược lại null>,
+  "search_keyword": "<từ khoá tên môn/việc để tìm lịch cũ, ngược lại null>",
+  "title": "<tiêu đề mới, null nếu không đổi>",
+  "remind_at": "<YYYY-MM-DD HH:MM:SS (${tz}) mới, null nếu không đổi>",
+  "repeat_type": "<none|daily|weekly mới, null nếu không đổi>"
+}
+Chỉ trả JSON, không giải thích.`;
+
+    const result  = await model.generateContent(prompt);
+    const raw     = result.response.text().trim();
+    console.log('[Scheduler] parseAndUpdate Gemini response:', raw);
+
+    let parsed;
+    try {
+      const jsonStr = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/, '').trim();
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+      parsed = JSON.parse(jsonMatch ? jsonMatch[0] : jsonStr);
+    } catch {
+      throw new Error('Gemini không trả về JSON hợp lệ');
+    }
+
+    // Normalize Gemini fields
+    const changes = {
+      title:      parsed.title      || null,
+      remindAt:   parsed.remind_at  || parsed.remindAt  || null,
+      repeatType: parsed.repeat_type || parsed.repeatType || null,
+    };
+
+    // Locate target schedule
+    let target = null;
+    if (parsed.id) {
+      target = await this.#scheduleRepo.findById(Number(parsed.id));
+      if (!target || target.user_id !== userId) return { status: 'not_found' };
+    } else if (parsed.search_keyword) {
+      const matches = await this.#scheduleRepo.findByKeyword(userId, platform, parsed.search_keyword);
+      if (!matches.length) return { status: 'not_found' };
+      if (matches.length > 1) return { status: 'ambiguous', matches };
+      target = matches[0];
+    } else {
+      throw new Error('Không xác định được lịch cần chỉnh sửa — thêm tên môn hoặc ID nhé!');
+    }
+
+    const ok = await this.#scheduleRepo.update(target.id, userId, changes);
+    if (!ok) return { status: 'not_found' };
+
+    const updated = await this.#scheduleRepo.findById(target.id);
+    console.log(`[Scheduler] Updated #${target.id} | changes=${JSON.stringify(changes)}`);
+    return { status: 'updated', schedule: updated };
   }
 
   /**
@@ -251,12 +341,12 @@ class SchedulerService {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelName });
 
-    const now = new Date();
-    const dateStr = now.toISOString().slice(0, 19).replace('T', ' ');
+    const tz      = this.#configRepo.get('schedule_timezone') || 'Asia/Ho_Chi_Minh';
+    const nowStr  = TimeUtils.promptNow(tz);
 
-    const prompt = `Hôm nay là ${dateStr}. Parse lịch từ text sau (tiếng Việt).
+    const prompt = `Hôm nay là ${nowStr}. Parse lịch từ text sau (tiếng Việt).
 Text: "${text}"
-Trả về JSON: { "title": "...", "remind_at": "YYYY-MM-DD HH:MM:SS", "repeat_type": "none|daily|weekly" }
+Trả về JSON: { "title": "...", "remind_at": "YYYY-MM-DD HH:MM:SS" (giờ ${tz}), "repeat_type": "none|daily|weekly" }
 Chỉ trả JSON, không giải thích. Nếu không parse được, trả { "error": "..." }`;
 
     const result = await model.generateContent(prompt);
@@ -276,30 +366,22 @@ Chỉ trả JSON, không giải thích. Nếu không parse được, trả { "er
   }
 
   /**
-   * Add days to a datetime string or Date and return "YYYY-MM-DD HH:MM:SS".
-   * @param {string|Date} base
-   * @param {number} days
-   */
-  #addDays(base, days) {
-    const d = new Date(base);
-    d.setDate(d.getDate() + days);
-    return d.toISOString().slice(0, 19).replace('T', ' ');
-  }
-
-  /**
    * Human-readable repeat label.
+   * remindAt is a local-timezone datetime string — parse components directly.
    * @param {string} repeatType
-   * @param {string|Date} remindAt
+   * @param {string} remindAt  "YYYY-MM-DD HH:MM:SS" (local tz)
    */
   #repeatLabel(repeatType, remindAt) {
-    const d = new Date(remindAt);
+    const hhmm = TimeUtils.timeOf(remindAt);
+    // Compute day-of-week from date components (UTC constructor avoids local-tz shift)
+    const datePart = TimeUtils.dateOf(remindAt);
+    const [yyyy, mm, dd] = datePart.split('-').map(Number);
+    const dow = new Date(Date.UTC(yyyy, mm - 1, dd)).getUTCDay();
     const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-    const dayName = days[d.getDay()];
-    const hhmm = d.toTimeString().slice(0, 5);
 
-    if (repeatType === 'weekly')  return `Hàng tuần (${dayName} ${hhmm})`;
-    if (repeatType === 'daily')   return `Hàng ngày (${hhmm})`;
-    return `Một lần (${dayName} ${hhmm})`;
+    if (repeatType === 'weekly') return `Hàng tuần (${days[dow]} ${hhmm})`;
+    if (repeatType === 'daily')  return `Hàng ngày (${hhmm})`;
+    return `Một lần (${days[dow]} ${hhmm})`;
   }
 }
 

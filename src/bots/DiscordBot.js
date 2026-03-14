@@ -1,7 +1,8 @@
 'use strict';
 
 const { Client, GatewayIntentBits } = require('discord.js');
-const BaseBot = require('./BaseBot');
+const BaseBot   = require('./BaseBot');
+const TimeUtils = require('../utils/TimeUtils');
 
 /**
  * Discord bot.
@@ -39,7 +40,14 @@ class DiscordBot extends BaseBot {
     'đần xem lịch ngày 15/03/2026',
     '```',
     '',
-    '**④ Xóa lịch:**',
+    '**④ Chỉnh sửa lịch:**',
+    '```',
+    'đần chỉnh sửa lịch Toán 1 ngày 14/03/2026 8h30pm',
+    'đần sửa lịch #5 ngày mai 9h',
+    'đần cập nhật lịch #3 tiêu đề: Họp nhóm',
+    '```',
+    '',
+    '**⑤ Xóa lịch:**',
     '```',
     'đần xóa lịch 5            ← xóa lịch ID 5',
     '/delschedule id:5',
@@ -130,11 +138,8 @@ class DiscordBot extends BaseBot {
         return interaction.editReply('📅 Bạn chưa có lịch nào.');
       }
       const lines = schedules.map((s) => {
-        const d      = new Date(s.remind_at);
-        const [yyyy, mm, dd] = d.toISOString().slice(0, 10).split('-');
-        const hhmm   = d.toTimeString().slice(0, 5);
         const repeat = s.repeat_type !== 'none' ? ` 🔁 ${s.repeat_type}` : '';
-        return `\`#${s.id}\` **${dd}/${mm}/${yyyy} ${hhmm}** ${s.title}${repeat}`;
+        return `\`#${s.id}\` **${TimeUtils.display(s.remind_at)}** ${s.title}${repeat}`;
       });
       const reply = `📅 **Lịch sắp tới** (${schedules.length}):\n${lines.join('\n')}`;
       await interaction.editReply(this.#truncate(reply));
@@ -208,6 +213,10 @@ class DiscordBot extends BaseBot {
         return this.#replyScheduleDelete(msg, result.prompt);
       }
 
+      if (/(chinh\s*sua|sua|cap\s*nhat)\s*(lich|reminder|nhac)/.test(norm)) {
+        return this.#replyScheduleEdit(msg, result.prompt);
+      }
+
       // "thêm lịch" without actual schedule content → show format guide
       if (/^(them|dat)\s+(lich|reminder|nhac)\s*$/.test(norm.trim())) {
         return msg.reply(DiscordBot.#SCHEDULE_FORMAT_GUIDE);
@@ -241,10 +250,13 @@ class DiscordBot extends BaseBot {
    * @param {string} raw   original prompt text
    */
   async #replyScheduleView(msg, norm, raw) {
+    const tz = this.#schedulerService
+      ? (this.#schedulerService.getTimezone?.() || 'Asia/Ho_Chi_Minh')
+      : 'Asia/Ho_Chi_Minh';
+
     // "hôm nay" → today
     if (/hom\s*nay/.test(norm)) {
-      const today = new Date().toISOString().slice(0, 10);
-      return this.#replyScheduleByDate(msg, today);
+      return this.#replyScheduleByDate(msg, TimeUtils.todayString(tz));
     }
 
     // "ngày DD/MM" or "ngày DD/MM/YYYY"
@@ -252,13 +264,46 @@ class DiscordBot extends BaseBot {
     if (dateMatch) {
       const dd   = dateMatch[1].padStart(2, '0');
       const mm   = dateMatch[2].padStart(2, '0');
-      const yyyy = dateMatch[3] || new Date().getFullYear();
+      const yyyy = dateMatch[3] || TimeUtils.todayString(tz).slice(0, 4);
       const dateStr = `${yyyy}-${mm}-${dd}`;
       return this.#replyScheduleByDate(msg, dateStr);
     }
 
     // No date → show all upcoming
     return this.#replyScheduleList(msg);
+  }
+
+  async #replyScheduleEdit(msg, prompt) {
+    msg.channel.sendTyping();
+    try {
+      const result = await this.#schedulerService.parseAndUpdate(
+        prompt, msg.author.id, this._platform
+      );
+
+      if (result.status === 'not_found') {
+        return msg.reply('❓ Tao không tìm thấy lịch đó — thử xem lịch bằng `đần xem lịch` rồi chỉnh bằng ID nhé!');
+      }
+
+      if (result.status === 'ambiguous') {
+        const lines = result.matches.map(
+          (s) => `\`#${s.id}\` **${TimeUtils.display(s.remind_at)}** ${s.title}`
+        );
+        return msg.reply(
+          `🔍 Tao tìm được ${result.matches.length} lịch khớp, mày muốn sửa cái nào?\n` +
+          lines.join('\n') +
+          '\n\n➡️ Gõ lại kèm ID, vd: _đần chỉnh sửa lịch #3 8h30pm_'
+        );
+      }
+
+      // status === 'updated'
+      const s       = result.schedule;
+      const display = TimeUtils.display(s.remind_at);
+      await msg.reply(`✅ Đã cập nhật lịch **#${s.id}**:\n📌 ${s.title}\n📅 ${display}`);
+
+    } catch (err) {
+      console.error('[Discord] Schedule edit error:', err);
+      await msg.reply(this.#truncate(`❌ Không sửa được lịch: ${err.message}`));
+    }
   }
 
   async #replyScheduleByDate(msg, dateStr) {
@@ -272,10 +317,8 @@ class DiscordBot extends BaseBot {
       }
 
       const lines = schedules.map((s) => {
-        const d   = new Date(s.remind_at);
-        const hhmm = d.toTimeString().slice(0, 5);
         const repeat = s.repeat_type !== 'none' ? ` 🔁` : '';
-        return `\`#${s.id}\` **${hhmm}** ${s.title}${repeat}`;
+        return `\`#${s.id}\` **${TimeUtils.timeOf(s.remind_at)}** ${s.title}${repeat}`;
       });
 
       const reply = `📅 **Lịch ngày ${label}** (${schedules.length} buổi):\n${lines.join('\n')}`;
@@ -294,11 +337,8 @@ class DiscordBot extends BaseBot {
       }
 
       const lines = schedules.map((s) => {
-        const d      = new Date(s.remind_at);
-        const [yyyy, mm, dd] = d.toISOString().slice(0, 10).split('-');
-        const hhmm   = d.toTimeString().slice(0, 5);
         const repeat = s.repeat_type !== 'none' ? ` 🔁 ${s.repeat_type}` : '';
-        return `\`#${s.id}\` **${dd}/${mm}/${yyyy} ${hhmm}** ${s.title}${repeat}`;
+        return `\`#${s.id}\` **${TimeUtils.display(s.remind_at)}** ${s.title}${repeat}`;
       });
 
       // Split into chunks if needed
@@ -355,8 +395,7 @@ class DiscordBot extends BaseBot {
         this._platform
       );
 
-      const d = new Date(schedule.remindAt);
-      const dStr = d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+      const dStr = TimeUtils.display(schedule.remindAt);
       const repeatLabel = schedule.repeatType !== 'none'
         ? ` | 🔁 ${schedule.repeatType === 'weekly' ? 'Hàng tuần' : 'Hàng ngày'}`
         : '';

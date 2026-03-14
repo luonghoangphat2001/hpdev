@@ -95,6 +95,9 @@ class BaseBot {
       /lich\s+(hoc|lam|viec)/,
       /xem\s+(lich|reminder)/,
       /xoa\s+(lich|reminder)/,
+      /chinh\s*(sua|sua)\s*(lich|reminder|nhac)/,
+      /sua\s+(lich|reminder|nhac)/,
+      /cap\s*nhat\s*(lich|nhac)/,
     ];
     const isSchedule = SCHEDULE_INTENTS.some((re) => re.test(np));
 

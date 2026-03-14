@@ -53,11 +53,15 @@ class ScheduleRepository {
   }
 
   /**
-   * Get all schedules whose remind_at is in the past and still active.
+   * Get all schedules due for firing.
+   * Uses a Node.js-computed local-timezone datetime string to avoid relying
+   * on the MySQL server's own timezone setting.
+   * @param {string} nowStr  current local time as "YYYY-MM-DD HH:MM:SS"
    */
-  async findUpcoming() {
+  async findUpcoming(nowStr) {
     return this.#db.query(
-      `SELECT * FROM schedules WHERE remind_at <= NOW() AND is_active = 1`
+      `SELECT * FROM schedules WHERE remind_at <= ? AND is_active = 1`,
+      [nowStr]
     );
   }
 
@@ -78,6 +82,45 @@ class ScheduleRepository {
         [id]
       );
     }
+  }
+
+  /**
+   * Update fields of a schedule (only if it belongs to the user).
+   * Only non-null fields in `changes` are applied.
+   * @param {number} id
+   * @param {string} userId
+   * @param {{ title?: string, remindAt?: string, repeatType?: string }} changes
+   * @returns {Promise<boolean>}
+   */
+  async update(id, userId, changes) {
+    const sets  = [];
+    const params = [];
+    if (changes.title)      { sets.push('title = ?');       params.push(changes.title); }
+    if (changes.remindAt)   { sets.push('remind_at = ?');   params.push(changes.remindAt); }
+    if (changes.repeatType) { sets.push('repeat_type = ?'); params.push(changes.repeatType); }
+    if (!sets.length) return false;
+    params.push(id, userId);
+    const result = await this.#db.query(
+      `UPDATE schedules SET ${sets.join(', ')} WHERE id = ? AND user_id = ? AND is_active = 1`,
+      params
+    );
+    return result.affectedRows > 0;
+  }
+
+  /**
+   * Find active schedules of a user where title contains a keyword (case-insensitive).
+   * @param {string} userId
+   * @param {string} platform
+   * @param {string} keyword
+   */
+  async findByKeyword(userId, platform, keyword) {
+    return this.#db.query(
+      `SELECT * FROM schedules
+       WHERE user_id = ? AND platform = ? AND is_active = 1
+         AND title LIKE ?
+       ORDER BY remind_at ASC`,
+      [userId, platform, `%${keyword}%`]
+    );
   }
 
   /**
