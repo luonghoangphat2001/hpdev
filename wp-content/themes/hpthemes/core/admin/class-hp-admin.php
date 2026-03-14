@@ -40,7 +40,8 @@ class Hp_Admin
                 'overview'   => $this->setting . 'Overview',
                 'notfound'   => $this->setting . 'Not_Found',
                 'buttons'    => $this->setting . 'Buttons',
-                'comingsoon' => $this->setting . 'Coming_Soon',
+                'comingsoon'  => $this->setting . 'Coming_Soon',
+                'contentsync' => $this->setting . 'Content_Sync',
             ]
         );
     }

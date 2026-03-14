@@ -22,4 +22,5 @@ jobs:
           script: |
             cd /home/hpdev/public_html
             git pull origin main
+            touch wp-content/themes/hpthemes/.sync-trigger
             echo "Deploy completed at $(date)"

@@ -26,6 +26,7 @@ class Hp_Core extends Setup_Theme
                     'hooks.php',
                     'functions.php',
                     'acf.php',
+                    'content-sync.php',
                 ],
             ],
         ];
