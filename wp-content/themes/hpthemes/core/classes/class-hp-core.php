@@ -25,6 +25,7 @@ class Hp_Core extends Setup_Theme
                     'customizer.php',
                     'hooks.php',
                     'functions.php',
+                    'acf.php',
                 ],
             ],
         ];
