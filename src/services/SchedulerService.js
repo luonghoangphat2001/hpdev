@@ -144,8 +144,8 @@ class SchedulerService {
     const remindAt   = parsed.remind_at  || parsed.remindAt   || parsed.remind_time || null;
     const repeatType = parsed.repeat_type || parsed.repeatType || 'none';
 
-    if (!title)    throw new Error('Không parse được tiêu đề lịch');
-    if (!remindAt) throw new Error('Không parse được thời gian nhắc');
+    if (!title)    throw new Error(`Không parse được tiêu đề lịch (Gemini trả: ${JSON.stringify(parsed)})`);
+    if (!remindAt) throw new Error(`Không parse được thời gian nhắc (Gemini trả: ${JSON.stringify(parsed)})`);
 
     const id = await this.#scheduleRepo.create({
       userId,
@@ -183,14 +183,17 @@ Chỉ trả JSON, không giải thích. Nếu không parse được, trả { "er
 
     const result = await model.generateContent(prompt);
     const raw = result.response.text().trim();
+    console.log('[SchedulerService] Gemini raw response:', raw);
 
-    // Strip markdown code fences if present
-    const jsonStr = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/, '').trim();
+    // Strip markdown code fences if present, then extract first {...} block
+    let jsonStr = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/, '').trim();
+    const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+    if (jsonMatch) jsonStr = jsonMatch[0];
 
     try {
       return JSON.parse(jsonStr);
     } catch {
-      return { error: `Không parse được JSON: ${raw}` };
+      return { error: `Không parse được JSON từ Gemini: ${raw}` };
     }
   }
 
