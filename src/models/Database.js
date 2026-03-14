@@ -29,6 +29,7 @@ class Database {
       database: process.env.DB_NAME,
       waitForConnections: true,
       connectionLimit: 5,
+      dateStrings: true,   // return DATE/DATETIME as "YYYY-MM-DD HH:MM:SS" strings, not Date objects
     });
 
     await this.#createTables();
