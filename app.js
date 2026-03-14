@@ -6,6 +6,7 @@
  */
 
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+require('./src/utils/Logger').init();
 
 const bcrypt = require('bcryptjs');
 

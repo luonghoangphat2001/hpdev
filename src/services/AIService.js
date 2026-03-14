@@ -43,10 +43,13 @@ class AIService {
       { role: 'user', content: prompt },
     ];
 
+    console.log(`[AIService] chat | platform=${platform} model=${activeModel} user=${username}(${userId}) channel=${channelId} prompt="${prompt.slice(0, 80)}${prompt.length > 80 ? '…' : ''}"`);
+
     // Resolve the specific model version string for accurate stats
     // (e.g. "models/gemini-2.5-flash" instead of just "gemini")
     let usedProvider = activeModel;
     let result;
+    const t0 = Date.now();
     try {
       result = await this.#createProvider(activeModel).chat(messages, systemPrompt);
     } catch (err) {
@@ -55,15 +58,19 @@ class AIService {
         result      = await this.#createProvider('gemini').chat(messages, systemPrompt);
         usedProvider = 'gemini'; // credit tokens to the provider that actually ran
       } else {
+        console.error(`[AIService] Provider error (${activeModel}):`, err.message);
         throw err;
       }
     }
+    const elapsed   = Date.now() - t0;
     const text      = result.text      ?? result;
     const tokensIn  = result.tokensIn  ?? 0;
     const tokensOut = result.tokensOut ?? 0;
 
     // Save the actual model version name so stats are meaningful
     const savedModel = this.#resolveModelVersion(usedProvider);
+
+    console.log(`[AIService] done  | model=${savedModel} tokens=${tokensIn}in/${tokensOut}out time=${elapsed}ms reply="${text.slice(0, 60)}${text.length > 60 ? '…' : ''}"`);
 
     await this.#conversationRepo.save({ channelId, userId, username, role: 'user', content: prompt, model: savedModel });
     await this.#conversationRepo.save({ channelId, userId: 'bot', username: 'Đần', role: 'assistant', content: text, model: savedModel, tokensIn, tokensOut });
@@ -111,7 +118,9 @@ class AIService {
   async setModel(modelKey, platform = null) {
     const configKey = platform ? `${platform}_active_model` : 'active_model';
     await this.#configRepo.set(configKey, modelKey);
-    return this.currentModel(platform).label;
+    const label = this.currentModel(platform).label;
+    console.log(`[AIService] model switched | platform=${platform} key=${modelKey} label=${label}`);
+    return label;
   }
 
   /**

@@ -37,11 +37,14 @@ class SchedulerService {
   async #tick() {
     try {
       const rows = await this.#scheduleRepo.findUpcoming();
+      if (rows.length) {
+        console.log(`[Scheduler] Tick | ${rows.length} schedule(s) due`);
+      }
       for (const row of rows) {
         await this.#fireReminder(row);
       }
     } catch (err) {
-      console.error('[SchedulerService] Tick error:', err);
+      console.error('[Scheduler] Tick error:', err);
     }
   }
 
@@ -50,10 +53,11 @@ class SchedulerService {
    * @param {object} row  - schedule DB row
    */
   async #fireReminder(row) {
+    console.log(`[Scheduler] Fire #${row.id} | user=${row.username}(${row.user_id}) title="${row.title}" repeat=${row.repeat_type}`);
     try {
       await this.#sendDiscordNotification(row);
     } catch (err) {
-      console.error(`[SchedulerService] Failed to notify schedule #${row.id}:`, err);
+      console.error(`[Scheduler] Notify failed #${row.id}:`, err.message);
     }
 
     let nextRemindAt = null;
@@ -63,6 +67,7 @@ class SchedulerService {
       nextRemindAt = this.#addDays(row.remind_at, 7);
     }
     await this.#scheduleRepo.markFired(row.id, nextRemindAt);
+    console.log(`[Scheduler] Marked #${row.id} | next=${nextRemindAt ?? 'deactivated'}`);
   }
 
   /**
@@ -82,7 +87,7 @@ class SchedulerService {
 
     const channel = await this.#discordClient.channels.fetch(channelId).catch(() => null);
     if (!channel) {
-      console.warn(`[SchedulerService] Channel ${channelId} not found`);
+      console.warn(`[Scheduler] Channel ${channelId} not found for schedule #${row.id}`);
       return;
     }
 
@@ -95,6 +100,7 @@ class SchedulerService {
     ].join('\n');
 
     await channel.send(message);
+    console.log(`[Scheduler] Sent notification #${row.id} → channel=${channelId}`);
   }
 
   /**
@@ -157,6 +163,7 @@ class SchedulerService {
       repeatType,
     });
 
+    console.log(`[Scheduler] Created #${id} | user=${username}(${userId}) title="${title}" at=${remindAt} repeat=${repeatType}`);
     return { id, title, remindAt, repeatType };
   }
 
@@ -183,7 +190,7 @@ Chỉ trả JSON, không giải thích. Nếu không parse được, trả { "er
 
     const result = await model.generateContent(prompt);
     const raw = result.response.text().trim();
-    console.log('[SchedulerService] Gemini raw response:', raw);
+    console.log('[Scheduler] Gemini parse response:', raw);
 
     // Strip markdown code fences if present, then extract first {...} block
     let jsonStr = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/, '').trim();

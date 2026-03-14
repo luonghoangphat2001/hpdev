@@ -41,15 +41,18 @@ class DiscordBot extends BaseBot {
 
   #registerHandlers() {
     this.#client.on('clientReady', () => {
-      console.log(`Discord bot online: ${this.#client.user.tag}`);
+      console.log(`[Discord] Bot online: ${this.#client.user.tag} (${this.#client.user.id})`);
     });
     this.#client.on('interactionCreate', (i)   => this.#handleInteraction(i));
     this.#client.on('messageCreate',     (msg) => this.#handleMessage(msg));
+    this.#client.on('error', (err) => console.error('[Discord] Client error:', err));
+    this.#client.on('warn',  (msg) => console.warn('[Discord] Warning:', msg));
   }
 
   /** Handle slash commands */
   async #handleInteraction(interaction) {
     if (!interaction.isChatInputCommand()) return;
+    console.log(`[Discord] Slash /${interaction.commandName} | user=${interaction.user.username}(${interaction.user.id}) guild=${interaction.guildId}`);
 
     switch (interaction.commandName) {
       case 'ai':             return this.#handleAiCommand(interaction);
@@ -62,17 +65,21 @@ class DiscordBot extends BaseBot {
   /** Handle /ai slash command */
   async #handleAiCommand(interaction) {
     await interaction.deferReply();
+    const prompt = interaction.options.getString('prompt');
+    console.log(`[Discord] /ai | user=${interaction.user.username} channel=${interaction.channelId} prompt="${prompt.slice(0, 80)}"`);
     try {
+      const t0   = Date.now();
       const text = await this._aiService.chat({
         channelId: interaction.channelId,
         userId:    interaction.user.id,
         username:  interaction.user.username,
-        prompt:    interaction.options.getString('prompt'),
+        prompt,
         platform:  this._platform,
       });
+      console.log(`[Discord] /ai done | ${Date.now() - t0}ms`);
       await interaction.editReply(this.#truncate(text));
     } catch (err) {
-      console.error('[Discord] Interaction error:', err);
+      console.error('[Discord] /ai error:', err);
       await interaction.editReply(`❌ Error: ${err.message}`);
     }
   }
@@ -150,6 +157,8 @@ class DiscordBot extends BaseBot {
     if (msg.author.bot)            return;
     if (!/đần/i.test(msg.content)) return;
 
+    console.log(`[Discord] Message | user=${msg.author.username}(${msg.author.id}) channel=${msg.channelId} text="${msg.content.slice(0, 100)}"`);
+
     const result = await this._handleDanCommand(msg.content, (s) => msg.reply(s));
     if (result.handled) return;
 
@@ -170,6 +179,7 @@ class DiscordBot extends BaseBot {
 
     msg.channel.sendTyping();
     try {
+      const t0   = Date.now();
       const text = await this._aiService.chat({
         channelId: msg.channelId,
         userId:    msg.author.id,
@@ -177,6 +187,7 @@ class DiscordBot extends BaseBot {
         prompt:    result.prompt,
         platform:  this._platform,
       });
+      console.log(`[Discord] AI reply done | ${Date.now() - t0}ms`);
       await msg.reply(this.#truncate(text));
     } catch (err) {
       console.error('[Discord] Message error:', err);

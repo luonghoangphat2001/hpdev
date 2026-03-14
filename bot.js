@@ -6,6 +6,7 @@
  */
 
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+require('./src/utils/Logger').init();
 
 const Database               = require('./src/models/Database');
 const ConfigRepository       = require('./src/models/ConfigRepository');

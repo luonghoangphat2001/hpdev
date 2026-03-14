@@ -13,6 +13,7 @@ const AuthMiddleware = require('../middleware/AuthMiddleware');
  *   history: import('../controllers/HistoryController'),
  *   stats:   import('../controllers/StatsController'),
  *   user:    import('../controllers/UserController'),
+ *   log:     import('../controllers/LogController'),
  * }} controllers
  * @returns {import('express').Router}
  */
@@ -40,6 +41,9 @@ function createApiRouter(controllers) {
   router.get('/users',             authAdmin, controllers.user.list);
   router.post('/users',            authAdmin, controllers.user.create);
   router.delete('/users/:username', authAdmin, controllers.user.remove);
+
+  router.get('/logs',           authAdmin, controllers.log.list);
+  router.get('/logs/:filename', authAdmin, controllers.log.download);
 
   return router;
 }

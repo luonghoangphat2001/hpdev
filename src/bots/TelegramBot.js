@@ -19,14 +19,14 @@ class TelegramBot extends BaseBot {
   start() {
     const token = process.env.TELEGRAM_TOKEN;
     if (!token) {
-      console.log('TELEGRAM_TOKEN not set, skipping Telegram bot');
+      console.log('[Telegram] TELEGRAM_TOKEN not set, skipping');
       return;
     }
 
     this.#bot = new Telegraf(token);
     this.#registerHandlers();
     this.#bot.launch();
-    console.log('Telegram bot online');
+    console.log('[Telegram] Bot online');
 
     process.once('SIGINT',  () => this.#bot.stop('SIGINT'));
     process.once('SIGTERM', () => this.#bot.stop('SIGTERM'));
@@ -39,12 +39,15 @@ class TelegramBot extends BaseBot {
 
     this.#bot.command('ai', async (ctx) => {
       const prompt = ctx.message.text.replace(/^\/ai\s*/i, '').trim();
+      const user   = ctx.from.username || ctx.from.first_name;
+      console.log(`[Telegram] /ai | user=${user}(${ctx.from.id}) chat=${ctx.chat.id} prompt="${prompt.slice(0, 80)}"`);
       if (!prompt) return ctx.reply('Hỏi gì đi đần ơi 😑');
       await this.#handleAI(ctx, prompt);
     });
 
     this.#bot.command('model', (ctx) => {
       const { label } = this._aiService.currentModel(this._platform);
+      console.log(`[Telegram] /model | user=${ctx.from.id} → ${label}`);
       return ctx.reply(`🤖 Tao đang dùng **${label}** nè!`, { parse_mode: 'Markdown' });
     });
 
@@ -54,10 +57,13 @@ class TelegramBot extends BaseBot {
       const key = map[arg];
       if (!key) return ctx.reply('❓ Dùng: /setmodel gemini | claude | chatgpt');
       const label = await this._aiService.setModel(key, this._platform);
+      console.log(`[Telegram] /setmodel | user=${ctx.from.id} → ${key}`);
       return ctx.reply(`✅ Đã chuyển sang **${label}**!`, { parse_mode: 'Markdown' });
     });
 
     this.#bot.hears(/đần/i, async (ctx) => {
+      const user = ctx.from.username || ctx.from.first_name;
+      console.log(`[Telegram] Message | user=${user}(${ctx.from.id}) chat=${ctx.chat.id} text="${ctx.message.text.slice(0, 100)}"`);
       const reply = (s) => ctx.reply(s, { parse_mode: 'Markdown' });
       const result = await this._handleDanCommand(ctx.message.text, reply);
       if (!result.handled) await this.#handleAI(ctx, result.prompt);
@@ -80,11 +86,13 @@ class TelegramBot extends BaseBot {
       : Promise.resolve();
 
     try {
+      const t0       = Date.now();
       const response = await this._aiService.chat({ channelId, userId, username, prompt, platform: this._platform });
+      console.log(`[Telegram] AI reply done | user=${username} ${Date.now() - t0}ms`);
       await deleteThinking();
       await ctx.reply(response);
     } catch (err) {
-      console.error('[Telegram] Error:', err);
+      console.error(`[Telegram] AI error | user=${username}:`, err.message);
       await deleteThinking();
       await ctx.reply('❌ Lỗi: ' + err.message).catch(() => {});
     }
