@@ -158,7 +158,13 @@ class SchedulerService {
    * >}
    */
   async parseAndUpdate(text, userId, platform) {
-    const tz = this.getTimezone();
+    const tz   = this.getTimezone();
+    const norm = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd');
+
+    // ── Bulk path: "toàn bộ / tất cả" → update all matching schedules ──
+    if (/toan\s*bo|tat\s*ca|het|all/.test(norm)) {
+      return this.#applyBulkTimeUpdate(text, norm, userId, platform, tz);
+    }
 
     // ── Fast path: regex for simple "#ID <time>" or "#ID <date> <time>" ──
     const fastParsed = SchedulerService.#fastParseEdit(text, tz);
@@ -245,6 +251,46 @@ Trả về JSON object (chỉ JSON, không giải thích):
     const updated = await this.#scheduleRepo.findById(target.id);
     console.log(`[Scheduler] Updated #${target.id} | changes=${JSON.stringify(changes)}`);
     return { status: 'updated', schedule: updated };
+  }
+
+  /**
+   * Bulk-update time for all schedules whose title matches a keyword.
+   * Triggered when user says "toàn bộ / tất cả".
+   * Keeps each schedule's existing date, only changes the time component.
+   */
+  async #applyBulkTimeUpdate(text, _norm, userId, platform, _tz) {
+    // Extract time from text: "8h30pm", "20:30", "8h30"
+    const timeMatch = text.match(/(\d{1,2})[h:](\d{0,2})\s*(pm|am)?/i);
+    if (!timeMatch) throw new Error('Không tìm thấy giờ mới — vd: "toàn bộ 8h30pm"');
+
+    let hour  = Number(timeMatch[1]);
+    const min = Number(timeMatch[2] || 0);
+    const ap  = (timeMatch[3] || '').toLowerCase();
+    if (ap === 'pm' && hour < 12) hour += 12;
+    if (ap === 'am' && hour === 12) hour = 0;
+    const newTimePart = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}:00`;
+
+    // Extract keyword: text between "lịch" and time/toàn bộ/tất cả keywords
+    // Strip command words to get the subject keyword
+    const stripped = text
+      .replace(/đần\s*/i, '')
+      .replace(/(chinh\s*sua|sua|cap\s*nhat)\s*(lich|reminder|nhac)/i, '')
+      .replace(/toan\s*bo|tat\s*ca|het|all/gi, '')
+      .replace(/(\d{1,2})[h:](\d{0,2})\s*(pm|am)?/gi, '')
+      .replace(/ngay\s*\d.*$/gi, '')
+      .trim();
+
+    const keyword = stripped.replace(/^[\s\-–:,]+|[\s\-–:,]+$/g, '').trim();
+    if (!keyword) throw new Error('Không rõ cần sửa lịch nào — thêm tên môn/việc vào nhé!');
+
+    console.log(`[Scheduler] Bulk time update | keyword="${keyword}" newTime=${newTimePart}`);
+
+    const affected = await this.#scheduleRepo.updateTimeByKeyword(userId, platform, keyword, newTimePart);
+    if (!affected) return { status: 'not_found' };
+
+    const updated = await this.#scheduleRepo.findByKeyword(userId, platform, keyword);
+    console.log(`[Scheduler] Bulk updated ${affected} schedules | keyword="${keyword}"`);
+    return { status: 'bulk_updated', count: affected, schedules: updated, keyword };
   }
 
   /**

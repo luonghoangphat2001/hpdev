@@ -124,6 +124,25 @@ class ScheduleRepository {
   }
 
   /**
+   * Update all active schedules matching a keyword for a user.
+   * Only non-null fields in `changes` are applied.
+   * @param {string} userId
+   * @param {string} platform
+   * @param {string} keyword
+   * @param {{ remindAtTimePart?: string }} changes  remindAtTimePart = "HH:MM:SS" (keeps each row's date)
+   * @returns {Promise<number>} affected rows
+   */
+  async updateTimeByKeyword(userId, platform, keyword, newTimePart) {
+    const result = await this.#db.query(
+      `UPDATE schedules
+       SET remind_at = CONCAT(DATE(remind_at), ' ', ?)
+       WHERE user_id = ? AND platform = ? AND is_active = 1 AND title LIKE ?`,
+      [newTimePart, userId, platform, `%${keyword}%`]
+    );
+    return result.affectedRows;
+  }
+
+  /**
    * Delete a schedule (only if it belongs to the user).
    * @param {number} id
    * @param {string} userId

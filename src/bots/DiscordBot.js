@@ -281,7 +281,23 @@ class DiscordBot extends BaseBot {
       );
 
       if (result.status === 'not_found') {
-        return msg.reply('❓ Tao không tìm thấy lịch đó — thử xem lịch bằng `đần xem lịch` rồi chỉnh bằng ID nhé!');
+        return msg.reply('❓ Tao không tìm thấy lịch đó — thử `đần xem lịch` để xem danh sách rồi chỉnh bằng ID nhé!');
+      }
+
+      if (result.status === 'bulk_updated') {
+        const lines = result.schedules.map(
+          (s) => `\`#${s.id}\` **${TimeUtils.display(s.remind_at)}** ${s.title}`
+        );
+        const header = `✅ Đã cập nhật **${result.count} lịch** "${result.keyword}":\n`;
+        const chunks = [];
+        let cur = header;
+        for (const line of lines) {
+          if (cur.length + line.length + 1 > 1990) { chunks.push(cur); cur = ''; }
+          cur += line + '\n';
+        }
+        if (cur) chunks.push(cur);
+        for (const chunk of chunks) await msg.reply(chunk);
+        return;
       }
 
       if (result.status === 'ambiguous') {
