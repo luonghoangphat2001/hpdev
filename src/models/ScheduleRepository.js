@@ -37,6 +37,22 @@ class ScheduleRepository {
   }
 
   /**
+   * Get active schedules for a user on a specific date (YYYY-MM-DD).
+   * @param {string} userId
+   * @param {string} platform
+   * @param {string} dateStr  e.g. "2026-03-15"
+   */
+  async findByDate(userId, platform, dateStr) {
+    return this.#db.query(
+      `SELECT * FROM schedules
+       WHERE user_id = ? AND platform = ? AND is_active = 1
+         AND DATE(remind_at) = ?
+       ORDER BY remind_at ASC`,
+      [userId, platform, dateStr]
+    );
+  }
+
+  /**
    * Get all schedules whose remind_at is in the past and still active.
    */
   async findUpcoming() {

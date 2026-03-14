@@ -113,6 +113,16 @@ class SchedulerService {
   }
 
   /**
+   * Get active schedules for a user on a specific date.
+   * @param {string} userId
+   * @param {string} platform
+   * @param {string} dateStr  YYYY-MM-DD
+   */
+  async listByDate(userId, platform, dateStr) {
+    return this.#scheduleRepo.findByDate(userId, platform, dateStr);
+  }
+
+  /**
    * Delete a schedule owned by the given user.
    * @param {number} id
    * @param {string} userId

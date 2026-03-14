@@ -14,6 +14,38 @@ class DiscordBot extends BaseBot {
   /** @type {import('../services/SchedulerService')|null} */
   #schedulerService = null;
 
+  static #SCHEDULE_FORMAT_GUIDE = [
+    '📅 **Hướng dẫn thêm lịch**',
+    '',
+    '**① Một lịch (AI parse):**',
+    '```',
+    'đần thêm lịch thứ 2 8h học Toán',
+    'đần thêm lịch ngày mai 9h họp nhóm',
+    'đần nhắc tôi ngày 20/03 lúc 7h thi giữa kỳ',
+    '```',
+    '',
+    '**② Nhiều lịch cùng lúc (theo thời khoá biểu):**',
+    '```',
+    'đần thêm lịch',
+    'Ngày 15/03/2026 học Lập trình hướng đối tượng giờ 05:45 - 08:45',
+    'Ngày 16/03/2026 học Kinh tế chính trị Mác - Lênin giờ 11:00 - 14:00',
+    'Ngày 17/03/2026 học Đại số tuyến tính giờ 11:00 - 14:00',
+    '```',
+    '',
+    '**③ Xem lịch:**',
+    '```',
+    'đần xem lịch              ← tất cả lịch sắp tới',
+    'đần xem lịch hôm nay',
+    'đần xem lịch ngày 15/03/2026',
+    '```',
+    '',
+    '**④ Xóa lịch:**',
+    '```',
+    'đần xóa lịch 5            ← xóa lịch ID 5',
+    '/delschedule id:5',
+    '```',
+  ].join('\n');
+
   /**
    * @param {import('../services/AIService')} aiService
    * @param {import('../services/SchedulerService')} [schedulerService]
@@ -98,12 +130,14 @@ class DiscordBot extends BaseBot {
         return interaction.editReply('📅 Bạn chưa có lịch nào.');
       }
       const lines = schedules.map((s) => {
-        const d = new Date(s.remind_at);
-        const dStr = d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
-        const repeat = s.repeat_type !== 'none' ? ` (${s.repeat_type})` : '';
-        return `**#${s.id}** ${s.title} — ${dStr}${repeat}`;
+        const d      = new Date(s.remind_at);
+        const [yyyy, mm, dd] = d.toISOString().slice(0, 10).split('-');
+        const hhmm   = d.toTimeString().slice(0, 5);
+        const repeat = s.repeat_type !== 'none' ? ` 🔁 ${s.repeat_type}` : '';
+        return `\`#${s.id}\` **${dd}/${mm}/${yyyy} ${hhmm}** ${s.title}${repeat}`;
       });
-      await interaction.editReply(`📅 **Lịch của bạn:**\n${lines.join('\n')}`);
+      const reply = `📅 **Lịch sắp tới** (${schedules.length}):\n${lines.join('\n')}`;
+      await interaction.editReply(this.#truncate(reply));
     } catch (err) {
       console.error('[Discord] /myschedule error:', err);
       await interaction.editReply(`❌ Lỗi: ${err.message}`);
@@ -167,11 +201,16 @@ class DiscordBot extends BaseBot {
       const norm = result.prompt.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd');
 
       if (/xem\s+(lich|reminder)/.test(norm)) {
-        return this.#replyScheduleList(msg);
+        return this.#replyScheduleView(msg, norm, result.prompt);
       }
 
       if (/xoa\s+(lich|reminder)/.test(norm)) {
         return this.#replyScheduleDelete(msg, result.prompt);
+      }
+
+      // "thêm lịch" without actual schedule content → show format guide
+      if (/^(them|dat)\s+(lich|reminder|nhac)\s*$/.test(norm.trim())) {
+        return msg.reply(DiscordBot.#SCHEDULE_FORMAT_GUIDE);
       }
 
       return this.#replyScheduleCreate(msg, result.prompt);
@@ -195,19 +234,84 @@ class DiscordBot extends BaseBot {
     }
   }
 
+  /**
+   * Route "xem lịch" to date-specific or full list.
+   * @param {import('discord.js').Message} msg
+   * @param {string} norm  normalised (no diacritics) prompt
+   * @param {string} raw   original prompt text
+   */
+  async #replyScheduleView(msg, norm, raw) {
+    // "hôm nay" → today
+    if (/hom\s*nay/.test(norm)) {
+      const today = new Date().toISOString().slice(0, 10);
+      return this.#replyScheduleByDate(msg, today);
+    }
+
+    // "ngày DD/MM" or "ngày DD/MM/YYYY"
+    const dateMatch = raw.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{4}))?/);
+    if (dateMatch) {
+      const dd   = dateMatch[1].padStart(2, '0');
+      const mm   = dateMatch[2].padStart(2, '0');
+      const yyyy = dateMatch[3] || new Date().getFullYear();
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+      return this.#replyScheduleByDate(msg, dateStr);
+    }
+
+    // No date → show all upcoming
+    return this.#replyScheduleList(msg);
+  }
+
+  async #replyScheduleByDate(msg, dateStr) {
+    try {
+      const schedules = await this.#schedulerService.listByDate(msg.author.id, this._platform, dateStr);
+      const [yyyy, mm, dd] = dateStr.split('-');
+      const label = `${dd}/${mm}/${yyyy}`;
+
+      if (!schedules.length) {
+        return msg.reply(`📅 Ngày **${label}** mày không có lịch nào cả — thoải mái 😎`);
+      }
+
+      const lines = schedules.map((s) => {
+        const d   = new Date(s.remind_at);
+        const hhmm = d.toTimeString().slice(0, 5);
+        const repeat = s.repeat_type !== 'none' ? ` 🔁` : '';
+        return `\`#${s.id}\` **${hhmm}** ${s.title}${repeat}`;
+      });
+
+      const reply = `📅 **Lịch ngày ${label}** (${schedules.length} buổi):\n${lines.join('\n')}`;
+      await msg.reply(this.#truncate(reply));
+    } catch (err) {
+      console.error('[Discord] Schedule by-date error:', err);
+      await msg.reply(`❌ Lỗi: ${err.message}`);
+    }
+  }
+
   async #replyScheduleList(msg) {
     try {
       const schedules = await this.#schedulerService.listByUser(msg.author.id, this._platform);
       if (!schedules.length) {
-        return msg.reply('📅 Mày chưa có lịch nào đâu!');
+        return msg.reply(`📅 Mày chưa có lịch nào đâu!\n\n${DiscordBot.#SCHEDULE_FORMAT_GUIDE}`);
       }
+
       const lines = schedules.map((s) => {
-        const d = new Date(s.remind_at);
-        const dStr = d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
-        const repeat = s.repeat_type !== 'none' ? ` (${s.repeat_type})` : '';
-        return `**#${s.id}** ${s.title} — ${dStr}${repeat}`;
+        const d      = new Date(s.remind_at);
+        const [yyyy, mm, dd] = d.toISOString().slice(0, 10).split('-');
+        const hhmm   = d.toTimeString().slice(0, 5);
+        const repeat = s.repeat_type !== 'none' ? ` 🔁 ${s.repeat_type}` : '';
+        return `\`#${s.id}\` **${dd}/${mm}/${yyyy} ${hhmm}** ${s.title}${repeat}`;
       });
-      await msg.reply(`📅 **Lịch của mày:**\n${lines.join('\n')}`);
+
+      // Split into chunks if needed
+      const header = `📅 **Lịch sắp tới của mày** (${schedules.length}):\n`;
+      const chunks = [];
+      let cur = header;
+      for (const line of lines) {
+        if (cur.length + line.length + 1 > 1990) { chunks.push(cur); cur = ''; }
+        cur += line + '\n';
+      }
+      if (cur) chunks.push(cur);
+      for (const chunk of chunks) await msg.reply(chunk);
+
     } catch (err) {
       console.error('[Discord] Schedule list error:', err);
       await msg.reply(`❌ Lỗi: ${err.message}`);
