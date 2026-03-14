@@ -11,9 +11,17 @@ class DiscordBot extends BaseBot {
   /** @type {Client} */
   #client;
 
-  /** @param {import('../services/AIService')} aiService */
-  constructor(aiService) {
+  /** @type {import('../services/SchedulerService')|null} */
+  #schedulerService = null;
+
+  /**
+   * @param {import('../services/AIService')} aiService
+   * @param {import('../services/SchedulerService')} [schedulerService]
+   */
+  constructor(aiService, schedulerService = null) {
     super(aiService, 'discord');
+
+    this.#schedulerService = schedulerService;
 
     this.#client = new Client({
       intents: [
@@ -26,6 +34,11 @@ class DiscordBot extends BaseBot {
     this.#registerHandlers();
   }
 
+  /** Expose the raw Discord.js Client (e.g. for SchedulerService). */
+  getClient() {
+    return this.#client;
+  }
+
   #registerHandlers() {
     this.#client.on('clientReady', () => {
       console.log(`Discord bot online: ${this.#client.user.tag}`);
@@ -34,10 +47,20 @@ class DiscordBot extends BaseBot {
     this.#client.on('messageCreate',     (msg) => this.#handleMessage(msg));
   }
 
-  /** Handle /ai slash command */
+  /** Handle slash commands */
   async #handleInteraction(interaction) {
-    if (!interaction.isChatInputCommand() || interaction.commandName !== 'ai') return;
+    if (!interaction.isChatInputCommand()) return;
 
+    switch (interaction.commandName) {
+      case 'ai':             return this.#handleAiCommand(interaction);
+      case 'myschedule':     return this.#handleMySchedule(interaction);
+      case 'delschedule':    return this.#handleDelSchedule(interaction);
+      case 'setchannelschedule': return this.#handleSetChannelSchedule(interaction);
+    }
+  }
+
+  /** Handle /ai slash command */
+  async #handleAiCommand(interaction) {
     await interaction.deferReply();
     try {
       const text = await this._aiService.chat({
@@ -54,6 +77,74 @@ class DiscordBot extends BaseBot {
     }
   }
 
+  /** Handle /myschedule slash command */
+  async #handleMySchedule(interaction) {
+    await interaction.deferReply({ ephemeral: true });
+    if (!this.#schedulerService) {
+      return interaction.editReply('❌ Scheduler chưa được bật.');
+    }
+    try {
+      const schedules = await this.#schedulerService.listByUser(
+        interaction.user.id, this._platform
+      );
+      if (!schedules.length) {
+        return interaction.editReply('📅 Bạn chưa có lịch nào.');
+      }
+      const lines = schedules.map((s) => {
+        const d = new Date(s.remind_at);
+        const dStr = d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+        const repeat = s.repeat_type !== 'none' ? ` (${s.repeat_type})` : '';
+        return `**#${s.id}** ${s.title} — ${dStr}${repeat}`;
+      });
+      await interaction.editReply(`📅 **Lịch của bạn:**\n${lines.join('\n')}`);
+    } catch (err) {
+      console.error('[Discord] /myschedule error:', err);
+      await interaction.editReply(`❌ Lỗi: ${err.message}`);
+    }
+  }
+
+  /** Handle /delschedule slash command */
+  async #handleDelSchedule(interaction) {
+    await interaction.deferReply({ ephemeral: true });
+    if (!this.#schedulerService) {
+      return interaction.editReply('❌ Scheduler chưa được bật.');
+    }
+    const id = interaction.options.getInteger('id');
+    try {
+      const ok = await this.#schedulerService.deleteSchedule(id, interaction.user.id);
+      if (ok) {
+        await interaction.editReply(`✅ Đã xóa lịch **#${id}**.`);
+      } else {
+        await interaction.editReply(`❌ Không tìm thấy lịch #${id} của bạn.`);
+      }
+    } catch (err) {
+      console.error('[Discord] /delschedule error:', err);
+      await interaction.editReply(`❌ Lỗi: ${err.message}`);
+    }
+  }
+
+  /** Handle /setchannelschedule slash command (admin only) */
+  async #handleSetChannelSchedule(interaction) {
+    await interaction.deferReply({ ephemeral: true });
+    if (!this.#schedulerService) {
+      return interaction.editReply('❌ Scheduler chưa được bật.');
+    }
+
+    // Only guild admins can set the notification channel
+    if (!interaction.memberPermissions?.has('Administrator')) {
+      return interaction.editReply('❌ Chỉ admin mới được dùng lệnh này.');
+    }
+
+    const channel = interaction.options.getChannel('channel');
+    try {
+      await this.#schedulerService.setNotificationChannel(channel.id);
+      await interaction.editReply(`✅ Đã đặt channel thông báo lịch: <#${channel.id}>`);
+    } catch (err) {
+      console.error('[Discord] /setchannelschedule error:', err);
+      await interaction.editReply(`❌ Lỗi: ${err.message}`);
+    }
+  }
+
   /** Handle plain messages that mention "đần" */
   async #handleMessage(msg) {
     if (msg.author.bot)            return;
@@ -61,6 +152,21 @@ class DiscordBot extends BaseBot {
 
     const result = await this._handleDanCommand(msg.content, (s) => msg.reply(s));
     if (result.handled) return;
+
+    // Schedule intent handling
+    if (result.isSchedule && this.#schedulerService) {
+      const norm = result.prompt.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd');
+
+      if (/xem\s+(lich|reminder)/.test(norm)) {
+        return this.#replyScheduleList(msg);
+      }
+
+      if (/xoa\s+(lich|reminder)/.test(norm)) {
+        return this.#replyScheduleDelete(msg, result.prompt);
+      }
+
+      return this.#replyScheduleCreate(msg, result.prompt);
+    }
 
     msg.channel.sendTyping();
     try {
@@ -75,6 +181,69 @@ class DiscordBot extends BaseBot {
     } catch (err) {
       console.error('[Discord] Message error:', err);
       await msg.reply(`❌ Error: ${err.message}`);
+    }
+  }
+
+  async #replyScheduleList(msg) {
+    try {
+      const schedules = await this.#schedulerService.listByUser(msg.author.id, this._platform);
+      if (!schedules.length) {
+        return msg.reply('📅 Mày chưa có lịch nào đâu!');
+      }
+      const lines = schedules.map((s) => {
+        const d = new Date(s.remind_at);
+        const dStr = d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+        const repeat = s.repeat_type !== 'none' ? ` (${s.repeat_type})` : '';
+        return `**#${s.id}** ${s.title} — ${dStr}${repeat}`;
+      });
+      await msg.reply(`📅 **Lịch của mày:**\n${lines.join('\n')}`);
+    } catch (err) {
+      console.error('[Discord] Schedule list error:', err);
+      await msg.reply(`❌ Lỗi: ${err.message}`);
+    }
+  }
+
+  async #replyScheduleDelete(msg, prompt) {
+    const match = prompt.match(/\d+/);
+    if (!match) {
+      return msg.reply('❓ Cho tao biết ID lịch muốn xóa (vd: "đần xóa lịch 3")');
+    }
+    try {
+      const ok = await this.#schedulerService.deleteSchedule(Number(match[0]), msg.author.id);
+      if (ok) {
+        await msg.reply(`✅ Đã xóa lịch **#${match[0]}** rồi nha!`);
+      } else {
+        await msg.reply(`❌ Không tìm thấy lịch #${match[0]} của mày.`);
+      }
+    } catch (err) {
+      console.error('[Discord] Schedule delete error:', err);
+      await msg.reply(`❌ Lỗi: ${err.message}`);
+    }
+  }
+
+  async #replyScheduleCreate(msg, prompt) {
+    msg.channel.sendTyping();
+    try {
+      const schedule = await this.#schedulerService.parseAndCreate(
+        prompt,
+        msg.author.id,
+        msg.author.username,
+        msg.channelId,
+        this._platform
+      );
+
+      const d = new Date(schedule.remindAt);
+      const dStr = d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+      const repeatLabel = schedule.repeatType !== 'none'
+        ? ` | 🔁 ${schedule.repeatType === 'weekly' ? 'Hàng tuần' : 'Hàng ngày'}`
+        : '';
+
+      await msg.reply(
+        `✅ Đã đặt lịch **#${schedule.id}**: ${schedule.title}\n📅 ${dStr}${repeatLabel}`
+      );
+    } catch (err) {
+      console.error('[Discord] Schedule create error:', err);
+      await msg.reply(`❌ Không tạo được lịch: ${err.message}`);
     }
   }
 

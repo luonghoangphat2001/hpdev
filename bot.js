@@ -11,7 +11,9 @@ const Database               = require('./src/models/Database');
 const ConfigRepository       = require('./src/models/ConfigRepository');
 const ConversationRepository = require('./src/models/ConversationRepository');
 const UserRepository         = require('./src/models/UserRepository');
+const ScheduleRepository     = require('./src/models/ScheduleRepository');
 const AIService              = require('./src/services/AIService');
+const SchedulerService       = require('./src/services/SchedulerService');
 const DiscordBot             = require('./src/bots/DiscordBot');
 const TelegramBot            = require('./src/bots/TelegramBot');
 
@@ -26,9 +28,20 @@ async function bootstrap() {
   const userRepo         = new UserRepository(db);    // needed for future bot-side auth
   void userRepo;
 
-  const aiService = new AIService(configRepo, conversationRepo);
+  const aiService        = new AIService(configRepo, conversationRepo);
+  const scheduleRepo     = new ScheduleRepository(db);
+  const schedulerService = new SchedulerService(scheduleRepo, configRepo);
 
-  new DiscordBot(aiService).start();
+  const discordBot = new DiscordBot(aiService, schedulerService);
+  discordBot.start();
+
+  // Inject Discord client into scheduler once bot is up
+  const client = discordBot.getClient();
+  client.once('clientReady', () => {
+    schedulerService.setDiscordClient(client);
+    schedulerService.start();
+  });
+
   new TelegramBot(aiService).start();
 }
 

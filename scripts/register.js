@@ -8,12 +8,36 @@
 require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
 const { REST, Routes, SlashCommandBuilder } = require("discord.js");
 
+const { ChannelType } = require("discord.js");
+
 const commands = [
   new SlashCommandBuilder()
     .setName("ai")
     .setDescription("Chat with AI (Claude or Gemini)")
     .addStringOption((opt) =>
       opt.setName("prompt").setDescription("Your question").setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName("myschedule")
+    .setDescription("Xem danh sách lịch nhắc của bạn"),
+
+  new SlashCommandBuilder()
+    .setName("delschedule")
+    .setDescription("Xóa một lịch nhắc")
+    .addIntegerOption((opt) =>
+      opt.setName("id").setDescription("ID của lịch cần xóa").setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName("setchannelschedule")
+    .setDescription("Đặt channel nhận thông báo lịch (admin only)")
+    .addChannelOption((opt) =>
+      opt
+        .setName("channel")
+        .setDescription("Channel Discord nhận thông báo")
+        .addChannelTypes(ChannelType.GuildText)
+        .setRequired(true)
     ),
 ];
 

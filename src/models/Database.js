@@ -78,6 +78,22 @@ class Database {
 
     // Migration: track last active time per user (must run after CREATE TABLE users)
     await this.#addColumnIfMissing('users', 'last_active', 'DATETIME NULL AFTER role');
+
+    await this.query(`
+      CREATE TABLE IF NOT EXISTS schedules (
+        id          INT AUTO_INCREMENT PRIMARY KEY,
+        user_id     VARCHAR(32)  NOT NULL,
+        username    VARCHAR(64),
+        platform    VARCHAR(16)  DEFAULT 'discord',
+        channel_id  VARCHAR(32),
+        title       VARCHAR(255) NOT NULL,
+        remind_at   DATETIME     NOT NULL COMMENT 'next fire time',
+        repeat_type ENUM('none','daily','weekly') DEFAULT 'none',
+        is_active   TINYINT      DEFAULT 1,
+        created_at  DATETIME     DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_remind (remind_at, is_active)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `);
   }
 
   /**

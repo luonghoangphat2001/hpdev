@@ -24,6 +24,7 @@ class ConfigRepository {
     gemini_model:  'models/gemini-2.5-flash',
     claude_model:  'claude-sonnet-4-6',
     chatgpt_model: 'gpt-4o',
+    schedule_discord_channel_id: '',
   };
 
   /** @param {import('./Database')} db */

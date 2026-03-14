@@ -86,7 +86,19 @@ class BaseBot {
       return { handled: true };
     }
 
-    return { handled: false, prompt };
+    // Detect schedule intents (checked on normalised text)
+    const np = BaseBot.#norm(prompt);
+    const SCHEDULE_INTENTS = [
+      /them\s+(lich|reminder|nhac)/,
+      /dat\s+(lich|nhac)/,
+      /nhac\s+toi/,
+      /lich\s+(hoc|lam|viec)/,
+      /xem\s+(lich|reminder)/,
+      /xoa\s+(lich|reminder)/,
+    ];
+    const isSchedule = SCHEDULE_INTENTS.some((re) => re.test(np));
+
+    return { handled: false, prompt, isSchedule };
   }
 }
 
