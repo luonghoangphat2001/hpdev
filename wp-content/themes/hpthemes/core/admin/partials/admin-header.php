@@ -1,5 +1,5 @@
 <div class="hp-admin-toolbar">
-    <a href="<?php echo HPAdmin()->admin_url ?>" class="toolbar-logo">HP.Media / Website</a>
+    <a href="<?php echo Hp_Admin()->admin_url ?>" class="toolbar-logo">HP.Media / Website</a>
     <?php 
     $menu_settings = get_admin_menu_tabs();
     if ( is_array ( $menu_settings ) ) {
