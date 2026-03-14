@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
    Constants
 ================================================================ */
 
-define( 'HP_CONTENT_SYNC_EXPORT_DIR', get_template_directory() . '/../../data/wp-export' );
+define( 'HP_CONTENT_SYNC_EXPORT_DIR', ABSPATH . 'data/wp-export' );
 define( 'HP_CONTENT_SYNC_TRIGGER',    get_template_directory() . '/.sync-trigger' );
 
 /* ================================================================
