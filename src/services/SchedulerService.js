@@ -130,6 +130,61 @@ class SchedulerService {
   }
 
   /**
+   * Parse bulk structured schedule text and persist all entries.
+   * Expects lines like: "Ngày DD/MM/YYYY học <subject> giờ HH:MM - HH:MM"
+   *
+   * @param {string} text   — multiline schedule block
+   * @param {string} userId
+   * @param {string} username
+   * @param {string} channelId
+   * @param {string} platform
+   * @returns {Promise<{created: number, skipped: number, lines: string[]}>}
+   */
+  async parseAndCreateBulk(text, userId, username, channelId, platform) {
+    // Match: Ngày DD/MM/YYYY học <subject> giờ HH:MM - HH:MM
+    const LINE_RE = /ng[aà]y\s+(\d{1,2}\/\d{1,2}\/\d{4})\s+h[oọ]c\s+(.+?)\s+gi[oờ]+\s+(\d{1,2}:\d{2})\s*[-–]\s*\d{1,2}:\d{2}/gi;
+
+    const entries = [];
+    let m;
+    while ((m = LINE_RE.exec(text)) !== null) {
+      const [, datePart, subject, startTime] = m;
+      const [dd, mm, yyyy] = datePart.split('/');
+      const remindAt = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')} ${startTime}:00`;
+      entries.push({ title: subject.trim(), remindAt, repeatType: 'none' });
+    }
+
+    if (!entries.length) {
+      throw new Error('Không tìm thấy lịch nào theo định dạng "Ngày DD/MM/YYYY học ... giờ HH:MM - HH:MM"');
+    }
+
+    let created = 0;
+    let skipped = 0;
+    const lines = [];
+
+    for (const entry of entries) {
+      try {
+        const id = await this.#scheduleRepo.create({
+          userId,
+          username:  username  || null,
+          platform:  platform  || 'discord',
+          channelId: channelId || null,
+          title:     entry.title,
+          remindAt:  entry.remindAt,
+          repeatType: entry.repeatType,
+        });
+        created++;
+        lines.push(`✅ #${id} ${entry.title} — ${entry.remindAt}`);
+        console.log(`[Scheduler] Bulk created #${id} | "${entry.title}" at ${entry.remindAt}`);
+      } catch (err) {
+        skipped++;
+        lines.push(`❌ ${entry.title} — ${err.message}`);
+      }
+    }
+
+    return { created, skipped, lines };
+  }
+
+  /**
    * Parse natural-language schedule text via Gemini and persist it.
    * @param {string} text
    * @param {string} userId

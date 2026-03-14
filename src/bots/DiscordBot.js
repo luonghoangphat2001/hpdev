@@ -234,6 +234,14 @@ class DiscordBot extends BaseBot {
 
   async #replyScheduleCreate(msg, prompt) {
     msg.channel.sendTyping();
+
+    // Detect bulk input: 3+ occurrences of "Ngày" → bulk mode
+    const isBulk = (prompt.match(/ng[aà]y\s+\d/gi) || []).length >= 3;
+
+    if (isBulk) {
+      return this.#replyScheduleCreateBulk(msg, prompt);
+    }
+
     try {
       const schedule = await this.#schedulerService.parseAndCreate(
         prompt,
@@ -254,6 +262,39 @@ class DiscordBot extends BaseBot {
       );
     } catch (err) {
       console.error('[Discord] Schedule create error:', err);
+      await msg.reply(this.#truncate(`❌ Không tạo được lịch: ${err.message}`));
+    }
+  }
+
+  async #replyScheduleCreateBulk(msg, prompt) {
+    try {
+      const result = await this.#schedulerService.parseAndCreateBulk(
+        prompt,
+        msg.author.id,
+        msg.author.username,
+        msg.channelId,
+        this._platform
+      );
+
+      const header = `📅 **Đã thêm ${result.created} lịch** (bỏ qua: ${result.skipped})\n`;
+
+      // Split into ≤2000-char chunks so Discord doesn't reject
+      const chunks = [];
+      let current  = header;
+      for (const line of result.lines) {
+        if (current.length + line.length + 1 > 1990) {
+          chunks.push(current);
+          current = '';
+        }
+        current += line + '\n';
+      }
+      if (current) chunks.push(current);
+
+      for (const chunk of chunks) {
+        await msg.reply(chunk);
+      }
+    } catch (err) {
+      console.error('[Discord] Bulk schedule create error:', err);
       await msg.reply(this.#truncate(`❌ Không tạo được lịch: ${err.message}`));
     }
   }
