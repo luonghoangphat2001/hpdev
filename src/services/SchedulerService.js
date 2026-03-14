@@ -150,8 +150,14 @@ class SchedulerService {
     const remindAt   = parsed.remind_at  || parsed.remindAt   || parsed.remind_time || null;
     const repeatType = parsed.repeat_type || parsed.repeatType || 'none';
 
-    if (!title)    throw new Error(`Không parse được tiêu đề lịch (Gemini trả: ${JSON.stringify(parsed)})`);
-    if (!remindAt) throw new Error(`Không parse được thời gian nhắc (Gemini trả: ${JSON.stringify(parsed)})`);
+    if (!title) {
+      console.warn('[Scheduler] Missing title, parsed:', JSON.stringify(parsed));
+      throw new Error('Không parse được tiêu đề lịch — thử diễn đạt lại nhé!');
+    }
+    if (!remindAt) {
+      console.warn('[Scheduler] Missing remindAt, parsed:', JSON.stringify(parsed));
+      throw new Error('Không parse được thời gian — ghi rõ ngày/giờ nhé! (vd: "thứ 2 8h")');
+    }
 
     const id = await this.#scheduleRepo.create({
       userId,

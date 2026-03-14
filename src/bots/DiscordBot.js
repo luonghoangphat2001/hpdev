@@ -254,7 +254,7 @@ class DiscordBot extends BaseBot {
       );
     } catch (err) {
       console.error('[Discord] Schedule create error:', err);
-      await msg.reply(`❌ Không tạo được lịch: ${err.message}`);
+      await msg.reply(this.#truncate(`❌ Không tạo được lịch: ${err.message}`));
     }
   }
 
