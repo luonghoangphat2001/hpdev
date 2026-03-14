@@ -158,59 +158,85 @@ class SchedulerService {
    * >}
    */
   async parseAndUpdate(text, userId, platform) {
-    const tz      = this.getTimezone();
-    const nowStr  = TimeUtils.promptNow(tz);
-    const apiKey  = process.env.GEMINI_KEY;
+    const tz = this.getTimezone();
+
+    // ── Fast path: regex for simple "#ID <time>" or "#ID <date> <time>" ──
+    const fastParsed = SchedulerService.#fastParseEdit(text, tz);
+    if (fastParsed) {
+      console.log('[Scheduler] parseAndUpdate fast-path:', JSON.stringify(fastParsed));
+      return this.#applyUpdate(fastParsed, userId, platform);
+    }
+
+    // ── Slow path: Gemini AI parse ─────────────────────────────────────
+    const apiKey = process.env.GEMINI_KEY;
     if (!apiKey) throw new Error('GEMINI_KEY not configured');
 
     const modelName = this.#configRepo.get('gemini_model') || 'models/gemini-2.5-flash';
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: modelName });
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      generationConfig: { responseMimeType: 'application/json' },
+    });
 
+    const nowStr = TimeUtils.promptNow(tz);
     const prompt = `Hôm nay là ${nowStr}. Parse yêu cầu chỉnh sửa lịch từ text sau (tiếng Việt).
 Text: "${text}"
-Trả về JSON:
-{
-  "id": <số ID nếu người dùng nhắc đến ID, ngược lại null>,
-  "search_keyword": "<từ khoá tên môn/việc để tìm lịch cũ, ngược lại null>",
-  "title": "<tiêu đề mới, null nếu không đổi>",
-  "remind_at": "<YYYY-MM-DD HH:MM:SS (${tz}) mới, null nếu không đổi>",
-  "repeat_type": "<none|daily|weekly mới, null nếu không đổi>"
-}
-Chỉ trả JSON, không giải thích.`;
+Trả về JSON object (chỉ JSON, không giải thích):
+{"id":<số ID hoặc null>,"search_keyword":"<từ khoá tìm lịch hoặc null>","title":"<tiêu đề mới hoặc null>","remind_at":"<YYYY-MM-DD HH:MM:SS mới hoặc null>","repeat_type":"<none|daily|weekly hoặc null>"}`;
 
-    const result  = await model.generateContent(prompt);
-    const raw     = result.response.text().trim();
+    const result = await model.generateContent(prompt);
+    const raw    = result.response.text().trim();
     console.log('[Scheduler] parseAndUpdate Gemini response:', raw);
 
     let parsed;
     try {
-      const jsonStr = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/, '').trim();
+      const jsonStr   = raw.replace(/^```json?\s*/i, '').replace(/\s*```$/, '').trim();
       const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
       parsed = JSON.parse(jsonMatch ? jsonMatch[0] : jsonStr);
     } catch {
-      throw new Error('Gemini không trả về JSON hợp lệ');
+      throw new Error('Gemini không trả về JSON hợp lệ — thử dùng "#ID giờ" (vd: #5 20:30)');
     }
 
     // Normalize Gemini fields
-    const changes = {
-      title:      parsed.title      || null,
-      remindAt:   parsed.remind_at  || parsed.remindAt  || null,
-      repeatType: parsed.repeat_type || parsed.repeatType || null,
+    const normalized = {
+      id:            parsed.id            || null,
+      search_keyword: parsed.search_keyword || null,
+      title:         parsed.title         || null,
+      remind_at:     parsed.remind_at     || parsed.remindAt  || null,
+      repeat_type:   parsed.repeat_type   || parsed.repeatType || null,
     };
 
-    // Locate target schedule
+    return this.#applyUpdate(normalized, userId, platform);
+  }
+
+  /**
+   * Shared logic: locate schedule and apply changes.
+   * @param {{ id?, search_keyword?, title?, remind_at?, repeat_type? }} p
+   */
+  async #applyUpdate(p, userId, platform) {
+    const changes = {
+      title:      p.title      || null,
+      remindAt:   p.remind_at  || null,
+      repeatType: p.repeat_type || null,
+    };
+
     let target = null;
-    if (parsed.id) {
-      target = await this.#scheduleRepo.findById(Number(parsed.id));
+    if (p.id) {
+      target = await this.#scheduleRepo.findById(Number(p.id));
       if (!target || target.user_id !== userId) return { status: 'not_found' };
-    } else if (parsed.search_keyword) {
-      const matches = await this.#scheduleRepo.findByKeyword(userId, platform, parsed.search_keyword);
+    } else if (p.search_keyword) {
+      const matches = await this.#scheduleRepo.findByKeyword(userId, platform, p.search_keyword);
       if (!matches.length) return { status: 'not_found' };
       if (matches.length > 1) return { status: 'ambiguous', matches };
       target = matches[0];
     } else {
-      throw new Error('Không xác định được lịch cần chỉnh sửa — thêm tên môn hoặc ID nhé!');
+      throw new Error('Không xác định được lịch — thêm tên môn hoặc dùng "#ID" nhé!');
+    }
+
+    // When only time changes, keep the existing date
+    if (changes.remindAt && changes.remindAt.length === 8) {
+      // pure "HH:MM:SS" — prepend existing date
+      changes.remindAt = `${TimeUtils.dateOf(target.remind_at)} ${changes.remindAt}`;
     }
 
     const ok = await this.#scheduleRepo.update(target.id, userId, changes);
@@ -219,6 +245,48 @@ Chỉ trả JSON, không giải thích.`;
     const updated = await this.#scheduleRepo.findById(target.id);
     console.log(`[Scheduler] Updated #${target.id} | changes=${JSON.stringify(changes)}`);
     return { status: 'updated', schedule: updated };
+  }
+
+  /**
+   * Fast regex-based parse for simple "#ID time" patterns — no AI call needed.
+   * Handles: "#5 8h30pm", "#5 20:30", "#5 ngày 15/03 9h"
+   * Returns null if pattern not matched (fall back to Gemini).
+   * @param {string} text
+   * @param {string} tz
+   * @returns {{ id: number, remind_at: string }|null}
+   */
+  static #fastParseEdit(text, tz) {
+    // Must have #ID
+    const idMatch = text.match(/#(\d+)/);
+    if (!idMatch) return null;
+    const id = Number(idMatch[1]);
+
+    // Extract time: "8h30pm", "8h30", "8:30pm", "8:30", "20:30", "20h30"
+    const timeMatch = text.match(/(\d{1,2})[h:](\d{0,2})\s*(pm|am)?/i);
+    if (!timeMatch) return null;
+
+    let hour   = Number(timeMatch[1]);
+    const min  = Number(timeMatch[2] || 0);
+    const ampm = (timeMatch[3] || '').toLowerCase();
+    if (ampm === 'pm' && hour < 12) hour += 12;
+    if (ampm === 'am' && hour === 12) hour = 0;
+
+    const hhmm = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}:00`;
+
+    // Extract date if present: "ngày 15/03" or "15/03/2026"
+    const dateMatch = text.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{4}))?/);
+    let datePart = null;
+    if (dateMatch) {
+      const dd   = dateMatch[1].padStart(2, '0');
+      const mm   = dateMatch[2].padStart(2, '0');
+      const yyyy = dateMatch[3] || TimeUtils.todayString(tz).slice(0, 4);
+      datePart = `${yyyy}-${mm}-${dd}`;
+    }
+
+    // remind_at: full if date found, else time-only (caller will prepend existing date)
+    const remind_at = datePart ? `${datePart} ${hhmm}` : hhmm;
+
+    return { id, remind_at, search_keyword: null, title: null, repeat_type: null };
   }
 
   /**
