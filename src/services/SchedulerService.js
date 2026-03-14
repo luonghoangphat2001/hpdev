@@ -139,17 +139,25 @@ class SchedulerService {
       throw new Error(parsed.error);
     }
 
+    // Normalize field names — Gemini sometimes returns camelCase variants
+    const title      = parsed.title      || parsed.Title      || null;
+    const remindAt   = parsed.remind_at  || parsed.remindAt   || parsed.remind_time || null;
+    const repeatType = parsed.repeat_type || parsed.repeatType || 'none';
+
+    if (!title)    throw new Error('Không parse được tiêu đề lịch');
+    if (!remindAt) throw new Error('Không parse được thời gian nhắc');
+
     const id = await this.#scheduleRepo.create({
       userId,
-      username,
-      platform,
-      channelId,
-      title:      parsed.title,
-      remindAt:   parsed.remind_at,
-      repeatType: parsed.repeat_type || 'none',
+      username:   username   || null,
+      platform:   platform   || 'discord',
+      channelId:  channelId  || null,
+      title,
+      remindAt,
+      repeatType,
     });
 
-    return { id, title: parsed.title, remindAt: parsed.remind_at, repeatType: parsed.repeat_type || 'none' };
+    return { id, title, remindAt, repeatType };
   }
 
   /**
