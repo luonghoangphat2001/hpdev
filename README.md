@@ -17,7 +17,7 @@ Kiểm tra server còn sống.
 ---
 
 ### `POST /search`
-Tìm kiếm web qua Serper.dev (Google Search API — 2500 queries/tháng miễn phí).
+Tìm kiếm web qua [Serper.dev](https://serper.dev) (Google Search API — 2500 queries/tháng miễn phí).
 
 **Request:**
 ```json
@@ -115,7 +115,7 @@ npm start
 |------|----------|-------|
 | `PORT` | Không | Port server (mặc định: `4000`) |
 | `API_SECRET` | Có | Bearer token — phải khớp với `OPENCLAW_SECRET` bên bot |
-| `SERPER_KEY` | Có (cho /search) | API key từ [serper.dev](https://serper.dev) — free 2500 queries/tháng |
+| `SERPER_KEY` | Có (cho /search) | API key từ [serper.dev](https://serper.dev/signup) — free 2500 queries/tháng |
 
 **.env mẫu:**
 ```env
