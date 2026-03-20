@@ -18,17 +18,17 @@ router.post('/', async (req, res) => {
   if (!key) return res.status(500).json({ error: 'SERPER_KEY not configured' });
 
   try {
-    const resp = await axios.post(
-      'https://google.serper.dev/search',
-      { q: query, num: Math.min(num, 10), gl: 'vn', hl: 'vi' },
-      {
-        headers: {
-          'X-API-KEY': key,
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000,
-      }
-    );
+    const resp = await axios.request({
+      method:        'post',
+      maxBodyLength: Infinity,
+      url:           'https://google.serper.dev/search',
+      headers: {
+        'X-API-KEY':    key,
+        'Content-Type': 'application/json',
+      },
+      data: JSON.stringify({ q: query, gl: 'vn', hl: 'vi', num: Math.min(num, 10) }),
+      timeout: 10000,
+    });
 
     const items = (resp.data.organic || []).slice(0, num).map((item) => ({
       title:   item.title   || '',
