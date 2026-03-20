@@ -1,0 +1,46 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - ai
+      - openclaw
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            BRANCH="${{ github.ref_name }}"
+            if [ "$BRANCH" = "main" ]; then
+              cd /home/hpdev/public_html
+              git pull origin main
+              echo "Deploy completed at $(date)"
+            elif [ "$BRANCH" = "ai" ]; then
+              cd ~/ai.hpdev.name.vn
+              git pull origin ai
+              source ~/nodevenv/ai.hpdev.name.vn/19/bin/activate
+              npm install
+              mkdir -p tmp && touch tmp/restart.txt
+              which pm2 || npm install -g pm2
+              pm2 delete bot 2>/dev/null || true
+              pm2 start bot.js --name bot
+              pm2 save
+            elif [ "$BRANCH" = "openclaw" ]; then
+              cd ~/openclaw.hpdev.name.vn
+              git pull origin openclaw
+              source ~/nodevenv/ai.hpdev.name.vn/19/bin/activate
+              npm install
+              pm2 delete openclaw 2>/dev/null || true
+              pm2 start server.js --name openclaw
+              pm2 save
+            fi
