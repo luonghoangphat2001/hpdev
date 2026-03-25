@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
         'X-API-KEY':    key,
         'Content-Type': 'application/json',
       },
-      data: JSON.stringify({ q: query, gl: 'vn', hl: 'vi', num: Math.min(num, 10) }),
+      data: JSON.stringify({ q: query, gl: 'vn', hl: 'vi', num: Math.min(num, 50) }),
       timeout: 10000,
     });
 
