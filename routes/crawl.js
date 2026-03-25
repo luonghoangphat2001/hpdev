@@ -17,7 +17,16 @@ router.post('/', async (req, res) => {
   try {
     browser = await chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page  = await browser.newPage();
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+    // Spoof user agent + headers để tránh headless detection
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.setExtraHTTPHeaders({
+      'User-Agent':      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      'Accept-Language': 'vi-VN,vi;q=0.9,en;q=0.8',
+    });
+
+    // networkidle chờ JS render xong thay vì domcontentloaded
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
 
     const title = await page.title();
     const html  = await page.content();
