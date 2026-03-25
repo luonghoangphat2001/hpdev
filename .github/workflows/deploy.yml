@@ -40,6 +40,7 @@ jobs:
               git pull origin openclaw
               source ~/nodevenv/ai.hpdev.name.vn/19/bin/activate
               npm install
+              node_modules/.bin/playwright install chromium 2>/dev/null || true
               pm2 delete openclaw 2>/dev/null || true
               pm2 start server.js --name openclaw
               pm2 save
