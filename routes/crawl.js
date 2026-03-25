@@ -15,7 +15,14 @@ router.post('/', async (req, res) => {
 
   let browser;
   try {
-    browser = await chromium.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    browser = await chromium.launch({
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+      ],
+    });
     const page  = await browser.newPage();
 
     // Spoof user agent + headers để tránh headless detection
