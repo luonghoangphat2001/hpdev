@@ -25,8 +25,8 @@ router.post('/', async (req, res) => {
       'Accept-Language': 'vi-VN,vi;q=0.9,en;q=0.8',
     });
 
-    // networkidle chờ JS render xong thay vì domcontentloaded
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
+    // 'load' đủ cho WordPress/server-rendered sites, tránh timeout của networkidle
+    await page.goto(url, { waitUntil: 'load', timeout: 45000 });
 
     const title = await page.title();
     const html  = await page.content();
