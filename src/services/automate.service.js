@@ -1,9 +1,9 @@
 'use strict';
 
-const { chromium } = require('playwright');
+const { AppError } = require('../middlewares/error.middleware');
 
 class AutomateService {
-  constructor(browserEngine = chromium) {
+  constructor(browserEngine = null) {
     this.browserEngine = browserEngine;
   }
 
@@ -11,7 +11,7 @@ class AutomateService {
     let browser;
 
     try {
-      browser = await this.browserEngine.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+      browser = await this.getBrowserEngine().launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
       const page = await browser.newPage();
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
@@ -28,6 +28,19 @@ class AutomateService {
       return result;
     } finally {
       if (browser) await browser.close();
+    }
+  }
+
+  getBrowserEngine() {
+    if (this.browserEngine) {
+      return this.browserEngine;
+    }
+
+    try {
+      this.browserEngine = require('playwright').chromium;
+      return this.browserEngine;
+    } catch (err) {
+      throw new AppError('playwright is not installed. Run npm install before using browser automation.', 500);
     }
   }
 

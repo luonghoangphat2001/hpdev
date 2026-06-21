@@ -1,7 +1,7 @@
 'use strict';
 
 const axios = require('axios');
-const { chromium } = require('playwright');
+const { AppError } = require('../middlewares/error.middleware');
 
 const BROWSER_ARGS = [
   '--no-sandbox',
@@ -15,7 +15,7 @@ const BROWSER_ARGS = [
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
 
 class CrawlService {
-  constructor(browserEngine = chromium, httpClient = axios) {
+  constructor(browserEngine = null, httpClient = axios) {
     this.browserEngine = browserEngine;
     this.httpClient = httpClient;
   }
@@ -34,7 +34,7 @@ class CrawlService {
     let browser;
 
     try {
-      browser = await this.browserEngine.launch({ args: BROWSER_ARGS });
+      browser = await this.getBrowserEngine().launch({ args: BROWSER_ARGS });
       const page = await browser.newPage();
 
       await page.setViewportSize({ width: 1280, height: 800 });
@@ -58,6 +58,19 @@ class CrawlService {
       };
     } finally {
       if (browser) await browser.close().catch(() => {});
+    }
+  }
+
+  getBrowserEngine() {
+    if (this.browserEngine) {
+      return this.browserEngine;
+    }
+
+    try {
+      this.browserEngine = require('playwright').chromium;
+      return this.browserEngine;
+    } catch (err) {
+      throw new AppError('playwright is not installed. Run npm install before using browser crawl.', 500);
     }
   }
 

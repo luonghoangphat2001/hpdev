@@ -1,5 +1,7 @@
 'use strict';
 
+const logger = require('../services/logger.service');
+
 class AppError extends Error {
   constructor(message, statusCode = 500, details = null) {
     super(message);
@@ -20,6 +22,11 @@ function notFoundHandler(req, _res, next) {
 function errorHandler(err, _req, res, _next) {
   const statusCode = err.statusCode || err.response?.status || 500;
   const payload = { error: err.message || 'Internal server error' };
+
+  logger.error(payload.error, {
+    statusCode,
+    error: logger.formatError(err),
+  });
 
   if (err.details) {
     payload.details = err.details;

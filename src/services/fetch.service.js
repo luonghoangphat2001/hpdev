@@ -1,11 +1,10 @@
 'use strict';
 
 const axios = require('axios');
-const pdfParse = require('pdf-parse');
 const { AppError } = require('../middlewares/error.middleware');
 
 class FetchService {
-  constructor(httpClient = axios, pdfParser = pdfParse) {
+  constructor(httpClient = axios, pdfParser = null) {
     this.httpClient = httpClient;
     this.pdfParser = pdfParser;
   }
@@ -27,7 +26,7 @@ class FetchService {
 
     if (contentType.includes('application/pdf') || isPdfUrl) {
       try {
-        const parsed = await this.pdfParser(Buffer.from(resp.data));
+        const parsed = await this.getPdfParser()(Buffer.from(resp.data));
 
         return {
           status: resp.status,
@@ -46,6 +45,19 @@ class FetchService {
       headers: resp.headers,
       body: resp.data,
     };
+  }
+
+  getPdfParser() {
+    if (this.pdfParser) {
+      return this.pdfParser;
+    }
+
+    try {
+      this.pdfParser = require('pdf-parse');
+      return this.pdfParser;
+    } catch (err) {
+      throw new AppError('pdf-parse is not installed. Run npm install before using PDF fetch.', 500);
+    }
   }
 }
 

@@ -138,6 +138,15 @@ npm start
 | `API_SECRET` | Có | Bearer token — phải khớp với `OPENCLAW_SECRET` bên bot |
 | `SERPER_KEY` | Có (cho /search) | API key từ [serper.dev](https://serper.dev/signup) — free 2500 queries/tháng |
 
+## Log runtime
+
+OpenClaw ghi log runtime vào file `.log` ở root project. Khi cần debug trên server:
+
+```bash
+cd ~/openclaw.hpdev.name.vn
+tail -f .log
+```
+
 **.env mẫu:**
 ```env
 PORT=4000
