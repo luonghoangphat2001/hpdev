@@ -2,12 +2,12 @@
   "name": "openclaw",
   "version": "1.0.0",
   "description": "OpenClaw microservice — web search, crawl, fetch, automate",
-  "main": "server.js",
+  "main": "src/server.js",
   "engines": {
     "node": ">=19"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "node src/server.js",
     "test": "jest"
   },
   "dependencies": {

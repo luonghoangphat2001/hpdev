@@ -8,6 +8,27 @@ Chạy độc lập tại `http://localhost:4000`, được gọi từ bot `dan_
 
 Tất cả endpoint (trừ `/health`) yêu cầu header: `Authorization: Bearer <API_SECRET>`
 
+## Cấu trúc source
+
+```text
+src/
+├── app.js
+├── server.js
+├── routes/
+├── controllers/
+├── services/
+├── middlewares/
+├── validations/
+└── config/
+```
+
+- `routes`: khai báo endpoint và bind controller.
+- `controllers`: nhận request, validate input, gọi service, trả response.
+- `services`: chứa business logic và tích hợp external service như Serper, axios, Playwright.
+- `validations`: chuẩn hóa input và báo lỗi request.
+- `middlewares`: auth, async/error handler.
+- `config`: đọc cấu hình môi trường.
+
 ### `GET /health`
 Kiểm tra server còn sống.
 ```json
