@@ -1,0 +1,35 @@
+services:
+  wordpress:
+    image: wordpress:php8.2-apache
+    container_name: hpdevdemo-wordpress
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: hpdevdemo
+      WORDPRESS_DB_USER: hpdevdemo
+      WORDPRESS_DB_PASSWORD: hpdevdemo
+      WP_HOME: http://localhost:8080/hpdevdemo
+      WP_SITEURL: http://localhost:8080/hpdevdemo
+    volumes:
+      - ./:/var/www/html/hpdevdemo
+      - ./docker/wp-config.php:/var/www/html/hpdevdemo/wp-config.php:ro
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10.11
+    container_name: hpdevdemo-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: hpdevdemo
+      MARIADB_USER: hpdevdemo
+      MARIADB_PASSWORD: hpdevdemo
+      MARIADB_ROOT_PASSWORD: root
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
