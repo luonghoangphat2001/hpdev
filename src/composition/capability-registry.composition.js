@@ -20,6 +20,16 @@ const LOGICAL_MODELS = Object.freeze([
     permissions: Object.freeze(['read_context', 'create_proposal']),
     metadata: Object.freeze({ costTier: 'high', latencyTier: 'high' }),
   }),
+  Object.freeze({
+    id: 'balanced',
+    version: '1.0.0',
+    capabilities: Object.freeze([
+      'classification', 'extraction', 'summarization',
+      'planning', 'decomposition', 'critique',
+    ]),
+    permissions: Object.freeze(['read_context', 'create_proposal']),
+    metadata: Object.freeze({ costTier: 'medium', latencyTier: 'medium' }),
+  }),
 ]);
 
 function buildCapabilityRegistry({

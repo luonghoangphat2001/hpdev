@@ -11,7 +11,7 @@ describe('CapabilityRegistry', () => {
 
     expect(registry.query({ kind: 'agent' })).toHaveLength(5);
     expect(registry.query({ kind: 'model' }).map(({ id }) => id))
-      .toEqual(['fast', 'reasoning']);
+      .toEqual(['fast', 'reasoning', 'balanced']);
     expect(registry.get('agent', 'dan_cfo')).toMatchObject({
       version: '1.0.0',
       capabilities: expect.arrayContaining(['reconciliation']),
