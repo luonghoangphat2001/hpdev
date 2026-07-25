@@ -5,8 +5,9 @@ const EventIntakeController = require('../../src/controllers/event-intake.contro
 const EventIntakeValidation = require('../../src/validations/event-intake.validation');
 
 describe('event intake application flow', () => {
+  const eventId = 'evt_123e4567-e89b-42d3-a456-426614174000';
   const payload = {
-    event_id: 'evt_123',
+    event_id: eventId,
     schema_version: '1.0.0',
     event: 'order.created',
     timestamp: '2026-07-25T00:00:00.000Z',
@@ -16,7 +17,7 @@ describe('event intake application flow', () => {
 
   it('persists a verified supported event before returning a receipt', async () => {
     const eventRepository = {
-      create: jest.fn().mockResolvedValue({ event_id: 'evt_123' }),
+      create: jest.fn().mockResolvedValue({ event_id: eventId }),
     };
     const service = new EventIntakeService({
       eventRepository,
@@ -30,12 +31,12 @@ describe('event intake application flow', () => {
       deliveryId: 'delivery_123',
       keyId: 'key_1',
     })).resolves.toEqual({
-      event_id: 'evt_123',
+      event_id: eventId,
       correlation_id: 'cor_generated',
       status: 'accepted',
     });
     expect(eventRepository.create).toHaveBeenCalledWith(expect.objectContaining({
-      eventId: 'evt_123',
+      eventId,
       eventType: 'order.created',
       signatureValid: true,
       deliveryId: 'delivery_123',

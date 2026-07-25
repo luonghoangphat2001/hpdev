@@ -1,46 +1,38 @@
 'use strict';
 
 const crypto = require('crypto');
-const eventCatalog = require('../../contracts/events/ecommerce-event.catalog');
 const correlationConvention = require('../../contracts/identity/correlation-convention');
-const { AppError } = require('../../middlewares/error.middleware');
+const EventNormalizerService = require('./event-normalizer.service');
 
 class EventIntakeService {
   constructor({
     eventRepository,
-    catalog = eventCatalog,
+    normalizer = new EventNormalizerService(),
     identifiers = correlationConvention,
     clock = () => new Date(),
   }) {
     this.eventRepository = eventRepository;
-    this.catalog = catalog;
+    this.normalizer = normalizer;
     this.identifiers = identifiers;
     this.clock = clock;
   }
 
   async accept(command) {
-    const eventDefinition = this.catalog.get(command.payload.event);
-    if (!eventDefinition) {
-      throw new AppError('Unsupported Ecommerce event', 422, {
-        code: 'unsupported_event',
-        event: command.payload.event,
-      });
-    }
-
+    const canonical = this.normalizer.normalize(command.payload);
     const rawBody = Buffer.isBuffer(command.rawBody)
       ? command.rawBody
       : Buffer.from(command.rawBody, 'utf8');
-    const eventId = command.payload.event_id;
-    const correlationId = command.payload.correlation_id
+    const eventId = canonical.event_id;
+    const correlationId = canonical.correlation_id
       || this.identifiers.createId('correlation');
 
     try {
       await this.eventRepository.create({
         eventId,
-        schemaVersion: command.payload.schema_version,
-        eventType: eventDefinition.name,
-        source: 'ecommerce',
-        occurredAt: new Date(command.payload.timestamp),
+        schemaVersion: canonical.schema_version,
+        eventType: canonical.event_type,
+        source: canonical.source,
+        occurredAt: new Date(canonical.occurred_at),
         receivedAt: this.clock(),
         correlationId,
         deliveryId: command.deliveryId,
