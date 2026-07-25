@@ -39,7 +39,6 @@ jobs:
             elif [ "$BRANCH" = "openclaw" ]; then
               cd ~/openclaw.hpdev.name.vn
               git pull --ff-only origin openclaw
-              source ~/nodevenv/ai.hpdev.name.vn/19/bin/activate
               npm ci
               npm run migrate
               npx playwright install chromium 2>/dev/null || true
