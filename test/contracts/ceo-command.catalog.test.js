@@ -2,7 +2,7 @@
 
 const catalog = require('../../src/contracts/commands/ceo-command.catalog');
 const CeoCommandDispatcherService =
-  require('../../src/application/services/ceo-command-dispatcher.service');
+  require('../../src/application/services/ceo/ceo-command-dispatcher.service');
 
 describe('CEO command catalog', () => {
   test('contains every required CEO operation with version, permission and risk', () => {

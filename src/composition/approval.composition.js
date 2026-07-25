@@ -5,12 +5,12 @@ const mysqlPoolFactory = require('../infrastructure/database/mysql-pool');
 const TransactionManager = require('../infrastructure/database/transaction-manager');
 const MysqlApprovalRepository = require('../infrastructure/database/repositories/mysql-approval.repository');
 const MysqlAuditRepository = require('../infrastructure/database/repositories/mysql-audit.repository');
-const ApprovalDecisionService = require('../application/services/approval-decision.service');
+const ApprovalDecisionService = require('../application/services/approval/approval-decision.service');
 const ApprovalController = require('../controllers/approval.controller');
 const ApprovalRoute = require('../routes/approval.route');
 const MysqlDecisionJournalRepository =
   require('../infrastructure/database/repositories/mysql-decision-journal.repository');
-const DecisionJournalService = require('../application/services/decision-journal.service');
+const DecisionJournalService = require('../application/services/compliance/decision-journal.service');
 
 function buildApprovalRouter({
   config = env,

@@ -5,7 +5,7 @@ const mysqlPoolFactory = require('../infrastructure/database/mysql-pool');
 const MysqlEventRepository = require('../infrastructure/database/repositories/mysql-event.repository');
 const WebhookSignatureService = require('../security/webhook-signature.service');
 const WebhookVerificationMiddleware = require('../middlewares/webhook-verification.middleware');
-const EventIntakeService = require('../application/services/event-intake.service');
+const EventIntakeService = require('../application/services/operator/event-intake.service');
 const EventIntakeController = require('../controllers/event-intake.controller');
 const EventIntakeRoute = require('../routes/event-intake.route');
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const actionCatalog = require('../../contracts/actions/ecommerce-action.catalog');
-const ActionValidatorService = require('../services/action-validator.service');
+const ActionValidatorService = require('../services/execution/action-validator.service');
 const RiskEvaluator = require('../../domain/policies/risk-evaluator');
 const { AppError } = require('../../middlewares/error.middleware');
 

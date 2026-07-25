@@ -12,16 +12,16 @@ const MysqlAuditRepository =
   require('../infrastructure/database/repositories/mysql-audit.repository');
 const MysqlCeoCommandRepository =
   require('../infrastructure/database/repositories/mysql-ceo-command.repository');
-const GoalService = require('../application/services/goal.service');
-const OperatorControlService = require('../application/services/operator-control.service');
-const ApprovalDecisionService = require('../application/services/approval-decision.service');
+const GoalService = require('../application/services/execution/goal.service');
+const OperatorControlService = require('../application/services/operator/operator-control.service');
+const ApprovalDecisionService = require('../application/services/approval/approval-decision.service');
 const CeoCommandDispatcherService =
-  require('../application/services/ceo-command-dispatcher.service');
+  require('../application/services/ceo/ceo-command-dispatcher.service');
 const CeoCommandController = require('../controllers/ceo-command.controller');
 const CeoCommandRoute = require('../routes/ceo-command.route');
 const MysqlDecisionJournalRepository =
   require('../infrastructure/database/repositories/mysql-decision-journal.repository');
-const DecisionJournalService = require('../application/services/decision-journal.service');
+const DecisionJournalService = require('../application/services/compliance/decision-journal.service');
 
 function buildCeoCommandRouter({
   config = env,

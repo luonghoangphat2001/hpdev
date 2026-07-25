@@ -7,7 +7,7 @@ const MysqlCeoExceptionRepository =
 const DanAiNotificationClient = require('../infrastructure/http/dan-ai-notification.client');
 const DanAiNotificationAdapter = require('../application/adapters/dan-ai-notification.adapter');
 const CeoExceptionInboxService =
-  require('../application/services/ceo-exception-inbox.service');
+  require('../application/services/ceo/ceo-exception-inbox.service');
 const CeoExceptionController = require('../controllers/ceo-exception.controller');
 const CeoExceptionRoute = require('../routes/ceo-exception.route');
 

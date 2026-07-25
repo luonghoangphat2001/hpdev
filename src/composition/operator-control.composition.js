@@ -6,8 +6,8 @@ const TransactionManager = require('../infrastructure/database/transaction-manag
 const MysqlOperatorControlRepository = require('../infrastructure/database/repositories/mysql-operator-control.repository');
 const MysqlAuditRepository = require('../infrastructure/database/repositories/mysql-audit.repository');
 const MysqlEventRepository = require('../infrastructure/database/repositories/mysql-event.repository');
-const OperatorControlService = require('../application/services/operator-control.service');
-const EventReplayService = require('../application/services/event-replay.service');
+const OperatorControlService = require('../application/services/operator/operator-control.service');
+const EventReplayService = require('../application/services/operator/event-replay.service');
 const OperatorControlController = require('../controllers/operator-control.controller');
 const OperatorControlRoute = require('../routes/operator-control.route');
 

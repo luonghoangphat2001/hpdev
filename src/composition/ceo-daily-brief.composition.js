@@ -8,9 +8,9 @@ const SsotClient = require('../infrastructure/http/ssot.client');
 const SsotReadAdapter = require('../application/adapters/ssot-read.adapter');
 const DanAiNotificationClient = require('../infrastructure/http/dan-ai-notification.client');
 const DanAiNotificationAdapter = require('../application/adapters/dan-ai-notification.adapter');
-const CeoDailyBriefService = require('../application/services/ceo-daily-brief.service');
+const CeoDailyBriefService = require('../application/services/ceo/ceo-daily-brief.service');
 const DailyReportSchedulerService =
-  require('../application/services/daily-report-scheduler.service');
+  require('../application/services/reporting/daily-report-scheduler.service');
 
 function buildCeoDailyBriefScheduler({
   config = env,

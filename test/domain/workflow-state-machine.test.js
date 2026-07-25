@@ -2,7 +2,7 @@
 
 const stateMachine = require('../../src/domain/workflows/workflow-state-machine');
 const { InvalidWorkflowTransitionError } = require('../../src/domain/workflows/workflow-state-machine');
-const WorkflowTransitionService = require('../../src/application/services/workflow-transition.service');
+const WorkflowTransitionService = require('../../src/application/services/workflow/workflow-transition.service');
 
 describe('WorkflowStateMachine', () => {
   it('allows only declared workflow transitions', () => {

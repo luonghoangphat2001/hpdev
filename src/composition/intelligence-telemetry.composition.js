@@ -8,7 +8,7 @@ const MysqlIntelligenceObservabilityRepository =
 const DanAiNotificationClient = require('../infrastructure/http/dan-ai-notification.client');
 const DanAiNotificationAdapter = require('../application/adapters/dan-ai-notification.adapter');
 const IntelligenceTelemetryService =
-  require('../application/services/intelligence-telemetry.service');
+  require('../application/services/observability/intelligence-telemetry.service');
 
 function buildIntelligenceTelemetry({
   config = env,
