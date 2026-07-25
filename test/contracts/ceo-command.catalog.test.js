@@ -44,7 +44,12 @@ describe('CEO command catalog', () => {
       commandName: 'goal.create',
       payload,
       actorId: 'ceo-1',
-    })).resolves.toMatchObject({ command: 'goal.create', version: '1.0.0' });
+      idempotencyKey: 'ceo:goal:1',
+    })).resolves.toMatchObject({
+      command: 'goal.create',
+      version: '1.0.0',
+      status: 'completed',
+    });
     expect(handler).toHaveBeenCalledWith(expect.objectContaining({
       actorId: 'ceo-1',
       commandVersion: '1.0.0',
@@ -61,12 +66,44 @@ describe('CEO command catalog', () => {
       commandName: 'analysis.request',
       payload: { question: 'Analyze revenue' },
       actorId: 'agent-hr',
+      idempotencyKey: 'ceo:analysis:1',
     })).rejects.toMatchObject({ statusCode: 403 });
     await expect(dispatcher.dispatch({
       commandName: 'analysis.request',
       payload: { question: '' },
       actorId: 'ceo-1',
+      idempotencyKey: 'ceo:analysis:2',
     })).rejects.toMatchObject({ statusCode: 422 });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  test('returns the durable receipt without executing an idempotent replay', async () => {
+    const handler = jest.fn();
+    const requestRepository = {
+      findByIdempotencyKey: jest.fn().mockResolvedValue({
+        request_id: 'cmd_1',
+        command_name: 'analysis.request',
+        command_version: '1.0.0',
+        status: 'queued',
+        result: JSON.stringify({ status: 'queued' }),
+      }),
+    };
+    const dispatcher = new CeoCommandDispatcherService({
+      handlers: { 'analysis.request': handler },
+      allowedActorIds: ['ceo-1'],
+      requestRepository,
+    });
+
+    await expect(dispatcher.dispatch({
+      commandName: 'analysis.request',
+      payload: { question: 'Analyze revenue' },
+      actorId: 'ceo-1',
+      idempotencyKey: 'ceo:analysis:replay',
+    })).resolves.toMatchObject({
+      requestId: 'cmd_1',
+      status: 'queued',
+      duplicate: true,
+    });
     expect(handler).not.toHaveBeenCalled();
   });
 });
