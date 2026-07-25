@@ -13,4 +13,5 @@ module.exports = Object.freeze([
   require('./010-create-intelligence-observability'),
   require('./011-create-goals'),
   require('./012-create-ceo-command-requests'),
+  require('./013-create-ceo-exceptions'),
 ]);
