@@ -11,6 +11,7 @@ class ApprovalDecisionService {
     allowedApproverIds,
     clock = () => new Date(),
     idFactory = () => `aud_${crypto.randomUUID()}`,
+    decisionJournalFactory = null,
   }) {
     this.transactionManager = transactionManager;
     this.approvalRepositoryFactory = approvalRepositoryFactory;
@@ -18,6 +19,7 @@ class ApprovalDecisionService {
     this.allowedApproverIds = new Set(allowedApproverIds || []);
     this.clock = clock;
     this.idFactory = idFactory;
+    this.decisionJournalFactory = decisionJournalFactory;
   }
 
   async decide(command) {
@@ -66,6 +68,20 @@ class ApprovalDecisionService {
           decisionVersion: command.decisionVersion,
         },
       });
+      if (this.decisionJournalFactory) {
+        await this.decisionJournalFactory(connection).record({
+          workflowId: approval.workflow_id,
+          approvalId: approval.approval_id,
+          actorId: command.actorId,
+          decisionType: 'approval',
+          decision: command.decision,
+          rationale: command.reason || `CEO ${command.decision}`,
+          inputSnapshot: typeof approval.request_snapshot === 'string'
+            ? JSON.parse(approval.request_snapshot)
+            : approval.request_snapshot,
+          policyVersion: approval.policy_version || '1.0.0',
+        });
+      }
 
       return {
         outcome: 'decided',

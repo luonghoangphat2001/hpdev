@@ -19,6 +19,9 @@ const CeoCommandDispatcherService =
   require('../application/services/ceo-command-dispatcher.service');
 const CeoCommandController = require('../controllers/ceo-command.controller');
 const CeoCommandRoute = require('../routes/ceo-command.route');
+const MysqlDecisionJournalRepository =
+  require('../infrastructure/database/repositories/mysql-decision-journal.repository');
+const DecisionJournalService = require('../application/services/decision-journal.service');
 
 function buildCeoCommandRouter({
   config = env,
@@ -37,6 +40,9 @@ function buildCeoCommandRouter({
     approvalRepositoryFactory: (executor) => new MysqlApprovalRepository(executor),
     auditRepositoryFactory: auditFactory,
     allowedApproverIds: config.ceoDiscordUserIds,
+    decisionJournalFactory: (executor) => new DecisionJournalService({
+      repository: new MysqlDecisionJournalRepository(executor),
+    }),
   });
   const goalService = new GoalService({
     repository: new MysqlGoalRepository(pool),

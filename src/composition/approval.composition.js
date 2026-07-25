@@ -8,6 +8,9 @@ const MysqlAuditRepository = require('../infrastructure/database/repositories/my
 const ApprovalDecisionService = require('../application/services/approval-decision.service');
 const ApprovalController = require('../controllers/approval.controller');
 const ApprovalRoute = require('../routes/approval.route');
+const MysqlDecisionJournalRepository =
+  require('../infrastructure/database/repositories/mysql-decision-journal.repository');
+const DecisionJournalService = require('../application/services/decision-journal.service');
 
 function buildApprovalRouter({
   config = env,
@@ -18,6 +21,9 @@ function buildApprovalRouter({
     approvalRepositoryFactory: (connection) => new MysqlApprovalRepository(connection),
     auditRepositoryFactory: (connection) => new MysqlAuditRepository(connection),
     allowedApproverIds: config.ceoDiscordUserIds,
+    decisionJournalFactory: (connection) => new DecisionJournalService({
+      repository: new MysqlDecisionJournalRepository(connection),
+    }),
   });
   return new ApprovalRoute(new ApprovalController(service)).router;
 }

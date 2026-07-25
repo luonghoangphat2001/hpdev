@@ -10,7 +10,7 @@ class MysqlApprovalRepository extends ApprovalRepository {
 
   async findByApprovalIdForUpdate(approvalId) {
     const [rows] = await this.executor.execute(
-      `SELECT ar.*, w.correlation_id, w.event_id
+      `SELECT ar.*, w.correlation_id, w.event_id, w.policy_version
        FROM approval_requests ar
        INNER JOIN workflows w ON w.workflow_id = ar.workflow_id
        WHERE ar.approval_id = ?
