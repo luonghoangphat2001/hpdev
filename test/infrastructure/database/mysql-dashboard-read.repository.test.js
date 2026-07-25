@@ -37,6 +37,11 @@ describe('T122 supplemental: MySQL Dashboard Read Repository', () => {
           active_workflow_count: 2,
           failed_workflow_count: 1,
           last_activity_at: '2026-07-25 10:00:00.000',
+          lifecycle_state: 'ACTIVE',
+          state_version: 3,
+          lifecycle_reason: 'Ready',
+          changed_by: 'ceo-dashboard',
+          changed_at: '2026-07-25 09:00:00.000',
         },
       ]]),
     };
@@ -49,10 +54,15 @@ describe('T122 supplemental: MySQL Dashboard Read Repository', () => {
         activeWorkflowCount: 2,
         failedWorkflowCount: 1,
         lastActivityAt: '2026-07-25 10:00:00.000',
+        lifecycleStatus: 'ACTIVE',
+        stateVersion: 3,
+        lifecycleReason: 'Ready',
+        changedBy: 'ceo-dashboard',
+        changedAt: '2026-07-25 09:00:00.000',
       },
     ]);
     expect(executor.execute).toHaveBeenCalledWith(
-      expect.stringContaining('assigned_agent_id IN (?, ?)'),
+      expect.stringContaining('ars.agent_id IN (?, ?)'),
       ['dan_ops', 'dan_cfo'],
     );
   });

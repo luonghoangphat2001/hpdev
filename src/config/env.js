@@ -24,6 +24,15 @@ class EnvConfig {
         .map((id) => id.trim())
         .filter(Boolean)
     );
+    this.ceoDashboardActorIds = Object.freeze(
+      String(env.CEO_DASHBOARD_ACTOR_IDS || '')
+        .split(',')
+        .map((id) => id.trim())
+        .filter(Boolean)
+    );
+    this.ceoOperatorIds = Object.freeze([
+      ...new Set([...this.ceoDiscordUserIds, ...this.ceoDashboardActorIds]),
+    ]);
     this.dailyReport = Object.freeze({
       enabled: String(env.DAILY_REPORT_ENABLED || 'false').toLowerCase() === 'true',
       timezone: env.DAILY_REPORT_TIMEZONE || 'Asia/Ho_Chi_Minh',

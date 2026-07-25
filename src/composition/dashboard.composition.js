@@ -10,6 +10,13 @@ const DashboardReadModelService =
 const DashboardController = require('../controllers/dashboard.controller');
 const DashboardRoute = require('../routes/dashboard.route');
 const agentRegistry = require('../domain/agents/agent-registry');
+const TransactionManager = require('../infrastructure/database/transaction-manager');
+const MysqlAgentRuntimeStateRepository =
+  require('../infrastructure/database/repositories/mysql-agent-runtime-state.repository');
+const MysqlAuditRepository =
+  require('../infrastructure/database/repositories/mysql-audit.repository');
+const PersistentAgentLifecycleService =
+  require('../application/services/agent/persistent-agent-lifecycle.service');
 
 function buildDashboardRouter({
   config = env,
@@ -23,7 +30,16 @@ function buildDashboardRouter({
     agentRegistry,
     productionEnabled: config.orchestratorProductionEnabled,
   });
-  return new DashboardRoute(new DashboardController(service)).router;
+  const lifecycleService = new PersistentAgentLifecycleService({
+    transactionManager: new TransactionManager(pool),
+    repositoryFactory: (executor) => new MysqlAgentRuntimeStateRepository(executor),
+    auditRepositoryFactory: (executor) => new MysqlAuditRepository(executor),
+    agentRegistry,
+    allowedActorIds: config.ceoOperatorIds,
+  });
+  return new DashboardRoute(
+    new DashboardController(service, lifecycleService),
+  ).router;
 }
 
 module.exports = { buildDashboardRouter };

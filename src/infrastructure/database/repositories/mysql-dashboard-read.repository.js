@@ -35,15 +35,23 @@ class MysqlDashboardReadRepository {
     const placeholders = agentIds.map(() => '?').join(', ');
     const [rows] = await this.executor.execute(
       `SELECT
-         assigned_agent_id AS agent_id,
-         COUNT(*) AS workflow_count,
-         COALESCE(SUM(state NOT IN ('completed', 'failed', 'cancelled')), 0)
+         ars.agent_id AS agent_id,
+         COUNT(w.id) AS workflow_count,
+         COALESCE(SUM(w.state NOT IN ('completed', 'failed', 'cancelled')), 0)
            AS active_workflow_count,
-         COALESCE(SUM(state = 'failed'), 0) AS failed_workflow_count,
-         MAX(updated_at) AS last_activity_at
-       FROM workflows
-       WHERE assigned_agent_id IN (${placeholders})
-       GROUP BY assigned_agent_id`,
+         COALESCE(SUM(w.state = 'failed'), 0) AS failed_workflow_count,
+         MAX(w.updated_at) AS last_activity_at,
+         ars.lifecycle_state,
+         ars.state_version,
+         ars.reason AS lifecycle_reason,
+         ars.changed_by,
+         ars.changed_at
+       FROM workflows w
+       RIGHT JOIN agent_runtime_states ars
+         ON ars.agent_id = w.assigned_agent_id
+       WHERE ars.agent_id IN (${placeholders})
+       GROUP BY ars.agent_id, w.assigned_agent_id, ars.lifecycle_state,
+         ars.state_version, ars.reason, ars.changed_by, ars.changed_at`,
       agentIds,
     );
     return rows.map((row) => Object.freeze({
@@ -52,6 +60,11 @@ class MysqlDashboardReadRepository {
       activeWorkflowCount: Number(row.active_workflow_count || 0),
       failedWorkflowCount: Number(row.failed_workflow_count || 0),
       lastActivityAt: row.last_activity_at || null,
+      lifecycleStatus: row.lifecycle_state,
+      stateVersion: Number(row.state_version),
+      lifecycleReason: row.lifecycle_reason || null,
+      changedBy: row.changed_by,
+      changedAt: row.changed_at,
     }));
   }
 }

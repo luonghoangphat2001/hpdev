@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('crypto');
 const { AppError } = require('../../../middlewares/error.middleware');
 
 const TRANSITIONS = Object.freeze({
@@ -18,15 +19,19 @@ class PersistentAgentLifecycleService {
   constructor({
     transactionManager,
     repositoryFactory,
+    auditRepositoryFactory,
     agentRegistry,
     allowedActorIds,
     clock = () => new Date(),
+    idFactory = (prefix) => `${prefix}_${crypto.randomUUID()}`,
   }) {
     this.transactionManager = transactionManager;
     this.repositoryFactory = repositoryFactory;
+    this.auditRepositoryFactory = auditRepositoryFactory;
     this.agentRegistry = agentRegistry;
     this.allowedActorIds = new Set(allowedActorIds || []);
     this.clock = clock;
+    this.idFactory = idFactory;
   }
 
   async transition({ agentId, toState, expectedVersion, actorId, reason }) {
@@ -53,6 +58,21 @@ class PersistentAgentLifecycleService {
         changedAt,
       });
       if (!changed) throw new AppError('Agent lifecycle state version is stale', 409);
+      if (this.auditRepositoryFactory) {
+        await this.auditRepositoryFactory(connection).append({
+          auditId: this.idFactory('aud'),
+          occurredAt: this.clock(),
+          correlationId: `agent-lifecycle:${agentId}`,
+          actorType: 'ceo',
+          actorId,
+          auditType: 'agent.lifecycle.transition',
+          fromState,
+          toState,
+          outcome: 'success',
+          policyVersion: 'agent-lifecycle-v1',
+          details: { agentId, reason: reason.trim(), expectedVersion },
+        });
+      }
 
       return Object.freeze({
         agentId,

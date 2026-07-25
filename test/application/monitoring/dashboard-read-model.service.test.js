@@ -40,6 +40,8 @@ describe('T122 supplemental: Dashboard Read Model Service', () => {
           activeWorkflowCount: 2,
           failedWorkflowCount: 1,
           lastActivityAt: '2026-07-25T10:00:00.000Z',
+          lifecycleStatus: 'ACTIVE',
+          stateVersion: 2,
         },
       ]),
     };
@@ -61,12 +63,14 @@ describe('T122 supplemental: Dashboard Read Model Service', () => {
       agentId: 'dan_ops',
       activityStatus: 'BUSY',
       activeWorkflowCount: 2,
-      lifecycleStatus: 'NOT_PERSISTED',
+      lifecycleStatus: 'ACTIVE',
+      stateVersion: 2,
     });
     expect(agents[1]).toMatchObject({
       agentId: 'dan_cfo',
       activityStatus: 'IDLE',
       workflowCount: 0,
+      lifecycleStatus: 'UNKNOWN',
     });
   });
 });

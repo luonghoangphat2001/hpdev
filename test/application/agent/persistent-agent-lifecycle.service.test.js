@@ -12,19 +12,22 @@ function harness(state = 'ACTIVE', version = 2) {
     }),
     transition: jest.fn().mockResolvedValue(true),
   };
+  const audit = { append: jest.fn().mockResolvedValue({}) };
   const service = new PersistentAgentLifecycleService({
     transactionManager: { execute: (operation) => operation({}) },
     repositoryFactory: () => repository,
+    auditRepositoryFactory: () => audit,
     agentRegistry: { get: (id) => id === 'dan_ops' ? { id } : null },
     allowedActorIds: ['ceo-dashboard'],
     clock: () => new Date('2026-07-25T12:00:00.000Z'),
+    idFactory: () => 'aud_agent_1',
   });
-  return { service, repository };
+  return { service, repository, audit };
 }
 
 describe('T143 supplemental: persistent agent lifecycle service', () => {
   test('persists an authorized transition with optimistic version control', async () => {
-    const { service, repository } = harness();
+    const { service, repository, audit } = harness();
 
     await expect(service.transition({
       agentId: 'dan_ops',
@@ -41,6 +44,12 @@ describe('T143 supplemental: persistent agent lifecycle service', () => {
     expect(repository.transition).toHaveBeenCalledWith('dan_ops', 2, expect.objectContaining({
       lifecycleState: 'PAUSED',
       changedBy: 'ceo-dashboard',
+    }));
+    expect(audit.append).toHaveBeenCalledWith(expect.objectContaining({
+      auditType: 'agent.lifecycle.transition',
+      actorId: 'ceo-dashboard',
+      fromState: 'ACTIVE',
+      toState: 'PAUSED',
     }));
   });
 
