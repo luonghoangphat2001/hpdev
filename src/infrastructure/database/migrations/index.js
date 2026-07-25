@@ -8,4 +8,5 @@ module.exports = Object.freeze([
   require('./005-create-audit-events'),
   require('./006-create-outbox-jobs'),
   require('./007-create-dead-letters'),
+  require('./008-create-agent-memories'),
 ]);
