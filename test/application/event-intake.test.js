@@ -56,6 +56,32 @@ describe('event intake application flow', () => {
     expect(eventRepository.create).not.toHaveBeenCalled();
   });
 
+  it('returns the persisted receipt when concurrent intake loses a unique race', async () => {
+    const duplicateError = Object.assign(new Error('duplicate'), {
+      code: 'ER_DUP_ENTRY',
+    });
+    const eventRepository = {
+      create: jest.fn().mockRejectedValue(duplicateError),
+      findByDeliveryId: jest.fn().mockResolvedValue({
+        event_id: 'evt_existing',
+        correlation_id: 'cor_existing',
+      }),
+      findByEventId: jest.fn(),
+    };
+    const service = new EventIntakeService({ eventRepository });
+
+    await expect(service.accept({
+      payload,
+      rawBody: JSON.stringify(payload),
+      deliveryId: 'delivery_123',
+      keyId: 'key_1',
+    })).resolves.toEqual({
+      event_id: 'evt_existing',
+      correlation_id: 'cor_existing',
+      status: 'duplicate',
+    });
+  });
+
   it('requires verified signature metadata and a complete envelope', () => {
     const validation = new EventIntakeValidation();
     expect(() => validation.validate({ body: payload }))

@@ -6,6 +6,7 @@ const searchRouter = require('./routes/search.route');
 const fetchRouter = require('./routes/fetch.route');
 const crawlRouter = require('./routes/crawl.route');
 const automateRouter = require('./routes/automate.route');
+const { buildEventIntakeRouter } = require('./composition/event-intake.composition');
 const { errorHandler, notFoundHandler } = require('./middlewares/error.middleware');
 
 class App {
@@ -27,6 +28,7 @@ class App {
 
   registerRoutes() {
     this.app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+    this.app.use('/orchestrator/v1/events', buildEventIntakeRouter());
 
     this.app.use(auth);
     this.app.use('/search', searchRouter);

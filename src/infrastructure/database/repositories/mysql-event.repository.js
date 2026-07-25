@@ -43,6 +43,14 @@ class MysqlEventRepository extends EventRepository {
     return rows[0] || null;
   }
 
+  async findByDeliveryId(deliveryId) {
+    const [rows] = await this.executor.execute(
+      'SELECT * FROM orchestrator_events WHERE delivery_id = ? LIMIT 1',
+      [deliveryId],
+    );
+    return rows[0] || null;
+  }
+
   async updateStatus(eventId, status, failure = null) {
     const [result] = await this.executor.execute(
       `UPDATE orchestrator_events

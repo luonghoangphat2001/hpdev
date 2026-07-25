@@ -34,21 +34,39 @@ class EventIntakeService {
     const correlationId = command.payload.correlation_id
       || this.identifiers.createId('correlation');
 
-    await this.eventRepository.create({
-      eventId,
-      schemaVersion: command.payload.schema_version,
-      eventType: eventDefinition.name,
-      source: 'ecommerce',
-      occurredAt: new Date(command.payload.timestamp),
-      receivedAt: this.clock(),
-      correlationId,
-      deliveryId: command.deliveryId,
-      rawPayload: command.payload,
-      payloadHash: crypto.createHash('sha256').update(rawBody).digest('hex'),
-      signatureValid: true,
-      signatureKeyId: command.keyId,
-      status: 'received',
-    });
+    try {
+      await this.eventRepository.create({
+        eventId,
+        schemaVersion: command.payload.schema_version,
+        eventType: eventDefinition.name,
+        source: 'ecommerce',
+        occurredAt: new Date(command.payload.timestamp),
+        receivedAt: this.clock(),
+        correlationId,
+        deliveryId: command.deliveryId,
+        rawPayload: command.payload,
+        payloadHash: crypto.createHash('sha256').update(rawBody).digest('hex'),
+        signatureValid: true,
+        signatureKeyId: command.keyId,
+        status: 'received',
+      });
+    } catch (error) {
+      if (error.code !== 'ER_DUP_ENTRY') {
+        throw error;
+      }
+
+      const existing = await this.eventRepository.findByDeliveryId(command.deliveryId)
+        || await this.eventRepository.findByEventId(eventId);
+      if (!existing) {
+        throw error;
+      }
+
+      return Object.freeze({
+        event_id: existing.event_id,
+        correlation_id: existing.correlation_id,
+        status: 'duplicate',
+      });
+    }
 
     return Object.freeze({
       event_id: eventId,

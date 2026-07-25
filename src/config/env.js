@@ -7,6 +7,7 @@ class EnvConfig {
     this.port = env.PORT || 4000;
     this.apiSecret = env.API_SECRET || '';
     this.serperKey = env.SERPER_KEY || '';
+    this.ecommerceWebhookKeysJson = env.ECOMMERCE_WEBHOOK_KEYS_JSON || '';
     this.orchestratorDatabase = Object.freeze({
       host: env.ORCHESTRATOR_DB_HOST || '127.0.0.1',
       port: Number(env.ORCHESTRATOR_DB_PORT || 3306),
