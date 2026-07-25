@@ -45,6 +45,7 @@ class SsotWriteAdapter {
   async execute(actionName, payload, {
     actionId,
     idempotencyKey,
+    expectedResourceVersion,
     grantedPermissions = [],
     approval = null,
   } = {}) {
@@ -90,6 +91,7 @@ class SsotWriteAdapter {
       path,
       data: body,
       idempotencyKey,
+      ...(expectedResourceVersion ? { expectedResourceVersion } : {}),
     });
     this.assertReceipt(action, receipt, idempotencyKey);
     return Object.freeze(receipt);

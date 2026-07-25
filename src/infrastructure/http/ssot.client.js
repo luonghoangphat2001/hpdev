@@ -46,6 +46,7 @@ class SsotClient {
     params,
     data,
     idempotencyKey,
+    expectedResourceVersion,
     timeoutMs = 10000,
   }) {
     try {
@@ -61,6 +62,9 @@ class SsotClient {
           Accept: 'application/json',
           'Content-Type': 'application/json',
           ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
+          ...(expectedResourceVersion
+            ? { 'If-Match': expectedResourceVersion }
+            : {}),
         },
       });
       return response.data;

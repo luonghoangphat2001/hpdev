@@ -48,6 +48,23 @@ describe('SsotClient', () => {
       .toBe('idem:v1:test:key');
   });
 
+  it('sends expected resource version as an If-Match precondition', async () => {
+    const httpClient = {
+      request: jest.fn().mockResolvedValue({ data: {} }),
+    };
+    const client = new SsotClient({ httpClient, config });
+    await client.request({
+      method: 'POST',
+      path: '/action',
+      data: {},
+      idempotencyKey: 'idem:v1:test:key',
+      expectedResourceVersion: 'version-7',
+    });
+
+    expect(httpClient.request.mock.calls[0][0].headers['If-Match'])
+      .toBe('version-7');
+  });
+
   it('fails startup when service-account configuration is incomplete', () => {
     expect(() => new SsotClient({
       httpClient: {},
