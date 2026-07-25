@@ -7,6 +7,15 @@ class EnvConfig {
     this.port = env.PORT || 4000;
     this.apiSecret = env.API_SECRET || '';
     this.serperKey = env.SERPER_KEY || '';
+    this.orchestratorDatabase = Object.freeze({
+      host: env.ORCHESTRATOR_DB_HOST || '127.0.0.1',
+      port: Number(env.ORCHESTRATOR_DB_PORT || 3306),
+      database: env.ORCHESTRATOR_DB_NAME || 'openclaw_orchestrator',
+      user: env.ORCHESTRATOR_DB_USER || 'openclaw_service',
+      password: env.ORCHESTRATOR_DB_PASSWORD || '',
+      connectionLimit: Number(env.ORCHESTRATOR_DB_POOL_MAX || 10),
+      minConnections: Number(env.ORCHESTRATOR_DB_POOL_MIN || 2),
+    });
   }
 }
 
