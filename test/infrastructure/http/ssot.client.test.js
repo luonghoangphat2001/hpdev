@@ -48,6 +48,24 @@ describe('SsotClient', () => {
       .toBe('idem:v1:test:key');
   });
 
+  it('checks the authenticated company Dashboard agent endpoint', async () => {
+    const httpClient = {
+      request: jest.fn().mockResolvedValue({
+        data: { ok: true, integration: { status: 'UP' } },
+      }),
+    };
+    const client = new SsotClient({ httpClient, config });
+
+    await expect(client.ping()).resolves.toMatchObject({
+      integration: { status: 'UP' },
+    });
+    expect(httpClient.request).toHaveBeenCalledWith(expect.objectContaining({
+      method: 'GET',
+      url: 'https://ecommerce.example/api/v1/storefront/agents/health',
+      timeout: 5000,
+    }));
+  });
+
   it('sends expected resource version as an If-Match precondition', async () => {
     const httpClient = {
       request: jest.fn().mockResolvedValue({ data: {} }),

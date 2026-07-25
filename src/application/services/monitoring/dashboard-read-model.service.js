@@ -6,6 +6,8 @@ class DashboardReadModelService {
     metricsRegistry,
     agentRegistry = null,
     productionEnabled = false,
+    ssotClient = null,
+    companyDashboardUrl = null,
   }) {
     if (!dashboardRepository || typeof dashboardRepository.getOverview !== 'function') {
       throw new TypeError('Dashboard read model requires a dashboard repository');
@@ -14,10 +16,15 @@ class DashboardReadModelService {
     this.metricsRegistry = metricsRegistry;
     this.agentRegistry = agentRegistry;
     this.productionEnabled = productionEnabled;
+    this.ssotClient = ssotClient;
+    this.companyDashboardUrl = companyDashboardUrl;
   }
 
   async getOverview() {
-    const operationalCounts = await this.dashboardRepository.getOverview();
+    const [operationalCounts, companyDashboard] = await Promise.all([
+      this.dashboardRepository.getOverview(),
+      this.#getCompanyDashboardStatus(),
+    ]);
     const metrics = this.metricsRegistry?.snapshot
       ? this.metricsRegistry.snapshot()
       : {};
@@ -27,9 +34,37 @@ class DashboardReadModelService {
       status: 'UP',
       productionEnabled: this.productionEnabled,
       operationalCounts,
+      companyDashboard,
       metrics,
       generatedAt: new Date().toISOString(),
     });
+  }
+
+  async #getCompanyDashboardStatus() {
+    if (!this.ssotClient || typeof this.ssotClient.ping !== 'function') {
+      return Object.freeze({
+        status: 'NOT_CONFIGURED',
+        baseUrl: this.companyDashboardUrl,
+      });
+    }
+
+    try {
+      const response = await this.ssotClient.ping({ timeoutMs: 5000 });
+      return Object.freeze({
+        status: response?.integration?.status || 'UP',
+        baseUrl: this.companyDashboardUrl,
+        apiVersion: response?.integration?.api_version || 'v1',
+        agent: response?.integration?.agent || null,
+        operationalSummary: response?.integration?.operational_summary || {},
+        checkedAt: response?.integration?.checked_at || new Date().toISOString(),
+      });
+    } catch (error) {
+      return Object.freeze({
+        status: 'DEGRADED',
+        baseUrl: this.companyDashboardUrl,
+        errorCode: error.code || 'ssot_request_failed',
+      });
+    }
   }
 
   async getAgents() {

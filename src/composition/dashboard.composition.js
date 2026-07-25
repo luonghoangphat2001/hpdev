@@ -17,6 +17,7 @@ const MysqlAuditRepository =
   require('../infrastructure/database/repositories/mysql-audit.repository');
 const PersistentAgentLifecycleService =
   require('../application/services/agent/persistent-agent-lifecycle.service');
+const SsotClient = require('../infrastructure/http/ssot.client');
 
 function buildDashboardRouter({
   config = env,
@@ -24,11 +25,20 @@ function buildDashboardRouter({
   metrics = metricsRegistry,
 } = {}) {
   const repository = new MysqlDashboardReadRepository(pool);
+  const ssotConfigured = Boolean(
+    config.ecommerceApi?.baseUrl
+      && config.ecommerceApi?.agentCode
+      && config.ecommerceApi?.agentToken,
+  );
   const service = new DashboardReadModelService({
     dashboardRepository: repository,
     metricsRegistry: metrics,
     agentRegistry,
     productionEnabled: config.orchestratorProductionEnabled,
+    ssotClient: ssotConfigured
+      ? new SsotClient({ config: config.ecommerceApi })
+      : null,
+    companyDashboardUrl: config.ecommerceApi?.baseUrl || null,
   });
   const lifecycleService = new PersistentAgentLifecycleService({
     transactionManager: new TransactionManager(pool),

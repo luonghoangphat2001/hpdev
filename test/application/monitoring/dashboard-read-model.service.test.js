@@ -30,6 +30,62 @@ describe('T122 supplemental: Dashboard Read Model Service', () => {
     expect(dashboardRepository.getOverview).toHaveBeenCalledTimes(1);
   });
 
+  test('reports the authenticated company Dashboard connection without exposing credentials', async () => {
+    const dashboardRepository = {
+      getOverview: jest.fn().mockResolvedValue({ activeWorkflowCount: 0 }),
+    };
+    const ssotClient = {
+      ping: jest.fn().mockResolvedValue({
+        integration: {
+          status: 'UP',
+          api_version: 'v1',
+          agent: { code: 'openclaw-orchestrator', department: 'ops' },
+          operational_summary: { products: 30, orders: 0, active_agents: 7 },
+          checked_at: '2026-07-25T10:00:00+07:00',
+        },
+      }),
+    };
+    const service = new DashboardReadModelService({
+      dashboardRepository,
+      ssotClient,
+      companyDashboardUrl: 'https://dashboard.hpdev.name.vn',
+    });
+
+    const result = await service.getOverview();
+
+    expect(result.companyDashboard).toMatchObject({
+      status: 'UP',
+      baseUrl: 'https://dashboard.hpdev.name.vn',
+      apiVersion: 'v1',
+      agent: { code: 'openclaw-orchestrator' },
+      operationalSummary: { products: 30 },
+    });
+    expect(result.companyDashboard).not.toHaveProperty('agentToken');
+  });
+
+  test('degrades only the company Dashboard integration when its API is unavailable', async () => {
+    const dashboardRepository = {
+      getOverview: jest.fn().mockResolvedValue({ activeWorkflowCount: 0 }),
+    };
+    const ssotClient = {
+      ping: jest.fn().mockRejectedValue({ code: 'ssot_timeout' }),
+    };
+    const service = new DashboardReadModelService({
+      dashboardRepository,
+      ssotClient,
+      companyDashboardUrl: 'https://dashboard.hpdev.name.vn',
+    });
+
+    const result = await service.getOverview();
+
+    expect(result.status).toBe('UP');
+    expect(result.companyDashboard).toEqual({
+      status: 'DEGRADED',
+      baseUrl: 'https://dashboard.hpdev.name.vn',
+      errorCode: 'ssot_timeout',
+    });
+  });
+
   test('merges five registered agent profiles with database activity', async () => {
     const dashboardRepository = {
       getOverview: jest.fn(),

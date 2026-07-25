@@ -83,6 +83,14 @@ class SsotClient {
       );
     }
   }
+
+  async ping({ timeoutMs = 5000 } = {}) {
+    return this.request({
+      method: 'GET',
+      path: '/api/v1/storefront/agents/health',
+      timeoutMs,
+    });
+  }
 }
 
 module.exports = SsotClient;
