@@ -17,7 +17,12 @@ class App {
   }
 
   registerMiddlewares() {
-    this.app.use(express.json({ limit: '10mb' }));
+    this.app.use(express.json({
+      limit: '10mb',
+      verify: (req, _res, buffer) => {
+        req.rawBody = Buffer.from(buffer);
+      },
+    }));
   }
 
   registerRoutes() {
