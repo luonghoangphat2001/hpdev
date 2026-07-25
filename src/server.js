@@ -3,6 +3,7 @@
 const app = require('./app');
 const env = require('./config/env');
 const logger = require('./services/logger.service');
+const { buildDailyReportScheduler } = require('./composition/daily-report.composition');
 
 class Server {
   constructor(expressApp = app, config = env) {
@@ -11,11 +12,17 @@ class Server {
   }
 
   listen() {
-    return this.app.listen(this.config.port, () => {
+    const server = this.app.listen(this.config.port, () => {
       const message = `[OpenClaw] Listening on port ${this.config.port}`;
       console.log(message);
       logger.info(message, { port: this.config.port });
     });
+    if (this.config.dailyReport?.enabled) {
+      this.dailyReportScheduler = buildDailyReportScheduler({ config: this.config });
+      this.dailyReportScheduler.start();
+      server.on('close', () => this.dailyReportScheduler.stop());
+    }
+    return server;
   }
 }
 

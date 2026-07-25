@@ -24,6 +24,12 @@ class EnvConfig {
         .map((id) => id.trim())
         .filter(Boolean)
     );
+    this.dailyReport = Object.freeze({
+      enabled: String(env.DAILY_REPORT_ENABLED || 'false').toLowerCase() === 'true',
+      timezone: env.DAILY_REPORT_TIMEZONE || 'Asia/Ho_Chi_Minh',
+      time: env.DAILY_REPORT_TIME || '18:00',
+      agentTimeoutMs: Number(env.DAILY_REPORT_AGENT_TIMEOUT_MS || 5000),
+    });
     this.orchestratorDatabase = Object.freeze({
       host: env.ORCHESTRATOR_DB_HOST || '127.0.0.1',
       port: Number(env.ORCHESTRATOR_DB_PORT || 3306),
