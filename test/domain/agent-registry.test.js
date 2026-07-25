@@ -62,6 +62,22 @@ describe('AgentRegistry', () => {
     ]);
   });
 
+  it('derives routes from versioned agent capabilities instead of a central switch', () => {
+    const custom = new AgentRegistry({
+      agents: [{
+        id: 'dan_custom',
+        version: '2.0.0',
+        eventPatterns: ['custom.*'],
+        actionPatterns: ['custom.read'],
+        capabilities: ['custom_analysis'],
+        permissions: ['custom.read'],
+      }],
+    });
+
+    expect(custom.routeEvent('custom.created').agents).toEqual(['dan_custom']);
+    expect(custom.routeAction('custom.read').agents).toEqual(['dan_custom']);
+  });
+
   it('rejects routes that reference an unregistered agent', () => {
     expect(() => new AgentRegistry({
       agents: registry.list(),

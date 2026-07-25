@@ -13,6 +13,8 @@ const metricsRegistry = require('./infrastructure/observability');
 const HttpMetricsMiddleware = require('./middlewares/http-metrics.middleware');
 const MetricsController = require('./controllers/metrics.controller');
 const env = require('./config/env');
+const { buildCapabilityRegistry } = require('./composition/capability-registry.composition');
+const CapabilityController = require('./controllers/capability.controller');
 
 class App {
   constructor() {
@@ -40,6 +42,11 @@ class App {
     this.app.use(auth);
     const metricsController = new MetricsController(metricsRegistry, env);
     this.app.get('/orchestrator/v1/metrics', metricsController.get.bind(metricsController));
+    const capabilityController = new CapabilityController(buildCapabilityRegistry());
+    this.app.get(
+      '/orchestrator/v1/capabilities',
+      capabilityController.list.bind(capabilityController)
+    );
     this.app.use('/orchestrator/v1/approvals', buildApprovalRouter());
     this.app.use('/search', searchRouter);
     this.app.use('/fetch', fetchRouter);

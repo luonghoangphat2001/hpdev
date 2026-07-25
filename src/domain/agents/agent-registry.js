@@ -5,57 +5,85 @@ const AGENTS = Object.freeze([
     id: 'dan_rnd',
     department: 'rnd',
     mission: 'product_menu_research',
+    version: '1.0.0',
+    capabilities: Object.freeze(['menu_analysis', 'product_research']),
+    permissions: Object.freeze(['product.read']),
+    eventPatterns: Object.freeze(['product.*', 'productcategory.*']),
+    actionPatterns: Object.freeze(['product.*']),
+    routingPriority: 100,
   }),
   Object.freeze({
     id: 'dan_logistics',
     department: 'logistics',
     mission: 'inventory_and_procurement',
+    version: '1.0.0',
+    capabilities: Object.freeze(['inventory_analysis', 'purchase_order_draft']),
+    permissions: Object.freeze(['inventory.read', 'purchase_order_draft.create']),
+    eventPatterns: Object.freeze(['product.*', 'inventory.*']),
+    actionPatterns: Object.freeze(['inventory.*']),
+    routingPriority: 90,
   }),
   Object.freeze({
     id: 'dan_cfo',
     department: 'finance',
     mission: 'finance_and_reconciliation',
+    version: '1.0.0',
+    capabilities: Object.freeze(['reconciliation', 'refund_proposal']),
+    permissions: Object.freeze(['finance.read', 'refund.execute', 'order.read']),
+    eventPatterns: Object.freeze(['order.created', 'finance.*']),
+    actionPatterns: Object.freeze(['finance.*', 'order.*']),
+    routingPriority: 80,
   }),
   Object.freeze({
     id: 'dan_ops',
     department: 'operations',
     mission: 'order_and_sla_operations',
+    version: '1.0.0',
+    capabilities: Object.freeze(['sla_monitoring', 'order_operations']),
+    permissions: Object.freeze(['order.read', 'order_status.update']),
+    eventPatterns: Object.freeze(['order.*']),
+    actionPatterns: Object.freeze(['order.*', 'ops.*']),
+    routingPriority: 100,
   }),
   Object.freeze({
     id: 'dan_cskh',
     department: 'customer_support',
     mission: 'customer_feedback_and_recovery',
+    version: '1.0.0',
+    capabilities: Object.freeze(['customer_recovery', 'voucher_proposal']),
+    permissions: Object.freeze(['cskh.read', 'cskh_response.send', 'voucher.issue']),
+    eventPatterns: Object.freeze(['customer_feedback.*']),
+    actionPatterns: Object.freeze(['cskh.*']),
+    routingPriority: 100,
   }),
 ]);
 
-const EVENT_ROUTES = Object.freeze([
-  Object.freeze({ pattern: 'product.*', agents: Object.freeze(['dan_rnd', 'dan_logistics']) }),
-  Object.freeze({ pattern: 'productcategory.*', agents: Object.freeze(['dan_rnd']) }),
-  Object.freeze({ pattern: 'order.created', agents: Object.freeze(['dan_ops', 'dan_cfo']) }),
-  Object.freeze({ pattern: 'order.*', agents: Object.freeze(['dan_ops']) }),
-  Object.freeze({ pattern: 'inventory.*', agents: Object.freeze(['dan_logistics']) }),
-  Object.freeze({ pattern: 'finance.*', agents: Object.freeze(['dan_cfo']) }),
-  Object.freeze({ pattern: 'customer_feedback.*', agents: Object.freeze(['dan_cskh']) }),
-]);
+function routesFromAgents(agents, field) {
+  const routes = new Map();
+  agents.forEach((agent) => {
+    (agent[field] || []).forEach((pattern) => {
+      if (!routes.has(pattern)) routes.set(pattern, []);
+      routes.get(pattern).push(agent.id);
+    });
+  });
+  return Object.freeze(Array.from(routes, ([pattern, ids]) => Object.freeze({
+    pattern,
+    agents: Object.freeze(ids),
+  })));
+}
 
-const ACTION_ROUTES = Object.freeze([
-  Object.freeze({ pattern: 'order.*', agents: Object.freeze(['dan_ops', 'dan_cfo']) }),
-  Object.freeze({ pattern: 'inventory.*', agents: Object.freeze(['dan_logistics']) }),
-  Object.freeze({ pattern: 'finance.*', agents: Object.freeze(['dan_cfo']) }),
-  Object.freeze({ pattern: 'ops.*', agents: Object.freeze(['dan_ops']) }),
-  Object.freeze({ pattern: 'cskh.*', agents: Object.freeze(['dan_cskh']) }),
-  Object.freeze({ pattern: 'product.*', agents: Object.freeze(['dan_rnd']) }),
-]);
+const EVENT_ROUTES = routesFromAgents(AGENTS, 'eventPatterns');
+const ACTION_ROUTES = routesFromAgents(AGENTS, 'actionPatterns');
 
 class AgentRegistry {
   constructor({
     agents = AGENTS,
-    eventRoutes = EVENT_ROUTES,
-    actionRoutes = ACTION_ROUTES,
+    eventRoutes = null,
+    actionRoutes = null,
   } = {}) {
     this.agents = new Map(agents.map((agent) => [agent.id, agent]));
-    this.eventRoutes = eventRoutes;
-    this.actionRoutes = actionRoutes;
+    this.eventRoutes = eventRoutes || routesFromAgents(agents, 'eventPatterns');
+    this.actionRoutes = actionRoutes || routesFromAgents(agents, 'actionPatterns');
     this.validate();
   }
 
@@ -87,7 +115,10 @@ class AgentRegistry {
 
   route(kind, name, routes) {
     const matched = routes.filter(({ pattern }) => this.matches(pattern, name));
-    const agents = [...new Set(matched.flatMap((route) => route.agents))];
+    const agents = [...new Set(matched.flatMap((route) => route.agents))]
+      .sort((left, right) =>
+        (this.agents.get(right)?.routingPriority || 0)
+        - (this.agents.get(left)?.routingPriority || 0));
 
     if (agents.length === 0) {
       return Object.freeze({
