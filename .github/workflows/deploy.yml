@@ -20,6 +20,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
+            set -e
             BRANCH="${{ github.ref_name }}"
             if [ "$BRANCH" = "main" ]; then
               cd /home/hpdev/public_html
@@ -37,9 +38,9 @@ jobs:
               pm2 save
             elif [ "$BRANCH" = "openclaw" ]; then
               cd ~/openclaw.hpdev.name.vn
-              git pull origin openclaw
+              git pull --ff-only origin openclaw
               source ~/nodevenv/ai.hpdev.name.vn/19/bin/activate
-              npm install
+              npm ci
               npm run migrate
               npx playwright install chromium 2>/dev/null || true
               pm2 delete openclaw 2>/dev/null || true
