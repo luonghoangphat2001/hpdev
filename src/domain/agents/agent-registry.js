@@ -11,6 +11,10 @@ const AGENTS = Object.freeze([
     eventPatterns: Object.freeze(['product.*', 'productcategory.*']),
     actionPatterns: Object.freeze(['product.*']),
     routingPriority: 100,
+    scope: Object.freeze(['products', 'menu', 'experiments']),
+    kpis: Object.freeze(['menu_performance', 'proposal_acceptance', 'experiment_success']),
+    prohibitions: Object.freeze(['business_state_write', 'price_change', 'product_publish']),
+    escalationOwner: 'ceo',
   }),
   Object.freeze({
     id: 'dan_logistics',
@@ -22,6 +26,10 @@ const AGENTS = Object.freeze([
     eventPatterns: Object.freeze(['product.*', 'inventory.*']),
     actionPatterns: Object.freeze(['inventory.*']),
     routingPriority: 90,
+    scope: Object.freeze(['inventory', 'suppliers', 'purchase_order_drafts']),
+    kpis: Object.freeze(['stockout_rate', 'inventory_turn', 'reorder_accuracy']),
+    prohibitions: Object.freeze(['purchase_order_approve', 'supplier_payment']),
+    escalationOwner: 'ceo',
   }),
   Object.freeze({
     id: 'dan_cfo',
@@ -33,6 +41,10 @@ const AGENTS = Object.freeze([
     eventPatterns: Object.freeze(['order.created', 'finance.*']),
     actionPatterns: Object.freeze(['finance.*', 'order.*']),
     routingPriority: 80,
+    scope: Object.freeze(['finance_summary', 'reconciliation', 'refund_proposals']),
+    kpis: Object.freeze(['revenue', 'margin', 'reconciliation_variance', 'refund_rate']),
+    prohibitions: Object.freeze(['bank_transfer', 'ledger_mutation', 'refund_without_approval']),
+    escalationOwner: 'ceo',
   }),
   Object.freeze({
     id: 'dan_ops',
@@ -44,6 +56,10 @@ const AGENTS = Object.freeze([
     eventPatterns: Object.freeze(['order.*']),
     actionPatterns: Object.freeze(['order.*', 'ops.*']),
     routingPriority: 100,
+    scope: Object.freeze(['orders', 'sla', 'operational_exceptions']),
+    kpis: Object.freeze(['order_cycle_time', 'sla_breach_rate', 'completion_rate']),
+    prohibitions: Object.freeze(['raw_status_write', 'policy_override']),
+    escalationOwner: 'ceo',
   }),
   Object.freeze({
     id: 'dan_cskh',
@@ -55,6 +71,10 @@ const AGENTS = Object.freeze([
     eventPatterns: Object.freeze(['customer_feedback.*']),
     actionPatterns: Object.freeze(['cskh.*']),
     routingPriority: 100,
+    scope: Object.freeze(['customer_feedback', 'response_drafts', 'recovery_proposals']),
+    kpis: Object.freeze(['response_sla', 'customer_satisfaction', 'recovery_rate']),
+    prohibitions: Object.freeze(['customer_data_export', 'unapproved_high_value_voucher']),
+    escalationOwner: 'ceo',
   }),
 ]);
 

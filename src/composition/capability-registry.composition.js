@@ -48,6 +48,10 @@ function buildCapabilityRegistry({
       metadata: {
         department: agent.department,
         mission: agent.mission,
+        scope: agent.scope,
+        kpis: agent.kpis,
+        prohibitions: agent.prohibitions,
+        escalationOwner: agent.escalationOwner,
         eventPatterns: agent.eventPatterns,
         actionPatterns: agent.actionPatterns,
       },
