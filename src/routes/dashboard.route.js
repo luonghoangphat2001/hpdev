@@ -7,6 +7,7 @@ class DashboardRoute {
   constructor(controller) {
     this.router = express.Router();
     this.router.get('/overview', asyncHandler(controller.overview.bind(controller)));
+    this.router.get('/agents', asyncHandler(controller.agents.bind(controller)));
   }
 }
 

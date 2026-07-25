@@ -9,6 +9,7 @@ const DashboardReadModelService =
   require('../application/services/monitoring/dashboard-read-model.service');
 const DashboardController = require('../controllers/dashboard.controller');
 const DashboardRoute = require('../routes/dashboard.route');
+const agentRegistry = require('../domain/agents/agent-registry');
 
 function buildDashboardRouter({
   config = env,
@@ -19,6 +20,7 @@ function buildDashboardRouter({
   const service = new DashboardReadModelService({
     dashboardRepository: repository,
     metricsRegistry: metrics,
+    agentRegistry,
     productionEnabled: config.orchestratorProductionEnabled,
   });
   return new DashboardRoute(new DashboardController(service)).router;
