@@ -18,10 +18,10 @@ class LoggerService {
 
   write(level, message, context = {}) {
     const entry = {
+      ...context,
       time: new Date().toISOString(),
       level,
       message,
-      ...context,
     };
 
     try {
