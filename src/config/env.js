@@ -30,6 +30,8 @@ class EnvConfig {
       time: env.DAILY_REPORT_TIME || '18:00',
       agentTimeoutMs: Number(env.DAILY_REPORT_AGENT_TIMEOUT_MS || 5000),
     });
+    this.orchestratorProductionEnabled =
+      String(env.ORCHESTRATOR_PRODUCTION_ENABLED || 'false').toLowerCase() === 'true';
     this.orchestratorDatabase = Object.freeze({
       host: env.ORCHESTRATOR_DB_HOST || '127.0.0.1',
       port: Number(env.ORCHESTRATOR_DB_PORT || 3306),

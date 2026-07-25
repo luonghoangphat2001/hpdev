@@ -9,6 +9,10 @@ const automateRouter = require('./routes/automate.route');
 const { buildEventIntakeRouter } = require('./composition/event-intake.composition');
 const { buildApprovalRouter } = require('./composition/approval.composition');
 const { errorHandler, notFoundHandler } = require('./middlewares/error.middleware');
+const metricsRegistry = require('./infrastructure/observability');
+const HttpMetricsMiddleware = require('./middlewares/http-metrics.middleware');
+const MetricsController = require('./controllers/metrics.controller');
+const env = require('./config/env');
 
 class App {
   constructor() {
@@ -25,6 +29,8 @@ class App {
         req.rawBody = Buffer.from(buffer);
       },
     }));
+    const metrics = new HttpMetricsMiddleware({ registry: metricsRegistry });
+    this.app.use(metrics.handle.bind(metrics));
   }
 
   registerRoutes() {
@@ -32,6 +38,8 @@ class App {
     this.app.use('/orchestrator/v1/events', buildEventIntakeRouter());
 
     this.app.use(auth);
+    const metricsController = new MetricsController(metricsRegistry, env);
+    this.app.get('/orchestrator/v1/metrics', metricsController.get.bind(metricsController));
     this.app.use('/orchestrator/v1/approvals', buildApprovalRouter());
     this.app.use('/search', searchRouter);
     this.app.use('/fetch', fetchRouter);
