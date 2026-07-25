@@ -7,6 +7,14 @@ class DashboardRoute {
   constructor(controller) {
     this.router = express.Router();
     this.router.get('/overview', asyncHandler(controller.overview.bind(controller)));
+    this.router.get(
+      '/company/today-metrics',
+      asyncHandler(controller.companyDashboardTodayMetrics.bind(controller)),
+    );
+    this.router.get(
+      '/company/metrics',
+      asyncHandler(controller.companyDashboardMetrics.bind(controller)),
+    );
     this.router.get('/agents', asyncHandler(controller.agents.bind(controller)));
     this.router.post(
       '/agents/:agentId/control',

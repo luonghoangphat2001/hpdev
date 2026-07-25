@@ -67,6 +67,22 @@ class DashboardReadModelService {
     }
   }
 
+  async getCompanyDashboardMetrics(period = 'today') {
+    if (!this.ssotClient || typeof this.ssotClient.request !== 'function') {
+      throw new Error('Company Dashboard SSOT client is not configured');
+    }
+
+    return this.ssotClient.request({
+      method: 'GET',
+      path: `/api/v1/storefront/agents/metrics?period=${encodeURIComponent(period)}`,
+      timeoutMs: 5000,
+    });
+  }
+
+  async getCompanyDashboardTodayMetrics() {
+    return this.getCompanyDashboardMetrics('today');
+  }
+
   async getAgents() {
     if (!this.agentRegistry || typeof this.agentRegistry.list !== 'function') {
       throw new TypeError('Dashboard agent read model requires an agent registry');

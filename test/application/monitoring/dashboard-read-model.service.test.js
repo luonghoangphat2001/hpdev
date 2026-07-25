@@ -86,6 +86,26 @@ describe('T122 supplemental: Dashboard Read Model Service', () => {
     });
   });
 
+  test('reads today company metrics through the authenticated SSOT client', async () => {
+    const dashboardRepository = { getOverview: jest.fn() };
+    const ssotClient = {
+      request: jest.fn().mockResolvedValue({
+        ok: true,
+        integration: { metrics: { orders: 4, revenue: 125000 } },
+      }),
+    };
+    const service = new DashboardReadModelService({ dashboardRepository, ssotClient });
+
+    await expect(service.getCompanyDashboardTodayMetrics()).resolves.toMatchObject({
+      integration: { metrics: { orders: 4, revenue: 125000 } },
+    });
+    expect(ssotClient.request).toHaveBeenCalledWith({
+      method: 'GET',
+      path: '/api/v1/storefront/agents/metrics?period=today',
+      timeoutMs: 5000,
+    });
+  });
+
   test('merges five registered agent profiles with database activity', async () => {
     const dashboardRepository = {
       getOverview: jest.fn(),

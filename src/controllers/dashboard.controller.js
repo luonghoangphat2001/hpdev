@@ -13,6 +13,18 @@ class DashboardController {
     return res.json({ ok: true, overview });
   }
 
+  async companyDashboardTodayMetrics(_req, res) {
+    const metrics = await this.readModelService.getCompanyDashboardMetrics('today');
+    return res.json(metrics);
+  }
+
+  async companyDashboardMetrics(req, res) {
+    const metrics = await this.readModelService.getCompanyDashboardMetrics(
+      req.query.period || 'today',
+    );
+    return res.json(metrics);
+  }
+
   async agents(_req, res) {
     const agents = await this.readModelService.getAgents();
     return res.json({ ok: true, count: agents.length, agents });
