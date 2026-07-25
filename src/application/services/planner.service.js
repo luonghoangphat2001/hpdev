@@ -54,6 +54,7 @@ class PlannerService {
         id: idByKey.get(definition.key),
         key: definition.key,
         title: definition.title,
+        milestone: definition.milestone || 'execution',
         capability: definition.capability,
         assignedAgentId: agent.id,
         modelProfileId: model?.id || null,
