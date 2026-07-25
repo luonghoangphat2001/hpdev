@@ -13,6 +13,11 @@ class EnvConfig {
       agentCode: env.ECOMMERCE_AGENT_CODE || '',
       agentToken: env.ECOMMERCE_AGENT_TOKEN || '',
     });
+    this.danAiApi = Object.freeze({
+      baseUrl: env.DAN_AI_API_URL || '',
+      apiSecret: env.DAN_AI_API_SECRET || '',
+      timeoutMs: Number(env.DAN_AI_API_TIMEOUT_MS || 5000),
+    });
     this.orchestratorDatabase = Object.freeze({
       host: env.ORCHESTRATOR_DB_HOST || '127.0.0.1',
       port: Number(env.ORCHESTRATOR_DB_PORT || 3306),
