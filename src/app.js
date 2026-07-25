@@ -15,6 +15,7 @@ const MetricsController = require('./controllers/metrics.controller');
 const env = require('./config/env');
 const { buildCapabilityRegistry } = require('./composition/capability-registry.composition');
 const CapabilityController = require('./controllers/capability.controller');
+const { buildOperatorControlRouter } = require('./composition/operator-control.composition');
 
 class App {
   constructor() {
@@ -48,6 +49,7 @@ class App {
       capabilityController.list.bind(capabilityController)
     );
     this.app.use('/orchestrator/v1/approvals', buildApprovalRouter());
+    this.app.use('/orchestrator/v1/control', buildOperatorControlRouter());
     this.app.use('/search', searchRouter);
     this.app.use('/fetch', fetchRouter);
     this.app.use('/crawl', crawlRouter);

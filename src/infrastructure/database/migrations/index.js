@@ -9,4 +9,5 @@ module.exports = Object.freeze([
   require('./006-create-outbox-jobs'),
   require('./007-create-dead-letters'),
   require('./008-create-agent-memories'),
+  require('./009-add-operator-control'),
 ]);

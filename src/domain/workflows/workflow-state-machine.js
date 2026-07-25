@@ -1,10 +1,11 @@
 'use strict';
 
 const TRANSITIONS = Object.freeze({
-  received: Object.freeze(['queued', 'failed', 'cancelled']),
-  queued: Object.freeze(['running', 'failed', 'cancelled']),
-  running: Object.freeze(['awaiting_approval', 'completed', 'failed', 'cancelled']),
-  awaiting_approval: Object.freeze(['running', 'failed', 'cancelled']),
+  received: Object.freeze(['queued', 'failed', 'cancelled', 'paused']),
+  queued: Object.freeze(['running', 'failed', 'cancelled', 'paused']),
+  running: Object.freeze(['awaiting_approval', 'completed', 'failed', 'cancelled', 'paused']),
+  awaiting_approval: Object.freeze(['running', 'failed', 'cancelled', 'paused']),
+  paused: Object.freeze(['received', 'queued', 'running', 'awaiting_approval', 'failed', 'cancelled']),
   completed: Object.freeze([]),
   failed: Object.freeze(['queued', 'cancelled']),
   cancelled: Object.freeze([]),
