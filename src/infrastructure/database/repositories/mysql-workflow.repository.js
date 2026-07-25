@@ -66,6 +66,30 @@ class MysqlWorkflowRepository extends WorkflowRepository {
 
     return this.findByWorkflowId(workflowId);
   }
+
+  async findPortfolioCandidates(limit = 200) {
+    const [rows] = await this.executor.execute(
+      `SELECT * FROM workflows
+       WHERE state IN ('received', 'queued', 'paused')
+       ORDER BY priority DESC, created_at ASC
+       LIMIT ? FOR UPDATE`,
+      [Math.min(Math.max(Number(limit) || 200, 1), 500)],
+    );
+    return rows;
+  }
+
+  async updatePriority(workflowId, expectedVersion, priority) {
+    const [result] = await this.executor.execute(
+      `UPDATE workflows
+       SET priority = ?, state_version = state_version + 1
+       WHERE workflow_id = ? AND state_version = ?`,
+      [priority, workflowId, expectedVersion],
+    );
+    if (result.affectedRows !== 1) {
+      throw new OptimisticLockError('workflow', workflowId, expectedVersion);
+    }
+    return true;
+  }
 }
 
 module.exports = MysqlWorkflowRepository;
