@@ -11,4 +11,5 @@ module.exports = Object.freeze([
   require('./008-create-agent-memories'),
   require('./009-add-operator-control'),
   require('./010-create-intelligence-observability'),
+  require('./011-create-goals'),
 ]);
