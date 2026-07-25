@@ -9,6 +9,8 @@ const ID_PREFIXES = Object.freeze({
   action: 'act',
   approval: 'apr',
   audit: 'aud',
+  job: 'job',
+  deadLetter: 'dlq',
   task: 'tsk',
   report: 'rpt',
   correlation: 'cor',

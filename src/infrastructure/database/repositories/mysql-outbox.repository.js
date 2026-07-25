@@ -8,6 +8,28 @@ class MysqlOutboxRepository extends OutboxRepository {
     this.executor = executor;
   }
 
+  async enqueue(job) {
+    await this.executor.execute(
+      `INSERT INTO outbox_jobs (
+        job_id, job_key, job_type, workflow_id, action_id, correlation_id,
+        payload, status, priority, max_attempts, available_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+      [
+        job.jobId,
+        job.jobKey,
+        job.jobType,
+        job.workflowId || null,
+        job.actionId || null,
+        job.correlationId,
+        JSON.stringify(job.payload),
+        job.priority ?? 50,
+        job.maxAttempts ?? 3,
+        job.availableAt,
+      ],
+    );
+    return job;
+  }
+
   async claimNext(workerId, now, leaseExpiresAt) {
     const [rows] = await this.executor.execute(
       `SELECT * FROM outbox_jobs

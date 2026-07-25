@@ -1,6 +1,10 @@
 'use strict';
 
 class OutboxRepository {
+  async enqueue(_job) {
+    throw new Error('OutboxRepository.enqueue must be implemented');
+  }
+
   async claimNext(_workerId, _now, _leaseExpiresAt) {
     throw new Error('OutboxRepository.claimNext must be implemented');
   }
