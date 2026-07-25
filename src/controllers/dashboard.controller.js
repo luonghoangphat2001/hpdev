@@ -26,6 +26,17 @@ class DashboardController {
     });
     return res.json({ ok: true, agent: result });
   }
+
+  async workflows(req, res) {
+    const result = await this.readModelService.getWorkflows({
+      limit: req.query.limit,
+      offset: req.query.offset,
+      agentId: req.query.agentId,
+      state: req.query.state,
+      search: req.query.search,
+    });
+    return res.json({ ok: true, ...result });
+  }
 }
 
 module.exports = DashboardController;

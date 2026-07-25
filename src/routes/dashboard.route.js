@@ -12,6 +12,7 @@ class DashboardRoute {
       '/agents/:agentId/control',
       asyncHandler(controller.controlAgent.bind(controller)),
     );
+    this.router.get('/workflows', asyncHandler(controller.workflows.bind(controller)));
   }
 }
 

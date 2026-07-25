@@ -73,4 +73,46 @@ describe('T122 supplemental: Dashboard Read Model Service', () => {
       lifecycleStatus: 'UNKNOWN',
     });
   });
+
+  test('returns bounded filterable workflow summaries', async () => {
+    const dashboardRepository = {
+      getOverview: jest.fn(),
+      listWorkflows: jest.fn().mockResolvedValue({
+        total: 1,
+        rows: [{
+          workflow_id: 'wfl-1',
+          correlation_id: 'cor-1',
+          workflow_type: 'order.sla',
+          state: 'running',
+          state_version: 3,
+          assigned_agent_id: 'dan_ops',
+          risk_level: 'medium',
+          priority: 80,
+          created_at: '2026-07-25T10:00:00.000Z',
+          updated_at: '2026-07-25T10:01:00.000Z',
+        }],
+      }),
+    };
+    const service = new DashboardReadModelService({ dashboardRepository });
+
+    const result = await service.getWorkflows({
+      limit: 500,
+      agentId: 'dan_ops',
+      state: 'running',
+      search: 'sla',
+    });
+
+    expect(result.limit).toBe(200);
+    expect(result.workflows[0]).toMatchObject({
+      workflowId: 'wfl-1',
+      assignedAgentId: 'dan_ops',
+      stateVersion: 3,
+    });
+    expect(dashboardRepository.listWorkflows).toHaveBeenCalledWith(expect.objectContaining({
+      limit: 200,
+      agentId: 'dan_ops',
+      state: 'running',
+      search: 'sla',
+    }));
+  });
 });

@@ -67,6 +67,49 @@ class MysqlDashboardReadRepository {
       changedAt: row.changed_at,
     }));
   }
+
+  async listWorkflows({
+    limit = 50,
+    offset = 0,
+    agentId = null,
+    state = null,
+    search = null,
+  } = {}) {
+    const clauses = [];
+    const params = [];
+    if (agentId) {
+      clauses.push('assigned_agent_id = ?');
+      params.push(agentId);
+    }
+    if (state) {
+      clauses.push('state = ?');
+      params.push(state);
+    }
+    if (search) {
+      clauses.push('(workflow_id LIKE ? OR correlation_id LIKE ? OR workflow_type LIKE ?)');
+      const pattern = `%${search}%`;
+      params.push(pattern, pattern, pattern);
+    }
+    const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+    const [rows] = await this.executor.execute(
+      `SELECT workflow_id, correlation_id, workflow_type, state, state_version,
+              assigned_agent_id, risk_level, priority, failure_code,
+              failure_reason, deadline_at, created_at, updated_at, completed_at
+       FROM workflows
+       ${where}
+       ORDER BY updated_at DESC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset],
+    );
+    const [countRows] = await this.executor.execute(
+      `SELECT COUNT(*) AS total FROM workflows ${where}`,
+      params,
+    );
+    return Object.freeze({
+      rows,
+      total: Number(countRows[0]?.total || 0),
+    });
+  }
 }
 
 module.exports = MysqlDashboardReadRepository;

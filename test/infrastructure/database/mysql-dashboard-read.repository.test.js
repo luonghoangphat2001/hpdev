@@ -66,4 +66,34 @@ describe('T122 supplemental: MySQL Dashboard Read Repository', () => {
       ['dan_ops', 'dan_cfo'],
     );
   });
+
+  test('builds parameterized workflow filters and a matching count query', async () => {
+    const executor = {
+      execute: jest.fn()
+        .mockResolvedValueOnce([[{ workflow_id: 'wfl-1' }]])
+        .mockResolvedValueOnce([[{ total: 1 }]]),
+    };
+    const repository = new MysqlDashboardReadRepository(executor);
+
+    await expect(repository.listWorkflows({
+      limit: 25,
+      offset: 50,
+      agentId: 'dan_ops',
+      state: 'running',
+      search: 'order',
+    })).resolves.toEqual({
+      rows: [{ workflow_id: 'wfl-1' }],
+      total: 1,
+    });
+    expect(executor.execute).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('assigned_agent_id = ?'),
+      ['dan_ops', 'running', '%order%', '%order%', '%order%', 25, 50],
+    );
+    expect(executor.execute).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('COUNT(*) AS total'),
+      ['dan_ops', 'running', '%order%', '%order%', '%order%'],
+    );
+  });
 });
