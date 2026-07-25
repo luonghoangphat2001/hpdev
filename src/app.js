@@ -18,6 +18,7 @@ const CapabilityController = require('./controllers/capability.controller');
 const { buildOperatorControlRouter } = require('./composition/operator-control.composition');
 const { buildCeoCommandRouter } = require('./composition/ceo-command.composition');
 const { buildCeoExceptionRouter } = require('./composition/ceo-exception.composition');
+const { buildDashboardRouter } = require('./composition/dashboard.composition');
 
 class App {
   constructor() {
@@ -54,6 +55,7 @@ class App {
     this.app.use('/orchestrator/v1/control', buildOperatorControlRouter());
     this.app.use('/orchestrator/v1/commands', buildCeoCommandRouter());
     this.app.use('/orchestrator/v1/exceptions', buildCeoExceptionRouter());
+    this.app.use('/orchestrator/v1/dashboard', buildDashboardRouter());
     this.app.use('/search', searchRouter);
     this.app.use('/fetch', fetchRouter);
     this.app.use('/crawl', crawlRouter);
