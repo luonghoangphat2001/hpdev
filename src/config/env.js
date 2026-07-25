@@ -8,6 +8,11 @@ class EnvConfig {
     this.apiSecret = env.API_SECRET || '';
     this.serperKey = env.SERPER_KEY || '';
     this.ecommerceWebhookKeysJson = env.ECOMMERCE_WEBHOOK_KEYS_JSON || '';
+    this.ecommerceApi = Object.freeze({
+      baseUrl: env.ECOMMERCE_API_URL || '',
+      agentCode: env.ECOMMERCE_AGENT_CODE || '',
+      agentToken: env.ECOMMERCE_AGENT_TOKEN || '',
+    });
     this.orchestratorDatabase = Object.freeze({
       host: env.ORCHESTRATOR_DB_HOST || '127.0.0.1',
       port: Number(env.ORCHESTRATOR_DB_PORT || 3306),
