@@ -32,6 +32,11 @@ class EnvConfig {
     });
     this.orchestratorProductionEnabled =
       String(env.ORCHESTRATOR_PRODUCTION_ENABLED || 'false').toLowerCase() === 'true';
+    this.intelligenceWarnings = Object.freeze({
+      latencyMs: Number(env.INTELLIGENCE_LATENCY_WARNING_MS || 30000),
+      tokens: Number(env.INTELLIGENCE_TOKEN_WARNING || 10000),
+      costUsd: Number(env.INTELLIGENCE_COST_WARNING_USD || 1),
+    });
     this.orchestratorDatabase = Object.freeze({
       host: env.ORCHESTRATOR_DB_HOST || '127.0.0.1',
       port: Number(env.ORCHESTRATOR_DB_PORT || 3306),
