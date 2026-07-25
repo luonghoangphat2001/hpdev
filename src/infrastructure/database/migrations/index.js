@@ -16,4 +16,5 @@ module.exports = Object.freeze([
   require('./013-create-ceo-exceptions'),
   require('./014-create-decision-journal'),
   require('./015-create-agent-autonomy-settings'),
+  require('./016-create-sop-playbooks'),
 ]);
