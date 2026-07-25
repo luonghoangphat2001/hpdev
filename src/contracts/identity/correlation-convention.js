@@ -8,6 +8,7 @@ const ID_PREFIXES = Object.freeze({
   workflow: 'wf',
   action: 'act',
   approval: 'apr',
+  audit: 'aud',
   task: 'tsk',
   report: 'rpt',
   correlation: 'cor',
@@ -24,6 +25,10 @@ const REQUIRED_LOG_FIELDS = Object.freeze([
 ]);
 
 function stableSerialize(value) {
+  if (value instanceof Date) {
+    return JSON.stringify(value.toISOString());
+  }
+
   if (Array.isArray(value)) {
     return `[${value.map(stableSerialize).join(',')}]`;
   }
