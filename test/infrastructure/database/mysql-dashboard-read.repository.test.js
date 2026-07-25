@@ -96,4 +96,27 @@ describe('T122 supplemental: MySQL Dashboard Read Repository', () => {
       ['dan_ops', 'running', '%order%', '%order%', '%order%'],
     );
   });
+
+  test('loads workflow detail from parameterized safe projection queries', async () => {
+    const executor = {
+      execute: jest.fn()
+        .mockResolvedValueOnce([[{ workflow_id: 'wfl-1' }]])
+        .mockResolvedValueOnce([[{ action_id: 'act-1' }]])
+        .mockResolvedValueOnce([[{ approval_id: 'apr-1' }]])
+        .mockResolvedValueOnce([[{ audit_id: 'aud-1' }]]),
+    };
+    const repository = new MysqlDashboardReadRepository(executor);
+
+    await expect(repository.getWorkflowDetail('wfl-1')).resolves.toEqual({
+      workflow: { workflow_id: 'wfl-1' },
+      actions: [{ action_id: 'act-1' }],
+      approvals: [{ approval_id: 'apr-1' }],
+      timeline: [{ audit_id: 'aud-1' }],
+    });
+    expect(executor.execute).toHaveBeenCalledTimes(4);
+    executor.execute.mock.calls.forEach((call) => expect(call[1]).toEqual(['wfl-1']));
+    expect(executor.execute.mock.calls[0][0]).not.toContain('input_context');
+    expect(executor.execute.mock.calls[1][0]).not.toContain('request_payload');
+    expect(executor.execute.mock.calls[3][0]).not.toContain('details');
+  });
 });

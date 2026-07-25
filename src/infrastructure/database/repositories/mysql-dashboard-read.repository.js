@@ -110,6 +110,53 @@ class MysqlDashboardReadRepository {
       total: Number(countRows[0]?.total || 0),
     });
   }
+
+  async getWorkflowDetail(workflowId) {
+    const [workflowRows] = await this.executor.execute(
+      `SELECT workflow_id, event_id, correlation_id, workflow_type, state,
+              state_version, assigned_agent_id, risk_level, priority,
+              policy_version, failure_code, failure_reason, queued_at,
+              started_at, completed_at, deadline_at, created_at, updated_at
+       FROM workflows WHERE workflow_id = ? LIMIT 1`,
+      [workflowId],
+    );
+    if (!workflowRows[0]) return null;
+
+    const [actionRows] = await this.executor.execute(
+      `SELECT action_id, sequence_no, action_name, permission_scope, status,
+              risk_level, retry_count, max_attempts, last_error_code,
+              last_error_message, scheduled_at, started_at, completed_at,
+              created_at, updated_at
+       FROM workflow_actions
+       WHERE workflow_id = ?
+       ORDER BY sequence_no ASC`,
+      [workflowId],
+    );
+    const [approvalRows] = await this.executor.execute(
+      `SELECT approval_id, action_id, status, risk_level, requested_by,
+              expires_at, decided_by, decided_at, decision_reason,
+              decision_version, created_at, updated_at
+       FROM approval_requests
+       WHERE workflow_id = ?
+       ORDER BY created_at ASC`,
+      [workflowId],
+    );
+    const [auditRows] = await this.executor.execute(
+      `SELECT audit_id, occurred_at, actor_type, actor_id, audit_type,
+              from_state, to_state, outcome, policy_version
+       FROM audit_events
+       WHERE workflow_id = ?
+       ORDER BY occurred_at ASC, id ASC`,
+      [workflowId],
+    );
+
+    return Object.freeze({
+      workflow: workflowRows[0],
+      actions: actionRows,
+      approvals: approvalRows,
+      timeline: auditRows,
+    });
+  }
 }
 
 module.exports = MysqlDashboardReadRepository;

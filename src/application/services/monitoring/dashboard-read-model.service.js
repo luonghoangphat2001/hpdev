@@ -98,6 +98,30 @@ class DashboardReadModelService {
       }))),
     });
   }
+
+  async getWorkflowDetail(workflowId) {
+    if (!workflowId || workflowId.length > 128) {
+      throw new TypeError('A valid workflowId is required');
+    }
+    const result = await this.dashboardRepository.getWorkflowDetail(workflowId);
+    if (!result) return null;
+
+    return Object.freeze({
+      workflow: this.#camelizeKeys(result.workflow),
+      actions: Object.freeze(result.actions.map((row) => this.#camelizeKeys(row))),
+      approvals: Object.freeze(result.approvals.map((row) => this.#camelizeKeys(row))),
+      timeline: Object.freeze(result.timeline.map((row) => this.#camelizeKeys(row))),
+    });
+  }
+
+  #camelizeKeys(row) {
+    return Object.freeze(Object.fromEntries(
+      Object.entries(row).map(([key, value]) => [
+        key.replace(/_([a-z])/g, (_match, character) => character.toUpperCase()),
+        value,
+      ]),
+    ));
+  }
 }
 
 module.exports = DashboardReadModelService;

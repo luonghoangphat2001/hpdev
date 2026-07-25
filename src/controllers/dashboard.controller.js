@@ -1,5 +1,7 @@
 'use strict';
 
+const { AppError } = require('../middlewares/error.middleware');
+
 class DashboardController {
   constructor(readModelService, lifecycleService = null) {
     this.readModelService = readModelService;
@@ -36,6 +38,12 @@ class DashboardController {
       search: req.query.search,
     });
     return res.json({ ok: true, ...result });
+  }
+
+  async workflowDetail(req, res) {
+    const detail = await this.readModelService.getWorkflowDetail(req.params.workflowId);
+    if (!detail) throw new AppError('Workflow not found', 404);
+    return res.json({ ok: true, detail });
   }
 }
 

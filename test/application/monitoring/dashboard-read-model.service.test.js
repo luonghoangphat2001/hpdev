@@ -115,4 +115,28 @@ describe('T122 supplemental: Dashboard Read Model Service', () => {
       search: 'sla',
     }));
   });
+
+  test('returns a sanitized workflow detail timeline without raw payload columns', async () => {
+    const dashboardRepository = {
+      getOverview: jest.fn(),
+      getWorkflowDetail: jest.fn().mockResolvedValue({
+        workflow: { workflow_id: 'wfl-1', state_version: 2, state: 'running' },
+        actions: [{ action_id: 'act-1', action_name: 'order.read' }],
+        approvals: [{ approval_id: 'apr-1', decision_version: 1 }],
+        timeline: [{ audit_id: 'aud-1', from_state: 'queued', to_state: 'running' }],
+      }),
+    };
+    const service = new DashboardReadModelService({ dashboardRepository });
+
+    const detail = await service.getWorkflowDetail('wfl-1');
+
+    expect(detail.workflow).toEqual({
+      workflowId: 'wfl-1',
+      stateVersion: 2,
+      state: 'running',
+    });
+    expect(detail.actions[0]).toMatchObject({ actionId: 'act-1' });
+    expect(detail.approvals[0]).toMatchObject({ approvalId: 'apr-1' });
+    expect(detail.timeline[0]).toMatchObject({ fromState: 'queued', toState: 'running' });
+  });
 });
