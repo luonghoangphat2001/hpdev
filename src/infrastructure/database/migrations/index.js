@@ -17,4 +17,5 @@ module.exports = Object.freeze([
   require('./014-create-decision-journal'),
   require('./015-create-agent-autonomy-settings'),
   require('./016-create-sop-playbooks'),
+  require('./017-create-agent-runtime-states'),
 ]);
