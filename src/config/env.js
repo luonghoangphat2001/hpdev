@@ -37,6 +37,12 @@ class EnvConfig {
       tokens: Number(env.INTELLIGENCE_TOKEN_WARNING || 10000),
       costUsd: Number(env.INTELLIGENCE_COST_WARNING_USD || 1),
     });
+    this.dailyBrief = Object.freeze({
+      enabled: String(env.CEO_DAILY_BRIEF_ENABLED || 'false').toLowerCase() === 'true',
+      timezone: env.CEO_DAILY_BRIEF_TIMEZONE || 'Asia/Ho_Chi_Minh',
+      time: env.CEO_DAILY_BRIEF_TIME || '18:05',
+      sectionTimeoutMs: Number(env.CEO_DAILY_BRIEF_SECTION_TIMEOUT_MS || 5000),
+    });
     this.orchestratorDatabase = Object.freeze({
       host: env.ORCHESTRATOR_DB_HOST || '127.0.0.1',
       port: Number(env.ORCHESTRATOR_DB_PORT || 3306),

@@ -4,6 +4,7 @@ const app = require('./app');
 const env = require('./config/env');
 const logger = require('./services/logger.service');
 const { buildDailyReportScheduler } = require('./composition/daily-report.composition');
+const { buildCeoDailyBriefScheduler } = require('./composition/ceo-daily-brief.composition');
 
 class Server {
   constructor(expressApp = app, config = env) {
@@ -21,6 +22,11 @@ class Server {
       this.dailyReportScheduler = buildDailyReportScheduler({ config: this.config });
       this.dailyReportScheduler.start();
       server.on('close', () => this.dailyReportScheduler.stop());
+    }
+    if (this.config.dailyBrief?.enabled) {
+      this.ceoDailyBriefScheduler = buildCeoDailyBriefScheduler({ config: this.config });
+      this.ceoDailyBriefScheduler.start();
+      server.on('close', () => this.ceoDailyBriefScheduler.stop());
     }
     return server;
   }
