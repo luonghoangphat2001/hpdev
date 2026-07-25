@@ -7,6 +7,7 @@ const fetchRouter = require('./routes/fetch.route');
 const crawlRouter = require('./routes/crawl.route');
 const automateRouter = require('./routes/automate.route');
 const { buildEventIntakeRouter } = require('./composition/event-intake.composition');
+const { buildApprovalRouter } = require('./composition/approval.composition');
 const { errorHandler, notFoundHandler } = require('./middlewares/error.middleware');
 
 class App {
@@ -31,6 +32,7 @@ class App {
     this.app.use('/orchestrator/v1/events', buildEventIntakeRouter());
 
     this.app.use(auth);
+    this.app.use('/orchestrator/v1/approvals', buildApprovalRouter());
     this.app.use('/search', searchRouter);
     this.app.use('/fetch', fetchRouter);
     this.app.use('/crawl', crawlRouter);

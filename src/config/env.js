@@ -18,6 +18,12 @@ class EnvConfig {
       apiSecret: env.DAN_AI_API_SECRET || '',
       timeoutMs: Number(env.DAN_AI_API_TIMEOUT_MS || 5000),
     });
+    this.ceoDiscordUserIds = Object.freeze(
+      String(env.CEO_DISCORD_USER_IDS || env.CEO_DISCORD_USER_ID || '')
+        .split(',')
+        .map((id) => id.trim())
+        .filter(Boolean)
+    );
     this.orchestratorDatabase = Object.freeze({
       host: env.ORCHESTRATOR_DB_HOST || '127.0.0.1',
       port: Number(env.ORCHESTRATOR_DB_PORT || 3306),
