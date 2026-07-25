@@ -85,6 +85,7 @@ class SsotWriteAdapter {
 
     const { path, body } = this.resolveRequest(action.endpoint, payload);
     const receipt = await this.client.request({
+      actionName,
       method: action.method,
       path,
       data: body,

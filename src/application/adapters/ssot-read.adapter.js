@@ -61,6 +61,7 @@ class SsotReadAdapter {
 
     const { path, params } = this.resolveRequest(action.endpoint, payload);
     const response = await this.client.request({
+      actionName,
       method: action.method,
       path,
       params,

@@ -26,6 +26,7 @@ describe('SsotReadAdapter', () => {
     await adapter.getOrder('order/1');
 
     expect(client.request).toHaveBeenCalledWith({
+      actionName: 'order.read',
       method: 'GET',
       path: '/api/v1/storefront/agents/orders/order%2F1',
       params: {},
@@ -38,6 +39,7 @@ describe('SsotReadAdapter', () => {
 
     expect(client.request).toHaveBeenCalledWith(expect.objectContaining({
       path: '/api/v1/storefront/agents/orders',
+      actionName: 'order.list',
       params: { page: 2, per_page: 25, status: 'processing' },
     }));
   });

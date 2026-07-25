@@ -35,6 +35,7 @@ describe('SsotWriteAdapter', () => {
     })).resolves.toEqual(receipt);
 
     expect(client.request).toHaveBeenCalledWith({
+      actionName: 'inventory.purchase_order_draft.create',
       method: 'POST',
       path: '/api/v1/storefront/agents/purchase-orders/drafts',
       data: {

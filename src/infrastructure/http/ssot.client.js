@@ -66,12 +66,15 @@ class SsotClient {
       return response.data;
     } catch (error) {
       const statusCode = error.response?.status || 502;
+      const fallbackCode = statusCode >= 500
+        ? 'ssot_upstream_unavailable'
+        : 'ssot_request_failed';
       throw new SsotClientError(
         error.response?.data?.message || 'SSOT request failed',
         {
           statusCode,
           code: STATUS_ERROR_CODES[statusCode]
-            || (error.code === 'ECONNABORTED' ? 'ssot_timeout' : 'ssot_request_failed'),
+            || (error.code === 'ECONNABORTED' ? 'ssot_timeout' : fallbackCode),
         },
       );
     }
