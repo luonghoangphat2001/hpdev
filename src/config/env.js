@@ -4,11 +4,7 @@ require('dotenv').config();
 
 class EnvConfig {
   constructor(env = process.env) {
-    // cPanel/Passenger injects PORT at runtime. Keep 4000 only for local development.
-    if (!env.PORT && env.NODE_ENV === 'production') {
-      throw new Error('PORT must be provided by the production process manager');
-    }
-    this.port = Number(env.PORT || 4000);
+    this.port = env.PORT ? Number(env.PORT) : null;
     this.apiSecret = env.API_SECRET || '';
     this.serperKey = env.SERPER_KEY || '';
     this.ecommerceWebhookKeysJson = env.ECOMMERCE_WEBHOOK_KEYS_JSON || '';

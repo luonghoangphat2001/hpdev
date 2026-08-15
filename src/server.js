@@ -13,6 +13,10 @@ class Server {
   }
 
   listen() {
+    if (!this.config.port) {
+      throw new Error('PORT is required when OpenClaw runs as a standalone server');
+    }
+
     const server = this.app.listen(this.config.port, () => {
       const message = `[OpenClaw] Listening on port ${this.config.port}`;
       console.log(message);
