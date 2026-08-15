@@ -11,7 +11,16 @@ class AutomateService {
     let browser;
 
     try {
-      browser = await this.getBrowserEngine().launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+      browser = await this.getBrowserEngine().launch({
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--no-zygote',
+          '--single-process',
+        ],
+      });
       const page = await browser.newPage();
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
