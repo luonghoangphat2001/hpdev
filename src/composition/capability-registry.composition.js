@@ -52,6 +52,7 @@ function buildCapabilityRegistry({
         kpis: agent.kpis,
         prohibitions: agent.prohibitions,
         escalationOwner: agent.escalationOwner,
+        model: agent.model || null,
         eventPatterns: agent.eventPatterns,
         actionPatterns: agent.actionPatterns,
       },

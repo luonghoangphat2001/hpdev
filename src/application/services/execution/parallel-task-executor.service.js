@@ -1,6 +1,7 @@
 'use strict';
 
 const TaskResultAggregatorService = require('./task-result-aggregator.service');
+const logger = require('../../../services/logger.service');
 
 class ParallelTaskExecutorService {
   constructor({
@@ -56,7 +57,15 @@ class ParallelTaskExecutorService {
 
   async #executeOne(task) {
     const handler = this.handlers[task.assignedAgentId];
+    const logContext = {
+      agent_id: task.assignedAgentId,
+      workflow_id: task.workflowId || null,
+      task_id: task.id,
+      model: task.model || null,
+    };
+    logger.info('agent_task_started', logContext);
     if (!handler || typeof handler.execute !== 'function') {
+      logger.error('agent_task_failed', { ...logContext, error_code: 'agent_handler_unavailable' });
       return {
         taskId: task.id,
         result: Object.freeze({
@@ -70,11 +79,17 @@ class ParallelTaskExecutorService {
         handler.execute(task),
         task.timeoutMs,
       );
+      logger.info('agent_task_completed', logContext);
       return {
         taskId: task.id,
         result: Object.freeze({ status: 'completed', output }),
       };
     } catch (error) {
+      logger.error('agent_task_failed', {
+        ...logContext,
+        error_code: error.code || 'task_execution_failed',
+        error_message: error.message,
+      });
       return {
         taskId: task.id,
         result: Object.freeze({

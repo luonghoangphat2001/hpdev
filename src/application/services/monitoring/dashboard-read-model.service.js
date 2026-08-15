@@ -109,6 +109,7 @@ class DashboardReadModelService {
         lifecycleReason: summary.lifecycleReason || null,
         lifecycleChangedBy: summary.changedBy || null,
         lifecycleChangedAt: summary.changedAt || null,
+        model: profile.model || null,
         workflowCount: summary.workflowCount || 0,
         activeWorkflowCount,
         failedWorkflowCount: summary.failedWorkflowCount || 0,

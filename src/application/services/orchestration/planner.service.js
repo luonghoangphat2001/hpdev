@@ -57,6 +57,7 @@ class PlannerService {
         milestone: definition.milestone || 'execution',
         capability: definition.capability,
         assignedAgentId: agent.id,
+        model: agent.model || null,
         modelProfileId: model?.id || null,
         dependsOn: (definition.dependsOn || []).map((key) => {
           if (!idByKey.has(key)) throw new TypeError(`Unknown task key dependency: ${key}`);
