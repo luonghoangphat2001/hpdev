@@ -3,13 +3,39 @@
 const app = require('./app');
 const env = require('./config/env');
 const logger = require('./services/logger.service');
+const mysqlPoolFactory = require('./infrastructure/database/mysql-pool');
+const MigrationRunner = require('./infrastructure/database/migration-runner');
 const { buildDailyReportScheduler } = require('./composition/daily-report.composition');
 const { buildCeoDailyBriefScheduler } = require('./composition/ceo-daily-brief.composition');
 
 class Server {
-  constructor(expressApp = app, config = env) {
+  constructor(
+    expressApp = app,
+    config = env,
+    { poolFactory = mysqlPoolFactory, MigrationRunnerClass = MigrationRunner } = {}
+  ) {
     this.app = expressApp;
     this.config = config;
+    this.poolFactory = poolFactory;
+    this.MigrationRunnerClass = MigrationRunnerClass;
+  }
+
+  async start() {
+    await this.migrateDatabase();
+    return this.listen();
+  }
+
+  async migrateDatabase() {
+    const pool = this.poolFactory.create(this.config.orchestratorDatabase);
+    try {
+      const result = await new this.MigrationRunnerClass({ pool }).run();
+      logger.info('[OpenClaw] Database schema ready', {
+        appliedMigrations: result.executed,
+      });
+      return result;
+    } finally {
+      await pool.end();
+    }
   }
 
   listen() {
@@ -47,7 +73,10 @@ if (require.main === module) {
     logger.error('unhandledRejection', { error: logger.formatError(err) });
   });
 
-  new Server().listen();
+  new Server().start().catch((error) => {
+    logger.error('[OpenClaw] Startup failed', { error: logger.formatError(error) });
+    process.exitCode = 1;
+  });
 }
 
 module.exports = Server;
