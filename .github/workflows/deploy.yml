@@ -67,23 +67,38 @@ jobs:
               cd /home/hpdev/public_html
               git pull origin main
               echo "Deploy completed at $(date)"
+
             elif [ "$BRANCH" = "ai" ]; then
               cd ~/ai.hpdev.name.vn
               git pull origin ai
               source ~/nodevenv/ai.hpdev.name.vn/19/bin/activate
-              npm install
+              npm install --prefer-offline --no-audit --no-fund
               mkdir -p tmp && touch tmp/restart.txt
               which pm2 || npm install -g pm2
-              pm2 delete bot 2>/dev/null || true
-              pm2 start bot.js --name bot
-              pm2 save
+              pm2 reload bot 2>/dev/null || pm2 restart bot 2>/dev/null || pm2 start bot.js --name bot || true
+              pm2 save 2>/dev/null || true
+
             elif [ "$BRANCH" = "openclaw" ]; then
               cd ~/openclaw.hpdev.name.vn
+              git fetch origin openclaw
+              
+              # Chỉ npm install nếu package.json có thay đổi
+              if [ ! -d "node_modules" ] || git diff --name-only HEAD origin/openclaw 2>/dev/null | grep -q 'package.json'; then
+                echo "==> Phát hiện thay đổi trong package.json, cập nhật dependencies..."
+                npm install --prefer-offline --no-audit --no-fund
+              else
+                echo "==> package.json không đổi, bỏ qua npm install!"
+              fi
+
               git pull --ff-only origin openclaw
-              npm ci
               npm run migrate
-              npx playwright install chromium 2>/dev/null || true
+              
+              # Chỉ tải Chromium cho Playwright nếu trên server chưa có cache
+              if [ ! -d "$HOME/.cache/ms-playwright" ]; then
+                echo "==> Cài đặt Chromium cho Playwright lần đầu..."
+                npx playwright install chromium 2>/dev/null || true
+              fi
+
               mkdir -p tmp && touch tmp/restart.txt
-              pm2 delete openclaw 2>/dev/null || true
-              pm2 save 2>/dev/null || true
+              echo "==> Deploy openclaw hoàn tất siêu tốc lúc $(date)!"
             fi
