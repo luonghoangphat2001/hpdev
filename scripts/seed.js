@@ -3,16 +3,16 @@
 require("dotenv").config();
 
 const mysqlPoolFactory = require("../src/database/mysql-pool");
-const MigrationRunner = require("../src/database/migration-runner");
+const SeedRunner = require("../src/database/seed-runner");
 
 async function main() {
   const pool = mysqlPoolFactory.create();
   try {
-    const result = await new MigrationRunner({ pool }).run();
+    const result = await new SeedRunner({ pool }).run();
     console.log(
       result.executed.length > 0
-        ? `Applied migrations: ${result.executed.join(", ")}`
-        : "Database schema is up to date"
+        ? `Applied seeds: ${result.executed.join(", ")}`
+        : "Database seeds are up to date"
     );
   } finally {
     await pool.end();
@@ -20,6 +20,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`[migrate] ${error.message}`);
+  console.error(`[seed] ${error.message}`);
   process.exitCode = 1;
 });
