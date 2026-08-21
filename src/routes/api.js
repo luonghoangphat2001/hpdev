@@ -40,9 +40,16 @@ function createApiRouter(controllers = {}) {
 
   // ─── 2. Public Webhook Ingestion ─────────────────────────────────────
   if (controllers.eventIntake) {
-    const webhookService = new SignaturePolicy({
-      secret: env.webhook?.secret || 'test-secret',
-    });
+    let keys = { 'default-key': env.apiSecret || 'test-secret' };
+    if (env.ecommerceWebhookKeysJson) {
+      try {
+        const parsed = JSON.parse(env.ecommerceWebhookKeysJson);
+        if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+          keys = parsed;
+        }
+      } catch (_) {}
+    }
+    const webhookService = new SignaturePolicy({ keys });
     const webhookMiddleware = new WebhookVerificationMiddleware({
       webhookService,
     });
@@ -58,45 +65,73 @@ function createApiRouter(controllers = {}) {
   const orchestratorRouter = Router();
   orchestratorRouter.use(authMiddleware);
 
-  if (controllers.metrics) {
+  if (controllers.metrics && typeof controllers.metrics.get === 'function') {
     orchestratorRouter.get('/metrics', controllers.metrics.get.bind(controllers.metrics));
   }
-  if (controllers.capability) {
+  if (controllers.capability && typeof controllers.capability.list === 'function') {
     orchestratorRouter.get('/capabilities', controllers.capability.list.bind(controllers.capability));
   }
 
   // Approvals
   if (controllers.approval) {
-    orchestratorRouter.get('/approvals', controllers.approval.list.bind(controllers.approval));
-    orchestratorRouter.get('/approvals/:approvalId', controllers.approval.get.bind(controllers.approval));
-    orchestratorRouter.post('/approvals/:approvalId/decision', controllers.approval.decide.bind(controllers.approval));
-    orchestratorRouter.post('/approvals/bulk-decision', controllers.approval.bulkDecide.bind(controllers.approval));
+    if (typeof controllers.approval.list === 'function') {
+      orchestratorRouter.get('/approvals', controllers.approval.list.bind(controllers.approval));
+    }
+    if (typeof controllers.approval.get === 'function') {
+      orchestratorRouter.get('/approvals/:approvalId', controllers.approval.get.bind(controllers.approval));
+    }
+    if (typeof controllers.approval.decide === 'function') {
+      orchestratorRouter.post('/approvals/:approvalId/decision', controllers.approval.decide.bind(controllers.approval));
+    }
+    if (typeof controllers.approval.bulkDecide === 'function') {
+      orchestratorRouter.post('/approvals/bulk-decision', controllers.approval.bulkDecide.bind(controllers.approval));
+    }
   }
 
   // Operator Control
   if (controllers.operatorControl) {
-    orchestratorRouter.post('/control/pause', controllers.operatorControl.pause.bind(controllers.operatorControl));
-    orchestratorRouter.post('/control/resume', controllers.operatorControl.resume.bind(controllers.operatorControl));
-    orchestratorRouter.post('/control/emergency-stop', controllers.operatorControl.emergencyStop.bind(controllers.operatorControl));
-    orchestratorRouter.post('/control/replay', controllers.operatorControl.replay.bind(controllers.operatorControl));
+    if (typeof controllers.operatorControl.pause === 'function') {
+      orchestratorRouter.post('/control/pause', controllers.operatorControl.pause.bind(controllers.operatorControl));
+    }
+    if (typeof controllers.operatorControl.resume === 'function') {
+      orchestratorRouter.post('/control/resume', controllers.operatorControl.resume.bind(controllers.operatorControl));
+    }
+    if (typeof controllers.operatorControl.emergencyStop === 'function') {
+      orchestratorRouter.post('/control/emergency-stop', controllers.operatorControl.emergencyStop.bind(controllers.operatorControl));
+    }
+    if (typeof controllers.operatorControl.replay === 'function') {
+      orchestratorRouter.post('/control/replay', controllers.operatorControl.replay.bind(controllers.operatorControl));
+    }
   }
 
   // CEO Commands
   if (controllers.ceoCommand) {
-    orchestratorRouter.post('/commands', controllers.ceoCommand.dispatch.bind(controllers.ceoCommand));
+    if (typeof controllers.ceoCommand.dispatch === 'function') {
+      orchestratorRouter.post('/commands', controllers.ceoCommand.dispatch.bind(controllers.ceoCommand));
+    }
   }
 
   // CEO Exceptions
   if (controllers.ceoException) {
-    orchestratorRouter.get('/exceptions', controllers.ceoException.list.bind(controllers.ceoException));
-    orchestratorRouter.get('/exceptions/:exceptionId', controllers.ceoException.get.bind(controllers.ceoException));
-    orchestratorRouter.post('/exceptions/:exceptionId/resolve', controllers.ceoException.resolve.bind(controllers.ceoException));
+    if (typeof controllers.ceoException.list === 'function') {
+      orchestratorRouter.get('/exceptions', controllers.ceoException.list.bind(controllers.ceoException));
+    }
+    if (typeof controllers.ceoException.get === 'function') {
+      orchestratorRouter.get('/exceptions/:exceptionId', controllers.ceoException.get.bind(controllers.ceoException));
+    }
+    if (typeof controllers.ceoException.resolve === 'function') {
+      orchestratorRouter.post('/exceptions/:exceptionId/resolve', controllers.ceoException.resolve.bind(controllers.ceoException));
+    }
   }
 
   // Dashboard
   if (controllers.dashboard) {
-    orchestratorRouter.get('/dashboard/overview', controllers.dashboard.overview.bind(controllers.dashboard));
-    orchestratorRouter.get('/dashboard/realtime', controllers.dashboard.realtime.bind(controllers.dashboard));
+    if (typeof controllers.dashboard.overview === 'function') {
+      orchestratorRouter.get('/dashboard/overview', controllers.dashboard.overview.bind(controllers.dashboard));
+    }
+    if (typeof controllers.dashboard.realtime === 'function') {
+      orchestratorRouter.get('/dashboard/realtime', controllers.dashboard.realtime.bind(controllers.dashboard));
+    }
   }
 
   router.use('/orchestrator/v1', orchestratorRouter);

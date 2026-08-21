@@ -22,7 +22,7 @@ const CrawlService = require('../services/web/crawl/crawl.service');
 const AutomateService = require('../services/web/automate/automate.service');
 const FetchService = require('../services/web/fetch/fetch.service');
 const ApprovalDecisionService = require('../services/approval/decisions/approval-decision.service');
-const BulkApprovalService = require('../services/approval/decisions/bulk-approval.service');
+const ApprovalAggregateService = require('../services/approval/decisions/approval-aggregate.service');
 const IntakeService = require('../services/operator/event/intake.service');
 const OperatorControlService = require('../services/operator/control/operator-control.service');
 const ReplayService = require('../services/operator/event/replay.service');
@@ -69,7 +69,7 @@ function createControllers({
     auditRepository: operatorRepository,
     decisionJournalService,
   });
-  const bulkApprovalService = new BulkApprovalService({ approvalRepository });
+  const bulkApprovalService = new ApprovalAggregateService({ approvalRepository });
 
   const eventIntakeService = new IntakeService({
     eventRepository: operatorRepository,
@@ -101,10 +101,9 @@ function createControllers({
   });
 
   const dashboardReadModelService = new ReadModelService({
-    dashboardReadRepository,
+    dashboardRepository: dashboardReadRepository,
+    metricsRegistry,
     agentRegistry,
-    agentRuntimeStateRepository: agentRepository,
-    auditRepository: operatorRepository,
   });
 
   const capabilityRegistry = buildCapabilityRegistry();
