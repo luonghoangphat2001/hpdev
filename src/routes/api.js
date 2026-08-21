@@ -71,19 +71,20 @@ function createApiRouter(controllers = {}) {
   // Operator Control
   const opController = controllers.operator || controllers.operatorControl;
   if (opController) {
-    orchestratorRouter.post("/control/pause", opController.pause.bind(opController));
-    orchestratorRouter.post("/control/resume", opController.resume.bind(opController));
+    orchestratorRouter.get("/control/status", opController.getStatus.bind(opController));
+    orchestratorRouter.post("/control/level", opController.setLevel.bind(opController));
     orchestratorRouter.post("/control/emergency-stop", opController.emergencyStop.bind(opController));
+    orchestratorRouter.post("/control/resume", opController.resume.bind(opController));
     orchestratorRouter.post("/control/replay", opController.replay.bind(opController));
   }
 
   // CEO Commands & Exceptions
   const ceoController = controllers.ceo || controllers.ceoCommand || controllers.ceoException;
   if (ceoController) {
-    orchestratorRouter.post("/commands", ceoController.dispatch.bind(ceoController));
-    orchestratorRouter.get("/exceptions", ceoController.listExceptions.bind(ceoController));
-    orchestratorRouter.get("/exceptions/:exceptionId", ceoController.getException.bind(ceoController));
-    orchestratorRouter.post("/exceptions/:exceptionId/resolve", ceoController.resolveException.bind(ceoController));
+    orchestratorRouter.post("/commands/:commandName", ceoController.execute.bind(ceoController));
+    orchestratorRouter.get("/exceptions", ceoController.list.bind(ceoController));
+    orchestratorRouter.post("/exceptions/refresh", ceoController.refresh.bind(ceoController));
+    orchestratorRouter.post("/exceptions/:exceptionId/ack", ceoController.acknowledge.bind(ceoController));
   }
 
   // Dashboard
