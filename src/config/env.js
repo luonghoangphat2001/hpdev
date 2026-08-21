@@ -19,13 +19,7 @@ class EnvConfig {
     this.port = env.PORT ? Number(env.PORT) : null;
     this.apiSecret = env.API_SECRET || '';
 
-    const rawSchemaUrl = env.SCHEMA_BASE_URL;
-    if (!rawSchemaUrl || typeof rawSchemaUrl !== 'string' || !rawSchemaUrl.trim()) {
-      throw new Error(
-        'Missing required environment variable: SCHEMA_BASE_URL. Please set SCHEMA_BASE_URL in your .env file (e.g. SCHEMA_BASE_URL=https://your-domain.com/schemas/v1).'
-      );
-    }
-
+    const rawSchemaUrl = env.SCHEMA_BASE_URL || 'https://openclaw.hpdev.name.vn/schemas/v1';
     try {
       const parsed = new URL(rawSchemaUrl.trim());
       if (!['http:', 'https:'].includes(parsed.protocol)) {
