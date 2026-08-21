@@ -1,8 +1,20 @@
+/**
+ * @fileoverview automate.validation - Provides automate.validation functionality.
+ */
 'use strict';
 
-const { AppError } = require('../middlewares/error.middleware');
+const AppError = require('../utils/errors/app.error');
 
+/**
+ * AutomateValidation
+ * Manages automate validation logic.
+ */
 class AutomateValidation {
+  /**
+   * validateAutomate - Executes validate automate.
+   * @param {*} payload - Input parameter.
+   * @returns {*} Result of operation.
+   */
   validateAutomate(payload = {}) {
     if (!payload.url) {
       throw new AppError('url is required', 400);

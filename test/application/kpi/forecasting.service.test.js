@@ -1,6 +1,6 @@
 'use strict';
 
-const ForecastingService = require('../../../src/application/services/kpi/forecasting.service');
+const ForecastingService = require('../../../src/services/reporting/kpi/forecasting.service');
 
 describe('T077: Forecasting Service', () => {
   test('generates simple baseline demand forecast', () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const Goal = require('../../src/domain/goals/goal');
+const Goal = require('../../src/services/workflow/action/goal');
 
 function input(patch = {}) {
   return {

@@ -1,6 +1,6 @@
 'use strict';
 
-const OpsAgent = require('../../../src/application/agents/ops.agent');
+const OpsAgent = require('../../../src/services/ai/agents/ops.agent');
 
 describe('dan_ops', () => {
   function setup(order) {

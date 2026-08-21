@@ -1,6 +1,6 @@
 'use strict';
 
-const MultiProviderAdapter = require('../../../src/infrastructure/ai/multi-provider.adapter');
+const MultiProviderAdapter = require('../../../src/services/ai/router/multi-provider.adapter');
 
 describe('T093: Multi-Provider Abstraction Adapter', () => {
   test('delegates prompt completion to specified provider', async () => {

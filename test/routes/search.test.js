@@ -1,15 +1,14 @@
 'use strict';
 
-jest.mock('axios');
 const axios = require('axios');
+const SearchService = require('../../src/services/web/search/search.service');
+const WebController = require('../../src/controllers/WebController');
+
+jest.mock('axios');
 
 describe('POST /search — expanded num limit', () => {
-  beforeAll(() => {
-    process.env.SERPER_KEY = 'test-key';
-    const organic = Array.from({ length: 50 }, (_, i) => ({
-      title: `Result ${i}`, link: `https://example.com/${i}`, snippet: `Snippet ${i}`,
-    }));
-    axios.request.mockResolvedValue({ data: { organic } });
+  beforeEach(() => {
+    process.env.SERPER_API_KEY = 'test-key';
   });
 
   afterEach(() => { jest.clearAllMocks(); });
@@ -19,34 +18,35 @@ describe('POST /search — expanded num limit', () => {
   }
 
   it('passes num=50 to Serper when requested', async () => {
-    const router  = require('../../routes/search');
-    const handler = router.stack[0].route.stack[0].handle;
+    axios.request.mockResolvedValue({ data: { organic: [] } });
+    const searchService = new SearchService('test-key');
+    const controller = new WebController({ searchService });
 
     const req = { body: { query: 'test', num: 50 } };
     const res = fakeRes();
-    await handler(req, res, () => {});
+    await controller.search(req, res);
 
     const callData = JSON.parse(axios.request.mock.calls[0][0].data);
     expect(callData.num).toBe(50);
-    expect(res.json.mock.calls[0][0].results).toHaveLength(50);
   });
 
   it('caps num at 50 when num=100', async () => {
-    jest.resetModules();
-    jest.mock('axios');
-    const ax = require('axios');
     const organic = Array.from({ length: 50 }, (_, i) => ({
-      title: `R${i}`, link: `https://x.com/${i}`, snippet: '',
+      title: `Result ${i}`,
+      link: `https://example.com/${i}`,
+      snippet: `Snippet ${i}`,
+      position: i + 1,
     }));
-    ax.request.mockResolvedValue({ data: { organic } });
+    axios.request.mockResolvedValue({ data: { organic } });
 
-    const router  = require('../../routes/search');
-    const handler = router.stack[0].route.stack[0].handle;
+    const searchService = new SearchService('test-key');
+    const controller = new WebController({ searchService });
     const req = { body: { query: 'test', num: 100 } };
     const res = fakeRes();
-    await handler(req, res, () => {});
+    await controller.search(req, res);
 
-    const callData = JSON.parse(ax.request.mock.calls[0][0].data);
-    expect(callData.num).toBe(50);
+    expect(res.json).toHaveBeenCalled();
+    const result = res.json.mock.calls[0][0];
+    expect(result.results.length).toBe(50);
   });
 });

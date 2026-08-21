@@ -1,0 +1,53 @@
+/**
+ * @fileoverview json-schema.validator - Provides json-schema functionality.
+ */
+'use strict';
+
+const Ajv2020 = require('ajv/dist/2020');
+const addFormats = require('ajv-formats');
+
+/**
+ * JsonSchemaValidator
+ * Manages json schema logic.
+ */
+class JsonSchemaValidator {
+  /**
+   * constructor - Executes constructor.
+   * @param {*} ajv - Input parameter.
+   * @returns {*} Result of operation.
+   */
+  constructor(ajv = null) {
+    this.ajv = ajv || addFormats(new Ajv2020({
+      allErrors: true,
+      strict: true,
+      allowUnionTypes: true,
+    }));
+    this.validators = new Map();
+  }
+
+  /**
+   * validate - Executes validate.
+   * @param {*} schema - Input parameter.
+   * @param {*} value - Input parameter.
+   * @returns {*} Result of operation.
+   */
+  validate(schema, value) {
+    let validator = this.validators.get(schema.$id);
+    if (!validator) {
+      validator = this.ajv.compile(schema);
+      this.validators.set(schema.$id, validator);
+    }
+
+    const valid = validator(value);
+    return {
+      valid,
+      errors: valid ? [] : validator.errors.map((error) => ({
+        path: error.instancePath || '/',
+        keyword: error.keyword,
+        message: error.message,
+      })),
+    };
+  }
+}
+
+module.exports = JsonSchemaValidator;

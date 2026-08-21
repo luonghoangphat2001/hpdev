@@ -1,0 +1,55 @@
+/**
+ * @fileoverview sla.policy - Provides sla-policy functionality.
+ */
+'use strict';
+
+const BasePolicy = require('../BasePolicy');
+
+/**
+ * SlaPolicy
+ * Manages sla policy logic.
+ */
+class SlaPolicy extends BasePolicy {
+  /**
+   * constructor - Executes constructor.
+   * @returns {*} Result of operation.
+   */
+  constructor() {
+    super({ name: 'SlaPolicy' });
+
+
+    this.policies = new Map();
+    this.initDefaultPolicies();
+  }
+
+  /**
+   * initDefaultPolicies - Executes init default policies.
+   * @returns {*} Result of operation.
+   */
+  initDefaultPolicies() {
+    this.policies.set('ECOM_ORDER_WORKFLOW', Object.freeze({
+      workflowType: 'ECOM_ORDER_WORKFLOW',
+      maxTimeoutMs: 10000,
+      maxTokenBudget: 40000,
+      maxCostUSD: 0.5,
+      version: 'v1.0',
+    }));
+  }
+
+  /**
+   * getPolicy - Executes get policy.
+   * @param {*} workflowType - Input parameter.
+   * @returns {*} Result of operation.
+   */
+  getPolicy({ workflowType }) {
+    return Object.freeze(this.policies.get(workflowType) || {
+      workflowType,
+      maxTimeoutMs: 15000,
+      maxTokenBudget: 50000,
+      maxCostUSD: 1.0,
+      version: 'v1.0-default',
+    });
+  }
+}
+
+module.exports = SlaPolicy;

@@ -1,7 +1,7 @@
 'use strict';
 
-const migration = require('../../../src/infrastructure/database/migrations/016-create-sop-playbooks');
-const MysqlSopRepository = require('../../../src/infrastructure/database/repositories/mysql-sop.repository');
+const migration = require('../../../src/database/migrations/016-create-sop-playbooks');
+const MysqlSopRepository = require('../../../src/repositories/SopRepository');
 
 describe('T060: Versioned SOP Store and Migration', () => {
   test('migration exports valid up and down statements', () => {

@@ -1,8 +1,8 @@
 'use strict';
 
-const stateMachine = require('../../src/domain/workflows/workflow-state-machine');
-const { InvalidWorkflowTransitionError } = require('../../src/domain/workflows/workflow-state-machine');
-const WorkflowTransitionService = require('../../src/application/services/workflow/workflow-transition.service');
+const stateMachine = require('../../src/services/workflow/state/workflow-state-machine');
+const { InvalidWorkflowTransitionError } = require('../../src/services/workflow/state/workflow-state-machine');
+const WorkflowTransitionService = require('../../src/services/workflow/state/workflow-transition.service');
 
 describe('WorkflowStateMachine', () => {
   it('allows only declared workflow transitions', () => {

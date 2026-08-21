@@ -1,6 +1,6 @@
 'use strict';
 
-const migration = require('../../../../src/infrastructure/database/migrations/003-create-workflow-actions');
+const migration = require('../../../../src/database/migrations/003-create-workflow-actions');
 
 describe('003-create-workflow-actions migration', () => {
   it('creates a reversible action store owned by a workflow', () => {

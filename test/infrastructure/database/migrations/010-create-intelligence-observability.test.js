@@ -1,7 +1,7 @@
 'use strict';
 
 const migration =
-  require('../../../../src/infrastructure/database/migrations/010-create-intelligence-observability');
+  require('../../../../src/database/migrations/010-create-intelligence-observability');
 
 describe('010-create-intelligence-observability migration', () => {
   test('stores stage traces and creates a reviewable feedback queue', () => {

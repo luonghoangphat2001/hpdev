@@ -1,6 +1,6 @@
 'use strict';
 
-const AgentAutonomyPolicy = require('../../src/domain/policies/agent-autonomy.policy');
+const AgentAutonomyPolicy = require('../../src/policy/permissions/agent-autonomy.policy');
 
 describe('AgentAutonomyPolicy', () => {
   const policy = new AgentAutonomyPolicy();

@@ -1,5 +1,8 @@
 'use strict';
 
+const FetchService = require('../../src/services/web/fetch/fetch.service');
+const WebController = require('../../src/controllers/WebController');
+
 describe('POST /fetch — PDF parsing', () => {
   let axios, pdfParse;
 
@@ -23,11 +26,11 @@ describe('POST /fetch — PDF parsing', () => {
     });
     pdfParse.mockResolvedValue({ text: 'Extracted PDF text', numpages: 5 });
 
-    const router  = require('../../routes/fetch');
-    const handler = router.stack[0].route.stack[0].handle;
+    const fetchService = new FetchService(axios, pdfParse);
+    const controller = new WebController({ fetchService });
     const req = { body: { url: 'https://arxiv.org/pdf/2301.00001.pdf' } };
     const res = fakeRes();
-    await handler(req, res, () => {});
+    await controller.fetch(req, res);
 
     expect(pdfParse).toHaveBeenCalled();
     expect(res.json.mock.calls[0][0]).toMatchObject({
@@ -44,11 +47,11 @@ describe('POST /fetch — PDF parsing', () => {
       data:    '<html>Hello</html>',
     });
 
-    const router  = require('../../routes/fetch');
-    const handler = router.stack[0].route.stack[0].handle;
+    const fetchService = new FetchService(axios, pdfParse);
+    const controller = new WebController({ fetchService });
     const req = { body: { url: 'https://example.com' } };
     const res = fakeRes();
-    await handler(req, res, () => {});
+    await controller.fetch(req, res);
 
     expect(res.json.mock.calls[0][0]).toMatchObject({
       type: 'html',

@@ -1,15 +1,15 @@
 'use strict';
 
-const WebhookSignatureService = require('../../src/security/webhook-signature.service');
-const WebhookVerificationMiddleware = require('../../src/middlewares/webhook-verification.middleware');
+const SignaturePolicy = require('../../src/policy/permissions/signature.policy');
 const {
+  WebhookVerificationMiddleware,
   parseSigningKeys,
   unavailableMiddleware,
-} = require('../../src/composition/event-intake.composition');
+} = require('../../src/middleware/webhook-verification.middleware');
 
 describe('WebhookVerificationMiddleware', () => {
   const nowSeconds = 1784966400;
-  const signatureService = new WebhookSignatureService({
+  const signatureService = new SignaturePolicy({
     keys: { current: 'secret' },
     now: () => nowSeconds * 1000,
   });

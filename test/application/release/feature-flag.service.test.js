@@ -1,6 +1,6 @@
 'use strict';
 
-const FeatureFlagService = require('../../../src/application/services/release/feature-flag.service');
+const FeatureFlagService = require('../../../src/services/release/deploy/feature-flag.service');
 
 describe('T111: Feature Flag and Config Control Service', () => {
   test('manages scoped flags and respects global kill switch', () => {

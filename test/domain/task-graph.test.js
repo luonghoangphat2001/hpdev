@@ -1,6 +1,6 @@
 'use strict';
 
-const TaskGraph = require('../../src/domain/planning/task-graph');
+const TaskGraph = require('../../src/services/workflow/task/task-graph');
 
 describe('TaskGraph', () => {
   test('returns dependency-safe execution order and parallel-ready tasks', () => {

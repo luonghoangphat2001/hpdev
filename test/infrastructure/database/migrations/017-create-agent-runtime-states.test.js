@@ -1,7 +1,7 @@
 'use strict';
 
 const migration =
-  require('../../../../src/infrastructure/database/migrations/017-create-agent-runtime-states');
+  require('../../../../src/database/migrations/017-create-agent-runtime-states');
 
 describe('T143 supplemental: agent runtime state migration', () => {
   test('persists versioned lifecycle state for exactly the five registered agents', () => {

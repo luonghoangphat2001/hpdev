@@ -1,9 +1,9 @@
 'use strict';
 
-const MysqlCeoBriefRepository =
-  require('../../../src/infrastructure/database/repositories/mysql-ceo-brief.repository');
+const MysqlCeoRepository =
+  require('../../../src/repositories/CeoRepository');
 
-describe('MysqlCeoBriefRepository', () => {
+describe('MysqlCeoRepository', () => {
   test('normalizes goal counts for the CEO brief', async () => {
     const executor = {
       execute: jest.fn().mockResolvedValue([[
@@ -11,7 +11,7 @@ describe('MysqlCeoBriefRepository', () => {
         { status: 'at_risk', count: '1' },
       ]]),
     };
-    const repository = new MysqlCeoBriefRepository(executor);
+    const repository = new MysqlCeoRepository(executor);
     await expect(repository.goalSnapshot()).resolves.toEqual({
       active: 4,
       at_risk: 1,

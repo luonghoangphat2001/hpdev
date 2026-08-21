@@ -1,7 +1,7 @@
 'use strict';
 
 jest.mock('../src/app', () => ({ listen: jest.fn() }));
-jest.mock('../src/services/logger.service', () => ({
+jest.mock('../src/utils/logger.service', () => ({
   info: jest.fn(),
   error: jest.fn(),
   formatError: jest.fn((error) => error.message),

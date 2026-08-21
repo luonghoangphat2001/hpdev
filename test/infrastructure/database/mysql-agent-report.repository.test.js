@@ -1,8 +1,8 @@
 'use strict';
 
-const MysqlAgentReportRepository = require('../../../src/infrastructure/database/repositories/mysql-agent-report.repository');
+const MysqlAgentRepository = require('../../../src/repositories/AgentRepository');
 
-describe('MysqlAgentReportRepository', () => {
+describe('MysqlAgentRepository', () => {
   test('returns normalized numeric metrics scoped to one agent and period', async () => {
     const executor = {
       execute: jest.fn().mockResolvedValue([[
@@ -15,7 +15,7 @@ describe('MysqlAgentReportRepository', () => {
         },
       ]]),
     };
-    const repository = new MysqlAgentReportRepository(executor);
+    const repository = new MysqlAgentRepository(executor);
     const from = new Date('2026-07-24T17:00:00Z');
     const to = new Date('2026-07-25T17:00:00Z');
 

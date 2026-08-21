@@ -1,6 +1,6 @@
 'use strict';
 
-const PortfolioScoringPolicy = require('../../src/domain/policies/portfolio-scoring.policy');
+const PortfolioScoringPolicy = require('../../src/policy/permissions/portfolio-scoring.policy');
 
 describe('PortfolioScoringPolicy', () => {
   test('raises priority for urgency, impact, risk, alignment and free capacity', () => {

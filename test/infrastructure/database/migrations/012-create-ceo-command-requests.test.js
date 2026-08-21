@@ -1,7 +1,7 @@
 'use strict';
 
 const migration =
-  require('../../../../src/infrastructure/database/migrations/012-create-ceo-command-requests');
+  require('../../../../src/database/migrations/012-create-ceo-command-requests');
 
 describe('012-create-ceo-command-requests migration', () => {
   test('stores durable idempotent CEO command receipts', () => {

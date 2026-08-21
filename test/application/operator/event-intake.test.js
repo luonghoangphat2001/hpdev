@@ -1,7 +1,7 @@
 'use strict';
 
-const EventIntakeService = require('../../../src/application/services/operator/event-intake.service');
-const EventIntakeController = require('../../../src/controllers/event-intake.controller');
+const IntakeService = require('../../../src/services/operator/event/intake.service');
+const OperatorController = require('../../../src/controllers/OperatorController');
 const EventIntakeValidation = require('../../../src/validations/event-intake.validation');
 
 describe('event intake application flow', () => {
@@ -19,7 +19,7 @@ describe('event intake application flow', () => {
     const eventRepository = {
       create: jest.fn().mockResolvedValue({ event_id: eventId }),
     };
-    const service = new EventIntakeService({
+    const service = new IntakeService({
       eventRepository,
       identifiers: { createId: jest.fn().mockReturnValue('cor_generated') },
       clock: () => new Date('2026-07-25T00:00:01.000Z'),
@@ -46,7 +46,7 @@ describe('event intake application flow', () => {
 
   it('rejects unknown events before persistence', async () => {
     const eventRepository = { create: jest.fn() };
-    const service = new EventIntakeService({ eventRepository });
+    const service = new IntakeService({ eventRepository });
 
     await expect(service.accept({
       payload: { ...payload, event: 'unknown.created' },
@@ -69,7 +69,7 @@ describe('event intake application flow', () => {
       }),
       findByEventId: jest.fn(),
     };
-    const service = new EventIntakeService({ eventRepository });
+    const service = new IntakeService({ eventRepository });
 
     await expect(service.accept({
       payload,
@@ -100,7 +100,7 @@ describe('event intake application flow', () => {
         status: 'accepted',
       }),
     };
-    const controller = new EventIntakeController(service, {
+    const controller = new OperatorController(service, {
       validate: jest.fn().mockReturnValue({ payload }),
     });
     const res = {

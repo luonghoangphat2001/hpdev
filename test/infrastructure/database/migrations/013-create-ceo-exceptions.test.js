@@ -1,7 +1,7 @@
 'use strict';
 
 const migration =
-  require('../../../../src/infrastructure/database/migrations/013-create-ceo-exceptions');
+  require('../../../../src/database/migrations/013-create-ceo-exceptions');
 
 describe('013-create-ceo-exceptions migration', () => {
   test('creates a normalized and deduplicated CEO exception queue', () => {

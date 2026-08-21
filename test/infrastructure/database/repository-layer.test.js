@@ -1,9 +1,9 @@
 'use strict';
 
-const TransactionManager = require('../../../src/infrastructure/database/transaction-manager');
-const MysqlEventRepository = require('../../../src/infrastructure/database/repositories/mysql-event.repository');
-const MysqlWorkflowRepository = require('../../../src/infrastructure/database/repositories/mysql-workflow.repository');
-const OptimisticLockError = require('../../../src/domain/errors/optimistic-lock.error');
+const TransactionManager = require('../../../src/database/transaction-manager');
+const MysqlOperatorRepository = require('../../../src/repositories/OperatorRepository');
+const MysqlWorkflowRepository = require('../../../src/repositories/WorkflowRepository');
+const OptimisticLockError = require('../../../src/utils/errors/optimistic-lock.error');
 
 describe('database repository layer', () => {
   it('commits successful work and always releases the connection', async () => {
@@ -50,7 +50,7 @@ describe('database repository layer', () => {
         .mockResolvedValueOnce([{ affectedRows: 1 }])
         .mockResolvedValueOnce([[{ event_id: 'evt_1' }]]),
     };
-    const repository = new MysqlEventRepository(executor);
+    const repository = new MysqlOperatorRepository(executor);
 
     await expect(repository.create({
       eventId: 'evt_1',

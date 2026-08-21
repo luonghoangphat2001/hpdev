@@ -1,13 +1,20 @@
+/**
+ * @fileoverview server - Provides server functionality.
+ */
 'use strict';
 
 const app = require('./app');
 const env = require('./config/env');
-const logger = require('./services/logger.service');
-const mysqlPoolFactory = require('./infrastructure/database/mysql-pool');
-const MigrationRunner = require('./infrastructure/database/migration-runner');
-const { buildDailyReportScheduler } = require('./composition/daily-report.composition');
-const { buildCeoDailyBriefScheduler } = require('./composition/ceo-daily-brief.composition');
+const logger = require('./utils/logger.service');
+const mysqlPoolFactory = require('./database/mysql-pool');
+const MigrationRunner = require('./database/migration-runner');
+const { buildDailyReportScheduler } = require('./services/reporting/daily/daily-report.builder');
+const { buildCeoDailyBriefScheduler } = require('./services/ceo/daily/daily-brief.builder');
 
+/**
+ * Server
+ * Manages server logic.
+ */
 class Server {
   constructor(
     expressApp = app,
@@ -20,11 +27,19 @@ class Server {
     this.MigrationRunnerClass = MigrationRunnerClass;
   }
 
+  /**
+   * start - Asynchronously executes start.
+   * @returns {*} Promise resolving result.
+   */
   async start() {
     await this.migrateDatabase();
     return this.listen();
   }
 
+  /**
+   * migrateDatabase - Asynchronously executes migrate database.
+   * @returns {*} Promise resolving result.
+   */
   async migrateDatabase() {
     const pool = this.poolFactory.create(this.config.orchestratorDatabase);
     try {
@@ -38,6 +53,10 @@ class Server {
     }
   }
 
+  /**
+   * listen - Executes listen.
+   * @returns {*} Result of operation.
+   */
   listen() {
     if (!this.config.port) {
       throw new Error('PORT is required when OpenClaw runs as a standalone server');

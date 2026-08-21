@@ -1,8 +1,8 @@
 'use strict';
 
-const ReconciliationWorkerService = require('../../../src/application/services/workflow/reconciliation-worker.service');
+const ReconciliationService = require('../../../src/services/workflow/state/reconciliation.service');
 
-describe('ReconciliationWorkerService', () => {
+describe('ReconciliationService', () => {
   const now = new Date('2026-07-25T00:02:00.000Z');
   const action = {
     action_id: 'act_1',
@@ -28,7 +28,7 @@ describe('ReconciliationWorkerService', () => {
     const outboxRepository = { enqueue: jest.fn() };
     const deadLetterRepository = { create: jest.fn() };
     const receiptReader = { lookup: jest.fn().mockResolvedValue(lookup) };
-    const service = new ReconciliationWorkerService({
+    const service = new ReconciliationService({
       actionRepository,
       outboxRepository,
       deadLetterRepository,

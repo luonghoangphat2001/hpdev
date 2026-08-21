@@ -1,6 +1,6 @@
 'use strict';
 
-const migration = require('../../../../src/infrastructure/database/migrations/006-create-outbox-jobs');
+const migration = require('../../../../src/database/migrations/006-create-outbox-jobs');
 
 describe('006-create-outbox-jobs migration', () => {
   it('creates a reversible transactional outbox', () => {

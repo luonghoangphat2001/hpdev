@@ -1,8 +1,20 @@
+/**
+ * @fileoverview event-intake.validation - Provides event-intake.validation functionality.
+ */
 'use strict';
 
-const { AppError } = require('../middlewares/error.middleware');
+const AppError = require('../utils/errors/app.error');
 
+/**
+ * EventIntakeValidation
+ * Manages event intake validation logic.
+ */
 class EventIntakeValidation {
+  /**
+   * validate - Executes validate.
+   * @param {*} req - Input parameter.
+   * @returns {*} Result of operation.
+   */
   validate(req) {
     if (req.webhookVerification?.valid !== true) {
       throw new AppError('Verified webhook signature is required', 401, {

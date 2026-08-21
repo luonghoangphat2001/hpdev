@@ -1,11 +1,11 @@
 'use strict';
 
-const registry = require('../../src/contracts/dto/contract-registry');
-const { ContractRegistry } = require('../../src/contracts/dto/contract-registry');
+const registry = require('../../src/schemas/ai/registry');
+const { ContractRegistry } = require('../../src/schemas/ai/registry');
 const {
   DTO_SCHEMA_VERSION,
   COMMON_DTO_SCHEMAS,
-} = require('../../src/contracts/dto/common-dto.schemas');
+} = require('../../src/schemas/BaseSchema');
 
 describe('common DTO schemas', () => {
   it('registers the five shared contracts', () => {

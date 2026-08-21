@@ -1,6 +1,6 @@
 'use strict';
 
-const GoalService = require('../../../src/application/services/execution/goal.service');
+const GoalService = require('../../../src/services/workflow/action/goal.service');
 
 describe('GoalService', () => {
   test('creates a child goal only within its parent horizon and dates', async () => {

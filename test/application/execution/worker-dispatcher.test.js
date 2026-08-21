@@ -1,6 +1,6 @@
 'use strict';
 
-const WorkerDispatcherService = require('../../../src/application/services/execution/worker-dispatcher.service');
+const WorkerDispatcherService = require('../../../src/services/workflow/action/worker-dispatcher.service');
 
 describe('WorkerDispatcherService', () => {
   const now = new Date('2026-07-25T00:00:00.000Z');

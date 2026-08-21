@@ -1,6 +1,6 @@
 'use strict';
 
-const RiskEvaluator = require('../../src/domain/policies/risk-evaluator');
+const RiskEvaluator = require('../../src/policy/permissions/risk-evaluator');
 
 describe('RiskEvaluator', () => {
   const evaluator = new RiskEvaluator();

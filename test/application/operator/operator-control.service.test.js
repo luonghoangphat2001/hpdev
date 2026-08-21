@@ -1,6 +1,6 @@
 'use strict';
 
-const OperatorControlService = require('../../../src/application/services/operator/operator-control.service');
+const OperatorControlService = require('../../../src/services/operator/control/operator-control.service');
 
 function harness(state = 'running', pausedFromState = null) {
   const row = {

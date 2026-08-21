@@ -1,12 +1,12 @@
 'use strict';
 
-const PlannerService = require('../../../src/application/services/orchestration/planner.service');
-const { buildCapabilityRegistry } = require('../../../src/composition/capability-registry.composition');
+const TaskPlannerService = require('../../../src/services/workflow/task/task-planner.service');
+const { buildCapabilityRegistry } = require('../../../src/services/ai/capabilities/capability-builder');
 
-describe('PlannerService', () => {
+describe('TaskPlannerService', () => {
   function build(definitions) {
     const ids = ['one', 'two', 'three', 'plan'];
-    return new PlannerService({
+    return new TaskPlannerService({
       planningEngine: {
         decompose: jest.fn().mockResolvedValue(definitions),
       },

@@ -1,8 +1,8 @@
 'use strict';
 
-const agentRegistry = require('../../src/domain/agents/agent-registry');
-const AgentDailyReporterService = require('../../src/application/services/agent/agent-daily-reporter.service');
-const DailyReportAggregatorService = require('../../src/application/services/reporting/daily-report-aggregator.service');
+const agentRegistry = require('../../src/services/ai/agents/agent-registry');
+const DailyReporterService = require('../../src/services/ai/lifecycle/daily-reporter.service');
+const ReportAggregatorService = require('../../src/services/reporting/daily/report-aggregator.service');
 
 class OrchestratorIntegrationHarness {
   constructor() {
@@ -35,11 +35,11 @@ class OrchestratorIntegrationHarness {
 
   async runDailyReport(reportDate) {
     const reporters = agentRegistry.list().map((agent) =>
-      new AgentDailyReporterService({
+      new DailyReporterService({
         agent,
         reportRepository: this.reportRepository,
       }));
-    const aggregator = new DailyReportAggregatorService({
+    const aggregator = new ReportAggregatorService({
       reporters,
       notificationGateway: this.notificationGateway,
       timeoutMs: 100,

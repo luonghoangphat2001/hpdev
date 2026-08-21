@@ -1,7 +1,7 @@
 'use strict';
 
-const SsotClient = require('../../../src/infrastructure/http/ssot.client');
-const { SsotClientError } = require('../../../src/infrastructure/http/ssot.client');
+const SsotClient = require('../../../src/services/notification/adapter/ssot.client');
+const { SsotClientError } = require('../../../src/services/notification/adapter/ssot.client');
 
 describe('SsotClient', () => {
   const config = {

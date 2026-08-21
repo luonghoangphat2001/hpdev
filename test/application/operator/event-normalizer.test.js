@@ -1,9 +1,9 @@
 'use strict';
 
-const EventNormalizerService = require('../../../src/application/services/operator/event-normalizer.service');
+const NormalizerService = require('../../../src/services/operator/event/normalizer.service');
 
-describe('EventNormalizerService', () => {
-  const normalizer = new EventNormalizerService();
+describe('NormalizerService', () => {
+  const normalizer = new NormalizerService();
   const envelope = {
     event_id: 'evt_123e4567-e89b-42d3-a456-426614174000',
     schema_version: '1.0.0',

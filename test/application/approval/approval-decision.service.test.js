@@ -1,6 +1,6 @@
 'use strict';
 
-const ApprovalDecisionService = require('../../../src/application/services/approval/approval-decision.service');
+const ApprovalDecisionService = require('../../../src/services/approval/decisions/approval-decision.service');
 
 function createHarness(overrides = {}) {
   const now = new Date('2026-07-25T08:00:00.000Z');

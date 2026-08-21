@@ -1,11 +1,52 @@
+/**
+ * @fileoverview env - Provides env functionality.
+ */
 'use strict';
 
 require('dotenv').config();
 
+/**
+ * EnvConfig
+ * Manages env config logic.
+ */
 class EnvConfig {
+  /**
+   * constructor - Executes constructor.
+   * @param {*} env - Input parameter.
+   * @returns {*} Result of operation.
+   */
   constructor(env = process.env) {
     this.port = env.PORT ? Number(env.PORT) : null;
     this.apiSecret = env.API_SECRET || '';
+
+    const rawSchemaUrl = env.SCHEMA_BASE_URL;
+    if (!rawSchemaUrl || typeof rawSchemaUrl !== 'string' || !rawSchemaUrl.trim()) {
+      throw new Error(
+        'Missing required environment variable: SCHEMA_BASE_URL. Please set SCHEMA_BASE_URL in your .env file (e.g. SCHEMA_BASE_URL=https://your-domain.com/schemas/v1).'
+      );
+    }
+
+    try {
+      const parsed = new URL(rawSchemaUrl.trim());
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        throw new Error(`SCHEMA_BASE_URL must use http: or https: protocol. Received: "${rawSchemaUrl}"`);
+      }
+      this.schemaBaseUrl = rawSchemaUrl.trim().replace(/\/+$/, '');
+    } catch (err) {
+      throw new Error(`Invalid SCHEMA_BASE_URL environment variable: "${rawSchemaUrl}". Error: ${err.message}`);
+    }
+
+    const rawJsonSchemaDraftUrl = env.JSON_SCHEMA_DRAFT_URL || 'https://json-schema.org/draft/2020-12/schema';
+    try {
+      const parsedDraft = new URL(rawJsonSchemaDraftUrl.trim());
+      if (!['http:', 'https:'].includes(parsedDraft.protocol)) {
+        throw new Error(`JSON_SCHEMA_DRAFT_URL must use http: or https: protocol. Received: "${rawJsonSchemaDraftUrl}"`);
+      }
+      this.jsonSchemaDraftUrl = rawJsonSchemaDraftUrl.trim();
+    } catch (err) {
+      throw new Error(`Invalid JSON_SCHEMA_DRAFT_URL environment variable: "${rawJsonSchemaDraftUrl}". Error: ${err.message}`);
+    }
+
     this.serperKey = env.SERPER_KEY || '';
     this.ecommerceWebhookKeysJson = env.ECOMMERCE_WEBHOOK_KEYS_JSON || '';
     this.ecommerceApi = Object.freeze({

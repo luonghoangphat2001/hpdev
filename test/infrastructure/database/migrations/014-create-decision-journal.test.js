@@ -1,7 +1,7 @@
 'use strict';
 
 const migration =
-  require('../../../../src/infrastructure/database/migrations/014-create-decision-journal');
+  require('../../../../src/database/migrations/014-create-decision-journal');
 
 describe('014-create-decision-journal migration', () => {
   test('stores decision rationale, evidence snapshot, policy and eventual outcome', () => {

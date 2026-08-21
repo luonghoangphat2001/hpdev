@@ -1,6 +1,6 @@
 'use strict';
 
-const CfoAgent = require('../../../src/application/agents/cfo.agent');
+const CfoAgent = require('../../../src/services/ai/agents/cfo.agent');
 
 describe('dan_cfo', () => {
   function setup() {

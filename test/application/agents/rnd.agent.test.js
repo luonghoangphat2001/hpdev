@@ -1,6 +1,6 @@
 'use strict';
 
-const RndAgent = require('../../../src/application/agents/rnd.agent');
+const RndAgent = require('../../../src/services/ai/agents/rnd.agent');
 
 describe('dan_rnd', () => {
   it('analyzes menu performance and returns proposal only', async () => {

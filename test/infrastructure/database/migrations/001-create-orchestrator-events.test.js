@@ -1,6 +1,6 @@
 'use strict';
 
-const migration = require('../../../../src/infrastructure/database/migrations/001-create-orchestrator-events');
+const migration = require('../../../../src/database/migrations/001-create-orchestrator-events');
 
 describe('001-create-orchestrator-events migration', () => {
   it('has stable migration identity and reversible SQL', () => {

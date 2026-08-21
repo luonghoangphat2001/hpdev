@@ -1,6 +1,6 @@
 'use strict';
 
-const SsotReadAdapter = require('../../src/application/adapters/ssot-read.adapter');
+const SsotReadAdapter = require('../../src/services/notification/adapter/ssot-read.adapter');
 
 describe('SsotReadAdapter', () => {
   function setup(options = {}) {

@@ -75,16 +75,29 @@ Các route orchestrator cần Bearer token và database riêng của OpenClaw. X
 
 ```text
 src/app.js                       # Express app và route registration
-src/server.js                    # HTTP server + daily schedulers
-src/config/env.js                # Chuẩn hóa process.env
-src/routes, controllers/         # HTTP boundary
-src/services/                    # Search/fetch/crawl/automate/logging
-src/domain/                      # Policy, workflow state machine, agents
-src/application/                 # Use cases, adapters, budget/approval services
-src/infrastructure/              # MySQL, HTTP clients, validation, metrics
-src/contracts/                   # API/event/command/policy schemas
-scripts/migrate.js               # Migration runner
-test/                            # Jest tests
+src/server.js                    # HTTP server + database migration + schedulers
+src/config/                      # Chuẩn hóa process.env & DI wiring
+src/models/                      # Entity Models (Agent, Workflow, Approval, Ceo, Operator, Sop)
+src/controllers/                 # 5 Core HTTP Controllers (WebController, ApprovalController, CeoController, OperatorController, DashboardController)
+src/routes/                      # Express Routers (api.js & web.js - chuẩn dan_ai)
+src/services/                    # Nghiệp vụ chia theo các Feature nghiệp vụ và công việc cụ thể:
+                                 #   ├── ai/            (agents, router, context, critics, memory, research, capabilities, lifecycle)
+                                 #   ├── workflow/      (state, task, action, sop)
+                                 #   ├── approval/      (decisions, rules)
+                                 #   ├── ceo/           (daily, command, exception)
+                                 #   ├── operator/      (event, control)
+                                 #   ├── policy/        (permissions, compliance, budget)
+                                 #   ├── reporting/     (daily, kpi, dashboard)
+                                 #   ├── notification/  (alert, realtime, adapter)
+                                 #   ├── release/       (deploy, rollback)
+                                 #   └── web/           (search, crawl, automate, fetch)
+src/repositories/              # 8 Core Repositories (AgentRepository, WorkflowRepository, CeoRepository, OperatorRepository, ApprovalRepository, SopRepository, DashboardReadRepository, IntelligenceObservabilityRepository)
+src/middleware/                  # Middlewares (auth, error handler, metrics, webhook)
+src/database/                    # MySQL connection pool, transaction manager, migrations
+src/schemas/                     # API/event/command/policy schemas & catalogs
+src/validations/                 # AJV request validation schemas
+src/utils/                       # Logger, MetricsRegistry, AppError, OptimisticLockError
+test/                            # Jest tests (230 test suites)
 ```
 
 ## Biến môi trường

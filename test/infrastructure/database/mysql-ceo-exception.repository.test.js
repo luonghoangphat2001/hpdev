@@ -1,14 +1,14 @@
 'use strict';
 
-const MysqlCeoExceptionRepository =
-  require('../../../src/infrastructure/database/repositories/mysql-ceo-exception.repository');
+const MysqlCeoRepository =
+  require('../../../src/repositories/CeoRepository');
 
-describe('MysqlCeoExceptionRepository', () => {
+describe('MysqlCeoRepository', () => {
   test('collectors use deduplicating inserts from each operational source', async () => {
     const executor = {
       execute: jest.fn().mockResolvedValue([{ affectedRows: 1 }]),
     };
-    const repository = new MysqlCeoExceptionRepository(executor);
+    const repository = new MysqlCeoRepository(executor);
     await repository.collectApprovals();
     await repository.collectDeadLetters();
     await repository.collectConflicts();

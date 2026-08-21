@@ -1,13 +1,13 @@
 'use strict';
 
-const OrchestrationLoggerService = require('../../../src/application/services/observability/orchestration-logger.service');
+const LoggerService = require('../../../src/services/reporting/dashboard/logger.service');
 
-describe('OrchestrationLoggerService', () => {
+describe('LoggerService', () => {
   const clock = () => new Date('2026-07-25T00:00:00.000Z');
 
   it('writes a complete event-to-receipt lineage', () => {
     const sink = { write: jest.fn() };
-    const log = new OrchestrationLoggerService({ sink, clock });
+    const log = new LoggerService({ sink, clock });
     const lineage = {
       event_id: 'evt_1',
       workflow_id: 'wf_1',
@@ -32,7 +32,7 @@ describe('OrchestrationLoggerService', () => {
 
   it('inherits correlation context through child loggers', () => {
     const sink = { write: jest.fn() };
-    const root = new OrchestrationLoggerService({
+    const root = new LoggerService({
       sink,
       clock,
       baseContext: {
@@ -56,7 +56,7 @@ describe('OrchestrationLoggerService', () => {
 
   it('rejects incomplete lineage instead of writing misleading traces', () => {
     const sink = { write: jest.fn() };
-    const log = new OrchestrationLoggerService({ sink, clock });
+    const log = new LoggerService({ sink, clock });
 
     expect(() => log.info('action', 'executing', {
       event_id: 'evt_1',
@@ -67,20 +67,20 @@ describe('OrchestrationLoggerService', () => {
 
   it('keeps required structured fields present even when nullable', () => {
     const sink = { write: jest.fn() };
-    const log = new OrchestrationLoggerService({ sink, clock });
+    const log = new LoggerService({ sink, clock });
     const entry = log.error('event', 'event failed', {
       event_id: 'evt_1',
       correlation_id: 'cor_1',
       error_code: 'event_schema_invalid',
     });
 
-    OrchestrationLoggerService.requiredFields().forEach((field) => {
+    LoggerService.requiredFields().forEach((field) => {
       expect(entry).toHaveProperty(field);
     });
   });
 
   it('rejects unknown log stages', () => {
-    const log = new OrchestrationLoggerService({
+    const log = new LoggerService({
       sink: { write: jest.fn() },
       clock,
     });

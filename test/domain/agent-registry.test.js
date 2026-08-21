@@ -1,9 +1,9 @@
 'use strict';
 
-const eventCatalog = require('../../src/contracts/events/ecommerce-event.catalog');
-const actionCatalog = require('../../src/contracts/actions/ecommerce-action.catalog');
-const registry = require('../../src/domain/agents/agent-registry');
-const { AgentRegistry } = require('../../src/domain/agents/agent-registry');
+const eventCatalog = require('../../src/schemas/events/event.catalog');
+const actionCatalog = require('../../src/schemas/workflow/action.catalog');
+const registry = require('../../src/services/ai/agents/agent-registry');
+const { AgentRegistry } = require('../../src/services/ai/agents/agent-registry');
 
 describe('AgentRegistry', () => {
   it('registers exactly the five company agents', () => {
