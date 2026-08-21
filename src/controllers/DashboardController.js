@@ -84,6 +84,64 @@ class DashboardController extends BaseController {
   }
 
   /**
+   * getAgents - Asynchronously executes get agents.
+   * @param {import('express').Request} _req - Express request object.
+   * @param {import('express').Response} res - Express response object.
+   * @returns {*} Promise resolving result.
+   */
+  async getAgents(_req, res) {
+    const agents = await this.readModelService.getAgents();
+    return this.ok(res, { ok: true, count: agents.length, agents });
+  }
+
+  /**
+   * getWorkflows - Asynchronously executes get workflows.
+   * @param {import('express').Request} req - Express request object.
+   * @param {import('express').Response} res - Express response object.
+   * @returns {*} Promise resolving result.
+   */
+  async getWorkflows(req, res) {
+    const data = await this.readModelService.getWorkflows(req.query);
+    return this.ok(res, { ok: true, ...data });
+  }
+
+  /**
+   * getWorkflowDetail - Asynchronously executes get workflow detail.
+   * @param {import('express').Request} req - Express request object.
+   * @param {import('express').Response} res - Express response object.
+   * @returns {*} Promise resolving result.
+   */
+  async getWorkflowDetail(req, res) {
+    const data = await this.readModelService.getWorkflowDetail(req.params.workflowId);
+    if (!data) {
+      return res.status(404).json({ ok: false, error: 'Workflow not found' });
+    }
+    return this.ok(res, { ok: true, ...data });
+  }
+
+  /**
+   * getCompanyDashboardTodayMetrics - Asynchronously executes today metrics.
+   * @param {import('express').Request} _req - Express request object.
+   * @param {import('express').Response} res - Express response object.
+   * @returns {*} Promise resolving result.
+   */
+  async getCompanyDashboardTodayMetrics(_req, res) {
+    const data = await this.readModelService.getCompanyDashboardTodayMetrics();
+    return this.ok(res, { ok: true, data });
+  }
+
+  /**
+   * getCompanyDashboardMetrics - Asynchronously executes company metrics by period.
+   * @param {import('express').Request} req - Express request object.
+   * @param {import('express').Response} res - Express response object.
+   * @returns {*} Promise resolving result.
+   */
+  async getCompanyDashboardMetrics(req, res) {
+    const data = await this.readModelService.getCompanyDashboardMetrics(req.query?.period || 'today');
+    return this.ok(res, { ok: true, data });
+  }
+
+  /**
    * capabilities - Asynchronously executes capabilities.
    * @param {*} _req - Input parameter.
    * @param {*} res - Input parameter.

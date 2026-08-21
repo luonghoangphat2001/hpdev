@@ -92,6 +92,14 @@ function createApiRouter(controllers = {}) {
   if (dashboardController) {
     orchestratorRouter.get("/dashboard/overview", dashboardController.overview.bind(dashboardController));
     orchestratorRouter.get("/dashboard/realtime", dashboardController.realtime.bind(dashboardController));
+    orchestratorRouter.get("/dashboard/agents", dashboardController.getAgents.bind(dashboardController));
+    orchestratorRouter.post("/dashboard/agents/:agentId/control", dashboardController.controlAgent.bind(dashboardController));
+    orchestratorRouter.get("/dashboard/workflows", dashboardController.getWorkflows.bind(dashboardController));
+    orchestratorRouter.get("/dashboard/workflows/:workflowId", dashboardController.getWorkflowDetail.bind(dashboardController));
+    orchestratorRouter.get("/dashboard/company/today-metrics", dashboardController.getCompanyDashboardTodayMetrics.bind(dashboardController));
+    orchestratorRouter.get("/dashboard/company/metrics", dashboardController.getCompanyDashboardMetrics.bind(dashboardController));
+    orchestratorRouter.get("/dashboard/metrics", dashboardController.metrics.bind(dashboardController));
+    orchestratorRouter.get("/dashboard/capabilities", dashboardController.capabilities.bind(dashboardController));
   }
 
   router.use("/orchestrator/v1", orchestratorRouter);
