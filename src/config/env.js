@@ -76,6 +76,7 @@ class EnvConfig {
     });
     this.orchestratorProductionEnabled =
       String(env.ORCHESTRATOR_PRODUCTION_ENABLED || 'false').toLowerCase() === 'true';
+    this.companyDashboardUrl = env.COMPANY_DASHBOARD_BASE_URL || null;
     this.intelligenceWarnings = Object.freeze({
       latencyMs: Number(env.INTELLIGENCE_LATENCY_WARNING_MS || 30000),
       tokens: Number(env.INTELLIGENCE_TOKEN_WARNING || 10000),

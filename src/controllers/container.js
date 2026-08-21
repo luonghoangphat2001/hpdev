@@ -104,6 +104,9 @@ function createControllers({
     dashboardRepository: dashboardReadRepository,
     metricsRegistry,
     agentRegistry,
+    productionEnabled: config.orchestratorProductionEnabled || false,
+    companyDashboardUrl: config.companyDashboardUrl || null,
+    ssotClient: null,
   });
 
   const capabilityRegistry = buildCapabilityRegistry();
