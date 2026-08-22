@@ -8,10 +8,10 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Containerized Backend via Docker
+    name: Deploy Containerized Backend & Setup DB
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH & Docker
+      - name: SSH Deploy & Auto Setup
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -26,33 +26,44 @@ jobs:
             GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
             B64_TOKEN=$(echo -n "x-access-token:$GITHUB_TOKEN" | base64 | tr -d '\n' || echo "")
 
-            echo "==> Fetching latest changes for branch api..."
+            echo "==> Kéo mã nguồn mới nhất của nhánh api..."
             cd /home/hpdev/api.hpdev.name.vn
             git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $B64_TOKEN"
             git fetch "$REPO_URL" api
             git reset --hard FETCH_HEAD
             git config --local --unset http.https://github.com/.extraheader || true
 
-            echo "==> Triển khai Container Docker trên Server..."
-            if command -v docker >/dev/null 2>&1; then
-              if [ -f "docker-compose.yml" ]; then
-                echo "==> Building & starting via Docker Compose..."
-                docker compose up -d --build
-                echo "==> Auto-seeding database inside Docker container..."
-                docker exec dan_ai_api node scripts/seed-tech-learning.js || true
-                docker exec dan_ai_api node scripts/seed-tech-fundamentals.js || true
-              else
-                echo "==> Building Docker image dan_ai_api..."
-                docker build -t dan_ai_api .
-                docker stop dan_ai_api 2>/dev/null || true
-                docker rm dan_ai_api 2>/dev/null || true
-                docker run -d --name dan_ai_api --restart unless-stopped -p 3000:3000 --env-file .env dan_ai_api
-                docker exec dan_ai_api node scripts/seed-tech-learning.js || true
-                docker exec dan_ai_api node scripts/seed-tech-fundamentals.js || true
-              fi
+            echo "==> Tự động cấu hình file .env trên Server..."
+            if [ ! -f ".env" ]; then
+              cat << 'EOF' > .env
+PORT=3000
+NODE_ENV=production
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=dan_ai
+DB_USER=dan_ai_user
+DB_PASSWORD=dan_ai_password
+SESSION_SECRET=dan-ai-production-secret-key-32-chars
+COOKIE_SECURE=false
+OPENCLAW_URL=http://127.0.0.1:4000
+OPENCLAW_SECRET=changeme
+EOF
+              echo "[Deploy] Đã khởi tạo file .env thành công!"
             fi
 
-            # Reload Passenger / PM2 if configured
+            echo "==> Triển khai qua Docker & Docker Compose..."
+            if command -v docker >/dev/null 2>&1; then
+              docker compose up -d --build
+              echo "==> Tự động nạp ngân hàng 1,200 câu hỏi vào Database trong Container..."
+              docker exec dan_ai_api node scripts/seed-tech-learning.js || true
+              docker exec dan_ai_api node scripts/seed-tech-fundamentals.js || true
+            else
+              echo "==> Chạy trực tiếp qua Node/PM2 trên Host..."
+              npm install --prefer-offline --no-audit --no-fund
+              node scripts/seed-tech-learning.js || true
+              node scripts/seed-tech-fundamentals.js || true
+            fi
+
             mkdir -p tmp && touch tmp/restart.txt
             pm2 reload bot 2>/dev/null || pm2 restart bot 2>/dev/null || true
-            echo "==> Deploy Docker CI/CD thành công lúc $(date)!"
+            echo "==> Đã hoàn tất cấu hình .env, import Database và Deploy thành công lúc $(date)!"
