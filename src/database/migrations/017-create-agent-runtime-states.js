@@ -6,7 +6,7 @@
 module.exports = Object.freeze({
   id: '017-create-agent-runtime-states',
   up: `
-    CREATE TABLE agent_runtime_states (
+    CREATE TABLE IF NOT EXISTS agent_runtime_states (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       agent_id VARCHAR(128) NOT NULL,
       lifecycle_state VARCHAR(32) NOT NULL DEFAULT 'ACTIVE',

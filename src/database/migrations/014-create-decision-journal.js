@@ -6,7 +6,7 @@
 module.exports = Object.freeze({
   id: '014-create-decision-journal',
   up: `
-    CREATE TABLE decision_journal (
+    CREATE TABLE IF NOT EXISTS decision_journal (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       decision_id VARCHAR(128) NOT NULL,
       workflow_id VARCHAR(128) NULL,

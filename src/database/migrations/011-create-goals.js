@@ -6,7 +6,7 @@
 module.exports = Object.freeze({
   id: '011-create-goals',
   up: `
-    CREATE TABLE goals (
+    CREATE TABLE IF NOT EXISTS goals (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       goal_id VARCHAR(128) NOT NULL,
       parent_goal_id VARCHAR(128) NULL,

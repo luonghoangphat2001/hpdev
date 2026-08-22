@@ -9,7 +9,7 @@ module.exports = Object.freeze({
     ALTER TABLE workflows
       ADD COLUMN paused_from_state VARCHAR(32) NULL AFTER state;
 
-    CREATE TABLE workflow_feedback (
+    CREATE TABLE IF NOT EXISTS workflow_feedback (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       feedback_id VARCHAR(128) NOT NULL,
       workflow_id VARCHAR(128) NOT NULL,

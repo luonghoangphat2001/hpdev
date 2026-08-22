@@ -6,7 +6,7 @@
 const migration = Object.freeze({
   id: '007-create-dead-letters',
   up: `
-    CREATE TABLE dead_letters (
+    CREATE TABLE IF NOT EXISTS dead_letters (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       dead_letter_id VARCHAR(128) NOT NULL,
       source_type VARCHAR(64) NOT NULL,

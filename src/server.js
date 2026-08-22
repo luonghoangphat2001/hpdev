@@ -93,9 +93,11 @@ if (require.main === module) {
   });
 
   new Server().start().catch((error) => {
+    console.error('[OpenClaw] Startup failed:', error);
     logger.error('[OpenClaw] Startup failed', { error: logger.formatError(error) });
     process.exitCode = 1;
   });
 }
+
 
 module.exports = Server;

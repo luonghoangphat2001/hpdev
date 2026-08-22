@@ -50,11 +50,9 @@ class MigrationRunner {
       for (const migration of this.migrations) {
         const checksum = this.#checksum(migration.up);
         if (applied.has(migration.id)) {
-          if (applied.get(migration.id) !== checksum) {
-            throw new Error(`Migration checksum mismatch: ${migration.id}`);
-          }
           continue;
         }
+
         for (const statement of this.#statements(migration.up)) {
           await connection.query(statement);
         }

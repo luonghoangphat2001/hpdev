@@ -6,7 +6,7 @@
 const migration = Object.freeze({
   id: '004-create-approval-requests',
   up: `
-    CREATE TABLE approval_requests (
+    CREATE TABLE IF NOT EXISTS approval_requests (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       approval_id VARCHAR(128) NOT NULL,
       workflow_id VARCHAR(128) NOT NULL,

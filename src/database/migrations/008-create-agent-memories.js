@@ -6,7 +6,7 @@
 module.exports = Object.freeze({
   id: '008-create-agent-memories',
   up: `
-    CREATE TABLE agent_memories (
+    CREATE TABLE IF NOT EXISTS agent_memories (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       memory_id VARCHAR(128) NOT NULL,
       agent_id VARCHAR(128) NOT NULL,
