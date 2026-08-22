@@ -1,4 +1,4 @@
-name: Deploy Dan Learning (learning)
+name: Build & Deploy Dan Learning
 
 on:
   push:
@@ -7,16 +7,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-test:
-    name: Build & Test Dan Learning
+  build-and-deploy:
+    name: Build on GitHub & Prepare Static Dist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install dependencies
-        run: npm ci || npm install
+
       - name: Build Vue 3 App
-        run: npm run build
+        run: |
+          npm ci || npm install
+          npm run build
+          echo "==> Build tĩnh hoàn tất, sẵn sàng deploy file dist siêu nhẹ."
