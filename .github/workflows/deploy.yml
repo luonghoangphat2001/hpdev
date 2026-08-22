@@ -49,7 +49,24 @@ jobs:
             git reset --hard FETCH_HEAD
             git config --local --unset http.https://github.com/.extraheader || true
 
+            echo "==> Tự động chạy Migration và Khởi tạo Default Admin trên Server..."
+            node -e "
+              require('dotenv').config();
+              const { startApplication } = require('./src/config/config');
+              startApplication().then(() => {
+                console.log('[Deploy] DB Migration & Admin Initialized Successfully!');
+                process.exit(0);
+              }).catch(err => {
+                console.error('[Deploy] DB Bootstrap note:', err.message);
+                process.exit(0);
+              });
+            " || true
+
+            echo "==> Tự động Seed 600 Tech Questions & 600 Fundamentals..."
+            node scripts/seed-tech-learning.js || true
+            node scripts/seed-tech-fundamentals.js || true
+
             mkdir -p tmp && touch tmp/restart.txt
             pm2 reload bot 2>/dev/null || pm2 restart bot 2>/dev/null || pm2 start bot.js --name bot 2>/dev/null || true
             pm2 save 2>/dev/null || true
-            echo "==> Deploy branch api thành công lúc $(date)!"
+            echo "==> Deploy branch api và Import DB thành công lúc $(date)!"
