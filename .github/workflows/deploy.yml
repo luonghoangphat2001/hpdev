@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
-    name: Build on GitHub & Prepare Static Dist
+  build-and-test:
+    name: Build & Verify Dan Learning
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -19,8 +19,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build Vue 3 App
+      - name: Install dependencies & Build
         run: |
-          npm ci || npm install
+          npm install --prefer-offline --no-audit --no-fund
           npm run build
-          echo "==> Build tĩnh hoàn tất, sẵn sàng deploy file dist siêu nhẹ."
+          echo "==> Build tĩnh hoàn tất thành công!"
