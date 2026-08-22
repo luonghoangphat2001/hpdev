@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-deploy:
-    name: Build on GitHub & Deploy Static Dist
+    name: Build on GitHub & Deploy Pure Static Dist
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -19,12 +19,12 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build Vue 3 App (Free GitHub Runners)
+      - name: Install dependencies & Build Vue 3 App
         run: |
-          npm ci || npm install
+          npm install --prefer-offline --no-audit --no-fund
           npm run build
 
-      - name: Deploy Dist to Server via SSH
+      - name: Clean server node_modules if present
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -37,14 +37,12 @@ jobs:
           script: |
             TARGET_DIR="/home/hpdev/ai.hpdev.name.vn"
             mkdir -p "$TARGET_DIR"
-            
-            # Xóa node_modules thừa trên server nếu có để giải phóng 100% dung lượng
             if [ -d "$TARGET_DIR/node_modules" ]; then
-              echo "==> Xóa node_modules thừa trên server..."
+              echo "==> Xóa node_modules trên server để giải phóng tài nguyên..."
               rm -rf "$TARGET_DIR/node_modules"
             fi
 
-      - name: Upload Static Files to Server
+      - name: Upload Static Dist Files to Server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -56,7 +54,7 @@ jobs:
           target: "/home/hpdev/ai.hpdev.name.vn"
           strip_components: 1
 
-      - name: Touch Restart
+      - name: Restart Passenger
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -67,4 +65,4 @@ jobs:
           script: |
             mkdir -p /home/hpdev/ai.hpdev.name.vn/tmp
             touch /home/hpdev/ai.hpdev.name.vn/tmp/restart.txt
-            echo "==> Deploy Frontend Vue 3 hoàn tất! Server không tốn 1MB node_modules nào."
+            echo "==> Deploy Frontend Vue 3 hoàn tất lúc $(date)!"
