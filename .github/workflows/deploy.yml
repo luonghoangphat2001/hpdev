@@ -1,4 +1,4 @@
-name: Deploy Dan API (api.hpdev.name.vn)
+name: Deploy Dan API via Docker CI/CD (api.hpdev.name.vn)
 
 on:
   push:
@@ -8,10 +8,10 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Backend to api.hpdev.name.vn
+    name: Deploy Containerized Backend via Docker
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH
+      - name: Deploy via SSH & Docker
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -26,47 +26,33 @@ jobs:
             GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
             B64_TOKEN=$(echo -n "x-access-token:$GITHUB_TOKEN" | base64 | tr -d '\n' || echo "")
 
-            setup_node_runtime() {
-              if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then return; fi
-              if [ -s "$HOME/.nvm/nvm.sh" ]; then . "$HOME/.nvm/nvm.sh"; nvm use --silent default >/dev/null 2>&1 || true; fi
-              if [ -d "$HOME/nodevenv" ]; then
-                ACTIVATE_PATH="$(find "$HOME/nodevenv" -maxdepth 3 -type f -path '*/bin/activate' 2>/dev/null | sort -V | tail -n 1)"
-                if [ -n "$ACTIVATE_PATH" ] && [ -f "$ACTIVATE_PATH" ]; then source "$ACTIVATE_PATH"; fi
-              fi
-            }
-
             echo "==> Fetching latest changes for branch api..."
             cd /home/hpdev/api.hpdev.name.vn
             git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $B64_TOKEN"
             git fetch "$REPO_URL" api
-
-            setup_node_runtime
-            if [ ! -d "node_modules" ] || git diff --name-only HEAD FETCH_HEAD 2>/dev/null | grep -q 'package.json'; then
-              echo "==> Cài đặt / Cập nhật dependencies cho dan-api..."
-              npm install --prefer-offline --no-audit --no-fund
-            fi
-
             git reset --hard FETCH_HEAD
             git config --local --unset http.https://github.com/.extraheader || true
 
-            echo "==> Tự động chạy Migration và Khởi tạo Default Admin trên Server..."
-            node -e "
-              require('dotenv').config();
-              const { startApplication } = require('./src/config/config');
-              startApplication().then(() => {
-                console.log('[Deploy] DB Migration & Admin Initialized Successfully!');
-                process.exit(0);
-              }).catch(err => {
-                console.error('[Deploy] DB Bootstrap note:', err.message);
-                process.exit(0);
-              });
-            " || true
+            echo "==> Triển khai Container Docker trên Server..."
+            if command -v docker >/dev/null 2>&1; then
+              if [ -f "docker-compose.yml" ]; then
+                echo "==> Building & starting via Docker Compose..."
+                docker compose up -d --build
+                echo "==> Auto-seeding database inside Docker container..."
+                docker exec dan_ai_api node scripts/seed-tech-learning.js || true
+                docker exec dan_ai_api node scripts/seed-tech-fundamentals.js || true
+              else
+                echo "==> Building Docker image dan_ai_api..."
+                docker build -t dan_ai_api .
+                docker stop dan_ai_api 2>/dev/null || true
+                docker rm dan_ai_api 2>/dev/null || true
+                docker run -d --name dan_ai_api --restart unless-stopped -p 3000:3000 --env-file .env dan_ai_api
+                docker exec dan_ai_api node scripts/seed-tech-learning.js || true
+                docker exec dan_ai_api node scripts/seed-tech-fundamentals.js || true
+              fi
+            fi
 
-            echo "==> Tự động Seed 600 Tech Questions & 600 Fundamentals..."
-            node scripts/seed-tech-learning.js || true
-            node scripts/seed-tech-fundamentals.js || true
-
+            # Reload Passenger / PM2 if configured
             mkdir -p tmp && touch tmp/restart.txt
-            pm2 reload bot 2>/dev/null || pm2 restart bot 2>/dev/null || pm2 start bot.js --name bot 2>/dev/null || true
-            pm2 save 2>/dev/null || true
-            echo "==> Deploy branch api và Import DB thành công lúc $(date)!"
+            pm2 reload bot 2>/dev/null || pm2 restart bot 2>/dev/null || true
+            echo "==> Deploy Docker CI/CD thành công lúc $(date)!"

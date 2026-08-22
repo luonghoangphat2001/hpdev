@@ -1,0 +1,40 @@
+name: dan_ai
+
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: dan_ai_mysql
+    restart: unless-stopped
+    command: --log-bin-trust-function-creators=1
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: dan_ai
+      MYSQL_USER: dan_ai_user
+      MYSQL_PASSWORD: dan_ai_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # Backend Core API
+  dan-api:
+    build: .
+    container_name: dan_ai_api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: dan_ai
+      DB_USER: dan_ai_user
+      DB_PASSWORD: dan_ai_password
+      SESSION_SECRET: dan-ai-production-secret-key-32-chars
+      OPENCLAW_API_URL: http://openclaw:4000
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
