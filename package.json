@@ -1,7 +1,7 @@
 {
   "name": "dan-learning",
   "version": "2.0.0",
-  "description": "Dan AI Learning Studio Frontend for Students (Vue 3 + Vite + Tailwind)",
+  "description": "Dan AI Learning Studio Frontend (Vue 3 + Vite + Tailwind)",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.0.16",
+    "@fortawesome/fontawesome-free": "^6.5.1",
     "axios": "^1.6.8",
     "pinia": "^2.1.7",
     "vue": "^3.4.21",
