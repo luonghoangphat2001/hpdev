@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-deploy:
-    name: Build on GitHub & Deploy Pure Static Dist
+    name: Build on GitHub & Ultra-Fast Deploy Pure Static Dist
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -18,13 +18,27 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies & Build Vue 3 App
         run: |
-          npm install --prefer-offline --no-audit --no-fund
+          npm ci || npm install --prefer-offline --no-audit --no-fund
           npm run build
+          # Nén toàn bộ dist thành 1 file tar.gz duy nhất để upload siêu tốc trong 1 giây
+          tar -czf dist.tar.gz -C dist .
 
-      - name: Clean server node_modules if present
+      - name: Upload dist.tar.gz to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "dist.tar.gz"
+          target: "/home/hpdev/ai.hpdev.name.vn"
+
+      - name: Extract & Clean on Server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -33,36 +47,14 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           timeout: 60s
-          command_timeout: 10m
+          command_timeout: 2m
           script: |
             TARGET_DIR="/home/hpdev/ai.hpdev.name.vn"
-            mkdir -p "$TARGET_DIR"
-            if [ -d "$TARGET_DIR/node_modules" ]; then
-              echo "==> Xóa node_modules trên server để giải phóng tài nguyên..."
-              rm -rf "$TARGET_DIR/node_modules"
+            cd "$TARGET_DIR"
+            if [ -f "dist.tar.gz" ]; then
+              tar -xzf dist.tar.gz -C "$TARGET_DIR"
+              rm -f dist.tar.gz
             fi
-
-      - name: Upload Static Dist Files to Server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "dist/*"
-          target: "/home/hpdev/ai.hpdev.name.vn"
-          strip_components: 1
-
-      - name: Restart Passenger
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: |
-            mkdir -p /home/hpdev/ai.hpdev.name.vn/tmp
-            touch /home/hpdev/ai.hpdev.name.vn/tmp/restart.txt
-            echo "==> Deploy Frontend Vue 3 hoàn tất lúc $(date)!"
+            # Dọn sạch các file rác nếu có
+            find "$TARGET_DIR" -name '._*' -delete 2>/dev/null || true
+            echo "==> [AI] Deploy hoàn tất siêu tốc lúc $(date)!"
