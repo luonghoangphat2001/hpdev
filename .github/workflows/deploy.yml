@@ -53,7 +53,7 @@ jobs:
       # ========================================================
       - name: Package API Files
         run: |
-          tar --exclude='.git' --exclude='node_modules' --exclude='.github' --exclude='api.tar.gz' -czf ../api.tar.gz .
+          tar --exclude='.git' --exclude='node_modules' --exclude='.github' --exclude='.env' --exclude='api.tar.gz' -czf ../api.tar.gz .
           mv ../api.tar.gz ./api.tar.gz
 
       - name: Upload api.tar.gz to Server
@@ -86,8 +86,8 @@ jobs:
               rm -f api.tar.gz
             fi
 
-            # Kích hoạt môi trường NodeJS cPanel
-            source /home/hpdev/nodevenv/ai.hpdev.name.vn/19/bin/activate
+            # Kích hoạt môi trường NodeJS cPanel (đúng venv của api)
+            source /home/hpdev/nodevenv/api.hpdev.name.vn/19/bin/activate
 
             echo "==> Cài đặt dependencies..."
             npm install --omit=dev --no-audit --no-fund
