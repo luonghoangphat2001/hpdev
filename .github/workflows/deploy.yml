@@ -8,10 +8,10 @@ on:
 
 jobs:
   deploy:
-    name: Deploy OpenClaw Docker Container
+    name: Deploy OpenClaw Docker Container & Setup ENV
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH & Docker
+      - name: SSH Deploy & Auto Setup
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -26,16 +26,32 @@ jobs:
             GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
             B64_TOKEN=$(echo -n "x-access-token:$GITHUB_TOKEN" | base64 | tr -d '\n' || echo "")
 
-            echo "==> Fetching latest changes for branch openclaw..."
+            echo "==> Kéo mã nguồn mới nhất của nhánh openclaw..."
             cd /home/hpdev/openclaw.hpdev.name.vn
             git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $B64_TOKEN"
             git fetch "$REPO_URL" openclaw
             git reset --hard FETCH_HEAD
             git config --local --unset http.https://github.com/.extraheader || true
 
+            echo "==> Tự động cấu hình file .env trên Server..."
+            if [ ! -f ".env" ]; then
+              cat << 'EOF' > .env
+PORT=4000
+NODE_ENV=production
+API_SECRET=changeme
+SCHEMA_BASE_URL=https://openclaw.hpdev.name.vn/schemas/v1
+ORCHESTRATOR_DB_HOST=127.0.0.1
+ORCHESTRATOR_DB_PORT=3306
+ORCHESTRATOR_DB_NAME=dan_ai
+ORCHESTRATOR_DB_USER=dan_ai_user
+ORCHESTRATOR_DB_PASSWORD=dan_ai_password
+DAN_AI_API_URL=https://api.hpdev.name.vn
+EOF
+              echo "[Deploy] Đã khởi tạo file .env cho OpenClaw thành công!"
+            fi
+
             echo "==> Triển khai Container Docker cho OpenClaw..."
             if command -v docker >/dev/null 2>&1; then
-              echo "==> Building & running Docker container dan_ai_openclaw..."
               docker build -t dan_ai_openclaw .
               docker stop dan_ai_openclaw 2>/dev/null || true
               docker rm dan_ai_openclaw 2>/dev/null || true
@@ -43,4 +59,4 @@ jobs:
             fi
 
             mkdir -p tmp && touch tmp/restart.txt
-            echo "==> Deploy OpenClaw Docker CI/CD thành công lúc $(date)!"
+            echo "==> Deploy OpenClaw và cấu hình .env thành công lúc $(date)!"
