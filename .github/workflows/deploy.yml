@@ -1,4 +1,4 @@
-name: Deploy Dan API via Docker CI/CD (api.hpdev.name.vn)
+name: Deploy Dan API (api.hpdev.name.vn)
 
 on:
   push:
@@ -7,11 +7,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy Containerized Backend & Setup DB
+  build-and-deploy:
+    name: Package on GitHub & Ultra-Fast Deploy API
     runs-on: ubuntu-latest
     steps:
-      - name: SSH Deploy & Auto Setup
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Package API Files
+        run: |
+          # Nén toàn bộ mã nguồn API (loại trừ git/node_modules) thành 1 archive duy nhất
+          tar --exclude='.git' --exclude='node_modules' --exclude='.github' -czf api.tar.gz .
+
+      - name: Upload api.tar.gz to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "api.tar.gz"
+          target: "/home/hpdev/api.hpdev.name.vn"
+
+      - name: Deploy & Seed on Server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -20,50 +44,29 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           timeout: 60s
-          command_timeout: 10m
+          command_timeout: 5m
           script: |
-            REPO_URL="https://github.com/${{ github.repository }}.git"
-            GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
-            B64_TOKEN=$(echo -n "x-access-token:$GITHUB_TOKEN" | base64 | tr -d '\n' || echo "")
+            TARGET_DIR="/home/hpdev/api.hpdev.name.vn"
+            cd "$TARGET_DIR"
 
-            echo "==> Kéo mã nguồn mới nhất của nhánh api..."
-            cd /home/hpdev/api.hpdev.name.vn
-            git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $B64_TOKEN"
-            git fetch "$REPO_URL" api
-            git reset --hard FETCH_HEAD
-            git config --local --unset http.https://github.com/.extraheader || true
-
-            echo "==> Tự động cấu hình file .env trên Server..."
-            if [ ! -f ".env" ]; then
-              cat << 'EOF' > .env
-PORT=3000
-NODE_ENV=production
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_NAME=dan_ai
-DB_USER=dan_ai_user
-DB_PASSWORD=dan_ai_password
-SESSION_SECRET=dan-ai-production-secret-key-32-chars
-COOKIE_SECURE=false
-OPENCLAW_URL=http://127.0.0.1:4000
-OPENCLAW_SECRET=changeme
-EOF
-              echo "[Deploy] Đã khởi tạo file .env thành công!"
+            if [ -f "api.tar.gz" ]; then
+              tar -xzf api.tar.gz -C "$TARGET_DIR"
+              rm -f api.tar.gz
             fi
 
-            echo "==> Triển khai qua Docker & Docker Compose..."
-            if command -v docker >/dev/null 2>&1; then
-              docker compose up -d --build
-              echo "==> Tự động nạp ngân hàng 1,200 câu hỏi vào Database trong Container..."
-              docker exec dan_ai_api node scripts/seed-tech-learning.js || true
-              docker exec dan_ai_api node scripts/seed-tech-fundamentals.js || true
-            else
-              echo "==> Chạy trực tiếp qua Node/PM2 trên Host..."
-              npm install --prefer-offline --no-audit --no-fund
-              node scripts/seed-tech-learning.js || true
-              node scripts/seed-tech-fundamentals.js || true
-            fi
+            # Kích hoạt môi trường NodeJS cPanel
+            source /home/hpdev/nodevenv/ai.hpdev.name.vn/19/bin/activate
 
-            mkdir -p tmp && touch tmp/restart.txt
-            pm2 reload bot 2>/dev/null || pm2 restart bot 2>/dev/null || true
-            echo "==> Đã hoàn tất cấu hình .env, import Database và Deploy thành công lúc $(date)!"
+            echo "==> Cài đặt dependencies..."
+            npm install --omit=dev --no-audit --no-fund
+
+            echo "==> Nạp cơ sở dữ liệu câu hỏi vào MySQL..."
+            node scripts/seed-tech-learning.js || true
+            node scripts/seed-tech-fundamentals.js || true
+
+            # Dọn dẹp file rác macOS
+            find "$TARGET_DIR" -name '._*' -delete 2>/dev/null || true
+
+            # Khởi động lại Passenger NodeJS
+            mkdir -p "$TARGET_DIR/tmp" && touch "$TARGET_DIR/tmp/restart.txt"
+            echo "==> [API] Deploy hoàn tất siêu tốc lúc $(date)!"
