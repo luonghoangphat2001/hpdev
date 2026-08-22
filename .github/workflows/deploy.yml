@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to openclaw.hpdev.name.vn
+    name: Deploy Worker to openclaw.hpdev.name.vn
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
@@ -35,21 +35,20 @@ jobs:
               fi
             }
 
-            echo "==> Deploying branch openclaw (openclaw.hpdev.name.vn)..."
+            echo "==> Fetching latest changes for branch openclaw..."
             cd /home/hpdev/openclaw.hpdev.name.vn
             git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $B64_TOKEN"
             git fetch "$REPO_URL" openclaw
-            
+
+            setup_node_runtime
             if [ ! -d "node_modules" ] || git diff --name-only HEAD FETCH_HEAD 2>/dev/null | grep -q 'package.json'; then
-              echo "==> Cập nhật dependencies và Chromium cho OpenClaw..."
-              setup_node_runtime
+              echo "==> Cập nhật dependencies & Chromium cho OpenClaw..."
               npm install --prefer-offline --no-audit --no-fund
               npx playwright install chromium 2>/dev/null || true
             fi
 
             git reset --hard FETCH_HEAD
             git config --local --unset http.https://github.com/.extraheader || true
-            setup_node_runtime
-            
+
             mkdir -p tmp && touch tmp/restart.txt
             echo "==> Deploy branch openclaw thành công lúc $(date)!"
