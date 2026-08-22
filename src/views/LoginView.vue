@@ -1,68 +1,61 @@
 <template>
-  <div class="min-h-screen w-full flex items-center justify-center p-4 bg-gray-950">
-    <div class="w-full max-w-md bg-gray-900/90 border border-gray-800 rounded-3xl p-8 shadow-2xl backdrop-blur-md">
-      <!-- Brand Logo -->
-      <div class="text-center mb-8">
-        <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 ring-4 ring-indigo-500/40 shadow-xl shadow-indigo-500/20">
-          <img src="/images/dan.png" alt="Đần AI" class="w-full h-full object-cover rounded-full" />
+  <div class="bg-gray-900 min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-sm">
+      <!-- Avatar + branding -->
+      <div class="text-center mb-6 sm:mb-8">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden mx-auto mb-3 sm:mb-4 ring-4 ring-indigo-500/40 shadow-xl" style="width: 64px; height: 64px; min-width: 64px; min-height: 64px;">
+          <img src="/images/dan.png" alt="Đần" width="64" height="64" class="w-full h-full object-cover rounded-full" style="width: 64px; height: 64px; aspect-ratio: 1/1;" loading="eager" decoding="sync" />
         </div>
-        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">Xin chào! Tôi là Đần</h1>
-        <p class="text-xs text-gray-400 mt-1">Hệ sinh thái AI & Không gian học tập thông minh</p>
+        <div class="flex items-center justify-center gap-2">
+          <h1 class="text-2xl sm:text-3xl font-bold text-white">Xin chào! Tôi là Đần</h1>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-900/60 border border-indigo-700/60 text-indigo-300 font-semibold">v2.1.0</span>
+        </div>
+        <p class="text-gray-400 text-xs sm:text-sm mt-2 leading-relaxed max-w-xs mx-auto">
+          Một AI agent được tạo bởi <span class="text-indigo-400 font-medium">Phát</span>,
+          tổng hợp nhiều model —
+          <span class="text-yellow-400">Gemini</span>,
+          <span class="text-purple-400">Claude</span>,
+          <span class="text-green-400">GPT</span> —
+          để tương tác cá nhân.
+        </p>
       </div>
 
-      <!-- Error message -->
-      <div v-if="error" class="mb-4 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2">
-        <span>⚠️</span>
-        <span>{{ error }}</span>
-      </div>
+      <!-- Login card -->
+      <div class="bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 border border-gray-700/60">
+        <p class="text-gray-400 text-xs sm:text-sm text-center mb-4 sm:mb-5">Đăng nhập để tiếp tục</p>
 
-      <!-- Login Form -->
-      <form @submit.prevent="handleLogin" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-gray-300 mb-1.5">Tên đăng nhập</label>
+        <!-- Error notification -->
+        <div v-if="error" class="mb-4 p-3 rounded-xl bg-red-900/40 border border-red-700/60 text-red-300 text-xs font-semibold text-center">
+          {{ error }}
+        </div>
+
+        <form @submit.prevent="handleLogin" class="space-y-3.5 sm:space-y-4">
           <input 
             v-model="username" 
             type="text" 
             required 
-            autocomplete="username"
+            autofocus 
+            autocomplete="username" 
             placeholder="Username" 
-            class="w-full px-4 py-3 rounded-2xl bg-gray-950 border border-gray-800 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+            class="w-full px-4 py-3 rounded-xl bg-gray-900 text-white placeholder-gray-500 border border-gray-700 focus:border-indigo-500 focus:outline-none text-base sm:text-sm" 
           />
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-gray-300 mb-1.5">Mật khẩu</label>
           <input 
             v-model="password" 
             type="password" 
             required 
-            autocomplete="current-password"
+            autocomplete="current-password" 
             placeholder="Password" 
-            class="w-full px-4 py-3 rounded-2xl bg-gray-950 border border-gray-800 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+            class="w-full px-4 py-3 rounded-xl bg-gray-900 text-white placeholder-gray-500 border border-gray-700 focus:border-indigo-500 focus:outline-none text-base sm:text-sm" 
           />
-        </div>
-
-        <button 
-          type="submit" 
-          :disabled="loading"
-          class="w-full py-3.5 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.99] text-white text-sm font-bold tracking-wide transition shadow-lg shadow-indigo-600/30 disabled:opacity-60 flex items-center justify-center gap-2"
-        >
-          <span v-if="loading" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-          <span>{{ loading ? 'Đang đăng nhập...' : 'Đăng nhập' }}</span>
-        </button>
-      </form>
-
-      <!-- Quick Auto Fill Helper -->
-      <div class="mt-6 pt-4 border-t border-gray-800/80 flex items-center justify-between text-xs text-gray-400">
-        <span>Tài khoản quản trị:</span>
-        <button 
-          @click="autoFillAdmin" 
-          type="button"
-          class="px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-indigo-400 hover:text-indigo-300 font-medium transition flex items-center gap-1.5"
-        >
-          <i class="fas fa-magic text-[10px]"></i>
-          <span>Tự động điền</span>
-        </button>
+          <button 
+            type="submit" 
+            :disabled="loading"
+            class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold rounded-xl transition shadow-lg shadow-indigo-600/30 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            <span v-if="loading" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            <span>{{ loading ? 'Đang đăng nhập...' : 'Đăng nhập' }}</span>
+          </button>
+        </form>
       </div>
     </div>
   </div>
@@ -81,11 +74,6 @@ const password = ref('Luonghoangphat12001@');
 const loading = ref(false);
 const error = ref('');
 
-const autoFillAdmin = () => {
-  username.value = 'admin';
-  password.value = 'Luonghoangphat12001@';
-};
-
 const handleLogin = async () => {
   if (!username.value || !password.value || loading.value) return;
   loading.value = true;
@@ -97,7 +85,7 @@ const handleLogin = async () => {
       router.push('/chat');
     }
   } catch (err) {
-    error.value = err.message || 'Tài khoản hoặc mật khẩu không chính xác';
+    error.value = err.response?.data?.error || err.message || 'Sai username hoặc password. Thử lại.';
   } finally {
     loading.value = false;
   }

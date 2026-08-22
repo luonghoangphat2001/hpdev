@@ -1,147 +1,194 @@
 <template>
   <aside 
     :class="[
-      'bg-gray-800/95 border-r border-gray-700/80 flex flex-col h-full transition-all duration-300 z-40',
-      collapsed ? 'w-16' : 'w-64',
-      mobileOpen ? 'fixed inset-y-0 left-0 shadow-2xl translate-x-0' : 'hidden md:flex'
+      'app-sidebar bg-gray-800 flex flex-col border-r border-gray-700 shrink-0 transition-all duration-200 z-40',
+      collapsed ? 'w-16' : 'w-56',
+      mobileOpen ? 'fixed inset-y-0 left-0 shadow-2xl translate-x-0 flex' : 'hidden md:flex'
     ]"
   >
-    <!-- Brand / Header -->
-    <div class="h-14 flex items-center justify-between px-3 border-b border-gray-700/80 shrink-0">
-      <router-link to="/chat" class="flex items-center gap-2.5 overflow-hidden">
-        <img src="/images/dan.png" alt="Đần AI" class="w-8 h-8 rounded-full ring-2 ring-indigo-500/50 shrink-0" />
-        <div v-if="!collapsed" class="flex flex-col min-w-0">
-          <span class="font-bold text-sm tracking-wide text-white truncate">Đần AI</span>
-          <span class="text-[10px] text-indigo-400 font-mono">v2.1 (Vue 3)</span>
+    <!-- Header -->
+    <div class="sidebar-header px-3 py-4 border-b border-gray-700 flex items-center justify-between gap-1">
+      <router-link to="/chat" class="flex items-center gap-2 overflow-hidden">
+        <div class="w-7 h-7 rounded-full overflow-hidden shrink-0 ring-2 ring-indigo-500/40">
+          <img src="/images/dan.png" alt="Đần" class="w-full h-full object-cover rounded-full" />
         </div>
+        <span v-if="!collapsed" class="sidebar-label font-bold text-white text-sm truncate">Đần AI</span>
       </router-link>
-      <button 
-        @click="toggleCollapse"
-        type="button"
-        class="hidden md:flex w-7 h-7 rounded-lg bg-gray-700/60 hover:bg-gray-700 text-gray-300 items-center justify-center text-xs transition"
-        :title="collapsed ? 'Mở rộng menu' : 'Thu gọn menu'"
-      >
-        {{ collapsed ? '»' : '«' }}
-      </button>
+      <div class="flex items-center gap-1">
+        <span v-if="!collapsed" class="sidebar-version text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-700/80 text-gray-400 font-semibold">v2.1.0</span>
+        <button 
+          @click="toggleCollapse" 
+          type="button" 
+          class="hidden md:flex w-6 h-6 rounded-md bg-gray-700 hover:bg-indigo-600 text-gray-200 transition items-center justify-center text-xs" 
+          :title="collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'"
+        >
+          {{ collapsed ? '»' : '«' }}
+        </button>
+        <button 
+          @click="closeMobile" 
+          type="button" 
+          class="md:hidden w-7 h-7 rounded-lg bg-gray-700 hover:bg-red-600 text-gray-200 transition flex items-center justify-center text-xs"
+        >
+          ✕
+        </button>
+      </div>
     </div>
 
-    <!-- Navigation Links -->
-    <div class="flex-1 overflow-y-auto py-3 px-2 space-y-1">
-      <div v-if="!collapsed" class="px-2 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-        Không gian AI
-      </div>
-      
+    <!-- Navigation -->
+    <nav class="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto overscroll-contain">
       <router-link 
         to="/chat" 
-        class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition"
-        :class="$route.path.startsWith('/chat') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' : 'text-gray-300 hover:bg-gray-700/70 hover:text-white'"
+        class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2.5"
+        :class="$route.path.startsWith('/chat') ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
       >
-        <span class="text-lg shrink-0">💬</span>
-        <span v-if="!collapsed" class="truncate">Trò chuyện AI</span>
+        <span class="sidebar-icon">💬</span>
+        <span v-if="!collapsed" class="sidebar-label">Chat</span>
       </router-link>
 
-      <!-- Learning Section -->
-      <div class="pt-3">
-        <div v-if="!collapsed" class="px-2 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wider flex items-center justify-between">
-          <span>Học tập & IELTS</span>
-          <span class="px-1.5 py-0.5 rounded text-[9px] bg-emerald-500/20 text-emerald-300">Studio</span>
-        </div>
-        
-        <router-link 
-          to="/learning/tech" 
-          class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition"
-          :class="$route.path.startsWith('/learning') ? 'bg-indigo-600/90 text-white shadow-md shadow-indigo-600/30' : 'text-gray-300 hover:bg-gray-700/70 hover:text-white'"
+      <!-- Learning Menu -->
+      <div>
+        <button 
+          @click="learningOpen = !learningOpen" 
+          type="button"
+          class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center justify-between gap-2.5 select-none"
+          :class="$route.path.startsWith('/learning') || $route.path.startsWith('/tech') || $route.path.startsWith('/vocab') ? 'bg-indigo-600/30 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
         >
-          <span class="text-lg shrink-0">💻</span>
-          <span v-if="!collapsed" class="truncate">Góc Học Tập</span>
-        </router-link>
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="sidebar-icon">🎓</span>
+            <span v-if="!collapsed" class="sidebar-label flex-1 truncate">Learning</span>
+          </div>
+          <span v-if="!collapsed" class="text-xs text-gray-400 transition-transform" :class="{ 'rotate-180': learningOpen }">⌄</span>
+        </button>
+        <div v-if="learningOpen && !collapsed" class="sidebar-dropdown-submenu ml-7 pl-2 border-l border-gray-700 space-y-0.5 mt-0.5">
+          <router-link 
+            to="/learning/tech" 
+            class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2"
+            :class="$route.path.includes('/tech') ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
+          >
+            <span class="sidebar-icon">💻</span><span class="sidebar-label">Tech</span>
+          </router-link>
+          <router-link 
+            to="/learning/vocab" 
+            class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2"
+            :class="$route.path.includes('/vocab') ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
+          >
+            <span class="sidebar-icon">🇬🇧</span><span class="sidebar-label">English</span>
+          </router-link>
+        </div>
       </div>
 
-      <!-- Admin Section -->
-      <div v-if="authStore.isAdmin" class="pt-3">
-        <div v-if="!collapsed" class="px-2 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wider flex items-center justify-between">
-          <span>Quản trị AI</span>
-          <span class="px-1.5 py-0.5 rounded text-[9px] bg-indigo-500/20 text-indigo-300">Admin</span>
+      <!-- Admin section -->
+      <div v-if="authStore.isAdmin" class="pt-3 space-y-0.5">
+        <div v-if="!collapsed" class="sidebar-section-label px-3 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Management
         </div>
 
-        <router-link 
-          to="/config" 
-          class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition"
-          :class="$route.path.startsWith('/config') ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700/70 hover:text-white'"
-        >
-          <span class="text-lg shrink-0">⚙️</span>
-          <span v-if="!collapsed" class="truncate">Cấu hình Hệ thống</span>
-        </router-link>
-
-        <router-link 
-          to="/openclaw" 
-          class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition"
-          :class="$route.path.startsWith('/openclaw') ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700/70 hover:text-white'"
-        >
-          <span class="text-lg shrink-0">🕷️</span>
-          <span v-if="!collapsed" class="truncate">OpenClaw Crawler</span>
-        </router-link>
-
-        <router-link 
-          to="/users" 
-          class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition"
-          :class="$route.path === '/users' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700/70 hover:text-white'"
-        >
-          <span class="text-lg shrink-0">👥</span>
-          <span v-if="!collapsed" class="truncate">Tài khoản Users</span>
-        </router-link>
+        <!-- Config Menu -->
+        <div>
+          <button 
+            @click="configOpen = !configOpen" 
+            type="button"
+            class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center justify-between gap-2.5 select-none"
+            :class="$route.path.startsWith('/config') ? 'bg-indigo-600/30 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+          >
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="sidebar-icon">⚙️</span>
+              <span v-if="!collapsed" class="sidebar-label flex-1 truncate">Config</span>
+            </div>
+            <span v-if="!collapsed" class="text-xs text-gray-400 transition-transform" :class="{ 'rotate-180': configOpen }">⌄</span>
+          </button>
+          <div v-if="configOpen && !collapsed" class="sidebar-dropdown-submenu ml-7 pl-2 border-l border-gray-700 space-y-0.5 mt-0.5">
+            <router-link 
+              to="/config" 
+              class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2"
+              :class="$route.path === '/config' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"
+            >
+              <span class="sidebar-icon">🤖</span><span class="sidebar-label">Models</span>
+            </router-link>
+            <router-link 
+              to="/config?tab=providers" 
+              class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"
+            >
+              <span class="sidebar-icon">🔑</span><span class="sidebar-label">Providers</span>
+            </router-link>
+            <router-link 
+              to="/config?tab=openclaw" 
+              class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"
+            >
+              <span class="sidebar-icon">🦅</span><span class="sidebar-label">AI Agents</span>
+            </router-link>
+            <router-link 
+              to="/config?tab=prompts" 
+              class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"
+            >
+              <span class="sidebar-icon">📝</span><span class="sidebar-label">Prompts</span>
+            </router-link>
+          </div>
+        </div>
 
         <router-link 
           to="/history" 
-          class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition"
-          :class="$route.path === '/history' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700/70 hover:text-white'"
+          class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2.5"
+          :class="$route.path === '/history' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
         >
-          <span class="text-lg shrink-0">📜</span>
-          <span v-if="!collapsed" class="truncate">Lịch sử Chat</span>
+          <span class="sidebar-icon">📜</span><span v-if="!collapsed" class="sidebar-label">History</span>
         </router-link>
 
         <router-link 
           to="/stats" 
-          class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition"
-          :class="$route.path === '/stats' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700/70 hover:text-white'"
+          class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2.5"
+          :class="$route.path === '/stats' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
         >
-          <span class="text-lg shrink-0">📊</span>
-          <span v-if="!collapsed" class="truncate">Thống kê Token</span>
+          <span class="sidebar-icon">📊</span><span v-if="!collapsed" class="sidebar-label">Stats</span>
+        </router-link>
+
+        <router-link 
+          to="/users" 
+          class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2.5"
+          :class="$route.path === '/users' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+        >
+          <span class="sidebar-icon">👥</span><span v-if="!collapsed" class="sidebar-label">Users</span>
+        </router-link>
+
+        <router-link 
+          to="/openclaw" 
+          class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2.5"
+          :class="$route.path === '/openclaw' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+        >
+          <span class="sidebar-icon">🦞</span><span v-if="!collapsed" class="sidebar-label">OpenClaw</span>
         </router-link>
 
         <router-link 
           to="/logs" 
-          class="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition"
-          :class="$route.path === '/logs' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700/70 hover:text-white'"
+          class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2.5"
+          :class="$route.path === '/logs' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
         >
-          <span class="text-lg shrink-0">📋</span>
-          <span v-if="!collapsed" class="truncate">Nhật ký Logs</span>
+          <span class="sidebar-icon">📋</span><span v-if="!collapsed" class="sidebar-label">Logs</span>
         </router-link>
       </div>
-    </div>
+    </nav>
 
     <!-- User Profile & Logout -->
-    <div class="p-2 border-t border-gray-700/80 shrink-0">
-      <div class="flex items-center gap-2.5 p-1.5 rounded-xl bg-gray-700/40">
-        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-          {{ authStore.userInitial }}
-        </div>
-        <div v-if="!collapsed" class="flex-1 min-w-0">
-          <p class="text-xs font-semibold text-white truncate">{{ authStore.username }}</p>
-          <p class="text-[10px] text-gray-400 capitalize">{{ authStore.user?.role || 'user' }}</p>
-        </div>
-        <button 
-          v-if="!collapsed"
-          @click="authStore.logout"
-          type="button"
-          class="p-1.5 rounded-lg text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 transition"
-          title="Đăng xuất"
-        >
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-        </button>
+    <div class="border-t border-gray-700 px-3 py-3 flex items-center gap-2.5 shrink-0">
+      <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+        {{ authStore.userInitial }}
       </div>
+      <div v-if="!collapsed" class="sidebar-user-details flex-1 min-w-0">
+        <div class="text-sm font-medium truncate text-white">{{ authStore.username }}</div>
+        <div class="text-xs text-gray-400 capitalize">{{ authStore.user?.role || 'user' }}</div>
+      </div>
+      <button 
+        @click="authStore.logout"
+        type="button" 
+        title="Logout" 
+        class="text-gray-400 hover:text-white transition p-1 rounded hover:bg-gray-700 ml-auto"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+      </button>
     </div>
   </aside>
 </template>
@@ -153,13 +200,19 @@ import { useAuthStore } from '@/stores/auth';
 const authStore = useAuthStore();
 const collapsed = ref(false);
 const mobileOpen = ref(false);
+const learningOpen = ref(true);
+const configOpen = ref(false);
 
 const toggleCollapse = () => {
   collapsed.value = !collapsed.value;
 };
 
+const closeMobile = () => {
+  mobileOpen.value = false;
+};
+
 defineExpose({
   openMobile: () => { mobileOpen.value = true; },
-  closeMobile: () => { mobileOpen.value = false; },
+  closeMobile,
 });
 </script>
