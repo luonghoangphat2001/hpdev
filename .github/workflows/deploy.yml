@@ -1,0 +1,52 @@
+name: Deploy Dan Manager (ai.hpdev.name.vn)
+
+on:
+  push:
+    branches:
+      - ai
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to ai.hpdev.name.vn
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          timeout: 60s
+          command_timeout: 10m
+          script: |
+            REPO_URL="https://github.com/${{ github.repository }}.git"
+            GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+            B64_TOKEN=$(echo -n "x-access-token:$GITHUB_TOKEN" | base64 | tr -d '\n' || echo "")
+
+            setup_node_runtime() {
+              if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then return; fi
+              if [ -s "$HOME/.nvm/nvm.sh" ]; then . "$HOME/.nvm/nvm.sh"; nvm use --silent default >/dev/null 2>&1 || true; fi
+              if [ -d "$HOME/nodevenv" ]; then
+                ACTIVATE_PATH="$(find "$HOME/nodevenv" -maxdepth 3 -type f -path '*/bin/activate' 2>/dev/null | sort -V | tail -n 1)"
+                if [ -n "$ACTIVATE_PATH" ] && [ -f "$ACTIVATE_PATH" ]; then source "$ACTIVATE_PATH"; fi
+              fi
+            }
+
+            echo "==> Deploying branch ai (ai.hpdev.name.vn)..."
+            cd /home/hpdev/ai.hpdev.name.vn
+            git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $B64_TOKEN"
+            git fetch "$REPO_URL" ai
+            
+            setup_node_runtime
+            echo "==> Cài đặt dependencies và build Vue 3 Frontend..."
+            npm install --prefer-offline --no-audit --no-fund
+            npm run build
+
+            git reset --hard FETCH_HEAD
+            git config --local --unset http.https://github.com/.extraheader || true
+
+            mkdir -p tmp && touch tmp/restart.txt
+            echo "==> Deploy branch ai thành công lúc $(date)!"
