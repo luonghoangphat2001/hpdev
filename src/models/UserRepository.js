@@ -34,6 +34,26 @@ class UserRepository {
   }
 
   /**
+   * Ensure default admin user exists on application boot.
+   * Encapsulates password hashing and database insertion.
+   * @param {string} [username='admin']
+   * @param {string} [password='Luonghoangphat12001@']
+   * @returns {Promise<void>}
+   */
+  async ensureDefaultAdmin(username = 'admin', password = 'Luonghoangphat12001@') {
+    const existing = await this.findByUsername(username);
+    if (!existing) {
+      const hash = bcrypt.hashSync(password, 10);
+      await this.#db.query(
+        "INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'admin')",
+        [username, hash]
+      );
+      console.log(`[UserRepository] Seeded default admin account (${username})`);
+    }
+  }
+
+
+  /**
    * @param {string} username
    * @returns {Promise<any|null>}
    */

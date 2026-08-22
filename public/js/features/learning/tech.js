@@ -4,6 +4,8 @@ import {
   importLearningExcel,
 } from '../../api/learning.js';
 import { encodeActionArgs } from '../../app/events.js';
+import { escapeHtml } from '../../utils.js';
+
 
 export const techFeature = {
   async loadTechStacks() {
@@ -288,9 +290,10 @@ export const techFeature = {
         ${c.code_example ? `
           <div class="space-y-1.5 min-w-0 max-w-full">
             <span class="font-bold text-gray-400 text-[10px] uppercase tracking-wider">💻 Code minh họa thực tế</span>
-            <pre class="bg-gray-950 p-3.5 sm:p-4 rounded-xl text-[11px] sm:text-xs font-mono text-emerald-400 border border-gray-800 max-w-full block whitespace-pre-wrap break-words"><code class="block font-mono whitespace-pre-wrap break-words">${c.code_example}</code></pre>
+            <pre class="bg-gray-950 p-3.5 sm:p-4 rounded-xl text-[11px] sm:text-xs font-mono text-emerald-400 border border-gray-800 max-w-full overflow-x-auto whitespace-pre leading-relaxed"><code>${escapeHtml(c.code_example)}</code></pre>
           </div>
         ` : ''}
+
 
         ${c.interview_tips || c.practical_tips ? `
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -382,7 +385,7 @@ export const techFeature = {
           <p class="text-xs text-gray-400">${item.prompt || 'Chạm để lật xem câu trả lời nhanh'}</p>
         ` : `
           <span class="text-xs text-emerald-400 mb-2 font-bold uppercase tracking-wider">Mặt sau (Trả lời nhanh)</span>
-          ${c.code_example ? `<div class="min-w-0 max-w-full text-left"><pre class="bg-gray-950 p-3.5 rounded-xl text-xs font-mono text-emerald-400 max-w-full border border-gray-800 block whitespace-pre-wrap break-words"><code class="block font-mono whitespace-pre-wrap break-words">${c.code_example}</code></pre></div>` : ''}
+          ${c.code_example ? `<div class="min-w-0 max-w-full text-left w-full"><pre class="bg-gray-950 p-3.5 rounded-xl text-xs font-mono text-emerald-400 max-w-full border border-gray-800 overflow-x-auto whitespace-pre leading-relaxed"><code>${escapeHtml(c.code_example)}</code></pre></div>` : ''}
         `}
       </div>
 

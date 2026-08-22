@@ -3,6 +3,7 @@
 const createMigrationHelpers = require('./helpers');
 
 const schemaMigrations = [
+  require('./migrations/config'),
   require('./migrations/conversations'),
   require('./migrations/users'),
   require('./migrations/schedules'),

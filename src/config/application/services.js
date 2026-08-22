@@ -10,6 +10,7 @@ const DiscordNotificationService = require('../../services/notification/DiscordN
 
 async function createServices(repositories) {
   const {
+    userRepo,
     configRepo,
     conversationRepo,
     learningRepo,
@@ -19,6 +20,10 @@ async function createServices(repositories) {
     discordNotificationRepo,
     insightRepo,
   } = repositories;
+
+  if (userRepo) {
+    await userRepo.ensureDefaultAdmin();
+  }
 
   const aiService = new AIService(configRepo, conversationRepo, insightRepo);
   const openClawUrl = process.env.OPENCLAW_URL
@@ -33,6 +38,7 @@ async function createServices(repositories) {
 
   const techService = new TechService(techRepo, aiService, configRepo);
   await techService.seedInitialBankIfEmpty();
+
 
   return {
     aiService,
