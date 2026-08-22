@@ -25,8 +25,20 @@ module.exports = async function initializeUsers(db, helpers) {
 
     await helpers.addColumnIfMissing('users', 'last_active', 'DATETIME NULL');
 
-
+    // Auto-seed default admin if table is empty
+    const rows = await db.query('SELECT COUNT(*) AS total FROM users');
+    const total = rows[0]?.total ?? 0;
+    if (Number(total) === 0) {
+      const bcrypt = require('bcryptjs');
+      const defaultHash = bcrypt.hashSync('Luonghoangphat12001@', 10);
+      await db.query(
+        "INSERT INTO users (username, password_hash, role) VALUES ('admin', ?, 'admin')",
+        [defaultHash]
+      );
+      console.log('[Database] Seeded default admin user (username: admin)');
+    }
 };
+
 
 
 
