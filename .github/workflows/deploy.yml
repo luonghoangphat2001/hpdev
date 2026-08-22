@@ -17,12 +17,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Package API Files
         run: |
-          # Nén toàn bộ mã nguồn API (loại trừ git/node_modules) thành 1 archive duy nhất
-          tar --exclude='.git' --exclude='node_modules' --exclude='.github' -czf api.tar.gz .
+          # Nén toàn bộ mã nguồn API (tạo ở thư mục cha để tránh lỗi file changed as we read it)
+          tar --exclude='.git' --exclude='node_modules' --exclude='.github' --exclude='api.tar.gz' -czf ../api.tar.gz .
+          mv ../api.tar.gz ./api.tar.gz
 
       - name: Upload api.tar.gz to Server
         uses: appleboy/scp-action@v0.1.7
