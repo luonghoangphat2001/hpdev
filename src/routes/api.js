@@ -41,12 +41,15 @@ function createApiRouter(controllers) {
   // ─── Public & service-to-service ─────────────────────────────────────────
   const publicRouter = Router();
   publicRouter.get('/health', (_req, res) => res.json({ ok: true, version: APP_VERSION }));
+  publicRouter.post('/login', controllers.auth.login);
+  publicRouter.post('/logout', controllers.auth.logout);
   publicRouter.post(
     '/integrations/openclaw/discord-notifications',
     ServiceAuthMiddleware.openClaw,
     controllers.discordNotification.create
   );
   router.use('/', publicRouter);
+
 
   // ─── Any authenticated user ───────────────────────────────────────────────
   const userRouter = Router();
