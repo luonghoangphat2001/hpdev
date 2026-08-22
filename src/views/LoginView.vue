@@ -1,10 +1,12 @@
 <template>
-  <div class="min-h-screen w-full flex items-center justify-center p-4 bg-gray-900">
-    <div class="w-full max-w-md bg-gray-800/90 border border-gray-700/80 rounded-3xl p-8 shadow-2xl backdrop-blur-md">
+  <div class="min-h-screen w-full flex items-center justify-center p-4 bg-gray-950">
+    <div class="w-full max-w-md bg-gray-900/90 border border-gray-800 rounded-3xl p-8 shadow-2xl backdrop-blur-md">
       <!-- Brand Logo -->
       <div class="text-center mb-8">
-        <img src="/images/dan.png" alt="Đần AI" class="w-16 h-16 rounded-full mx-auto mb-3 ring-4 ring-indigo-500/30 shadow-lg shadow-indigo-500/20" />
-        <h1 class="text-2xl font-black tracking-tight text-white">Đần AI Studio</h1>
+        <div class="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 ring-4 ring-indigo-500/40 shadow-xl shadow-indigo-500/20">
+          <img src="/images/dan.png" alt="Đần AI" class="w-full h-full object-cover rounded-full" />
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">Xin chào! Tôi là Đần</h1>
         <p class="text-xs text-gray-400 mt-1">Hệ sinh thái AI & Không gian học tập thông minh</p>
       </div>
 
@@ -23,8 +25,8 @@
             type="text" 
             required 
             autocomplete="username"
-            placeholder="Nhập username" 
-            class="w-full px-4 py-3 rounded-2xl bg-gray-900/80 border border-gray-700 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+            placeholder="Username" 
+            class="w-full px-4 py-3 rounded-2xl bg-gray-950 border border-gray-800 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
           />
         </div>
 
@@ -35,8 +37,8 @@
             type="password" 
             required 
             autocomplete="current-password"
-            placeholder="Nhập password" 
-            class="w-full px-4 py-3 rounded-2xl bg-gray-900/80 border border-gray-700 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+            placeholder="Password" 
+            class="w-full px-4 py-3 rounded-2xl bg-gray-950 border border-gray-800 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
           />
         </div>
 
@@ -49,6 +51,19 @@
           <span>{{ loading ? 'Đang đăng nhập...' : 'Đăng nhập' }}</span>
         </button>
       </form>
+
+      <!-- Quick Auto Fill Helper -->
+      <div class="mt-6 pt-4 border-t border-gray-800/80 flex items-center justify-between text-xs text-gray-400">
+        <span>Tài khoản quản trị:</span>
+        <button 
+          @click="autoFillAdmin" 
+          type="button"
+          class="px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-700 text-indigo-400 hover:text-indigo-300 font-medium transition flex items-center gap-1.5"
+        >
+          <i class="fas fa-magic text-[10px]"></i>
+          <span>Tự động điền</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -61,10 +76,15 @@ import { useAuthStore } from '../stores/auth';
 const router = useRouter();
 const authStore = useAuthStore();
 
-const username = ref('');
-const password = ref('');
+const username = ref('admin');
+const password = ref('Luonghoangphat12001@');
 const loading = ref(false);
 const error = ref('');
+
+const autoFillAdmin = () => {
+  username.value = 'admin';
+  password.value = 'Luonghoangphat12001@';
+};
 
 const handleLogin = async () => {
   if (!username.value || !password.value || loading.value) return;
