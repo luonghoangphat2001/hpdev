@@ -1,4 +1,4 @@
-name: Deploy Dan Manager (ai.hpdev.name.vn)
+name: Build & Deploy Dan Manager (ai.hpdev.name.vn)
 
 on:
   push:
@@ -7,11 +7,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy to ai.hpdev.name.vn
+  build-and-deploy:
+    name: Build on GitHub & Deploy Static Dist
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Vue 3 App (Free GitHub Runners)
+        run: |
+          npm ci || npm install
+          npm run build
+
+      - name: Deploy Dist to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -22,31 +35,36 @@ jobs:
           timeout: 60s
           command_timeout: 10m
           script: |
-            REPO_URL="https://github.com/${{ github.repository }}.git"
-            GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
-            B64_TOKEN=$(echo -n "x-access-token:$GITHUB_TOKEN" | base64 | tr -d '\n' || echo "")
-
-            setup_node_runtime() {
-              if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then return; fi
-              if [ -s "$HOME/.nvm/nvm.sh" ]; then . "$HOME/.nvm/nvm.sh"; nvm use --silent default >/dev/null 2>&1 || true; fi
-              if [ -d "$HOME/nodevenv" ]; then
-                ACTIVATE_PATH="$(find "$HOME/nodevenv" -maxdepth 3 -type f -path '*/bin/activate' 2>/dev/null | sort -V | tail -n 1)"
-                if [ -n "$ACTIVATE_PATH" ] && [ -f "$ACTIVATE_PATH" ]; then source "$ACTIVATE_PATH"; fi
-              fi
-            }
-
-            echo "==> Deploying branch ai (ai.hpdev.name.vn)..."
-            cd /home/hpdev/ai.hpdev.name.vn
-            git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $B64_TOKEN"
-            git fetch "$REPO_URL" ai
+            TARGET_DIR="/home/hpdev/ai.hpdev.name.vn"
+            mkdir -p "$TARGET_DIR"
             
-            setup_node_runtime
-            echo "==> Cài đặt dependencies và build Vue 3 Frontend..."
-            npm install --prefer-offline --no-audit --no-fund
-            npm run build
+            # Xóa node_modules thừa trên server nếu có để giải phóng 100% dung lượng
+            if [ -d "$TARGET_DIR/node_modules" ]; then
+              echo "==> Xóa node_modules thừa trên server..."
+              rm -rf "$TARGET_DIR/node_modules"
+            fi
 
-            git reset --hard FETCH_HEAD
-            git config --local --unset http.https://github.com/.extraheader || true
+      - name: Upload Static Files to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "dist/*"
+          target: "/home/hpdev/ai.hpdev.name.vn"
+          strip_components: 1
 
-            mkdir -p tmp && touch tmp/restart.txt
-            echo "==> Deploy branch ai thành công lúc $(date)!"
+      - name: Touch Restart
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            mkdir -p /home/hpdev/ai.hpdev.name.vn/tmp
+            touch /home/hpdev/ai.hpdev.name.vn/tmp/restart.txt
+            echo "==> Deploy Frontend Vue 3 hoàn tất! Server không tốn 1MB node_modules nào."
