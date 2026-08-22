@@ -1,4 +1,4 @@
-name: Build & Deploy Dan Learning
+name: Build & Deploy Dan Learning (learning.hpdev.name.vn)
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-test:
-    name: Build & Verify Dan Learning
+  build-and-deploy:
+    name: Build on GitHub & Ultra-Fast Deploy Pure Static Dist
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -18,9 +18,44 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Install dependencies & Build
+      - name: Install dependencies & Build Vue 3 App
         run: |
-          npm install --prefer-offline --no-audit --no-fund
+          npm ci || npm install --prefer-offline --no-audit --no-fund
           npm run build
-          echo "==> Build tĩnh hoàn tất thành công!"
+          # Nén toàn bộ dist thành 1 file tar.gz duy nhất để upload siêu tốc trong 1 giây
+          tar -czf dist.tar.gz -C dist .
+
+      - name: Upload dist.tar.gz to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "dist.tar.gz"
+          target: "/home/hpdev/learning.hpdev.name.vn"
+
+      - name: Extract & Clean on Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          timeout: 60s
+          command_timeout: 2m
+          script: |
+            TARGET_DIR="/home/hpdev/learning.hpdev.name.vn"
+            mkdir -p "$TARGET_DIR"
+            cd "$TARGET_DIR"
+            if [ -f "dist.tar.gz" ]; then
+              tar -xzf dist.tar.gz -C "$TARGET_DIR"
+              rm -f dist.tar.gz
+            fi
+            # Dọn sạch các file rác nếu có
+            find "$TARGET_DIR" -name '._*' -delete 2>/dev/null || true
+            echo "==> [LEARNING] Deploy hoàn tất siêu tốc lúc $(date)!"
