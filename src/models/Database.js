@@ -38,9 +38,10 @@ class Database {
   }
 
   async query(sql, params = []) {
-    const [rows] = await this.#pool.execute(sql, params);
+    const [rows] = await this.#pool.query(sql, params);
     return rows;
   }
+
 
   /**
    * Execute a query and return the first row or null.

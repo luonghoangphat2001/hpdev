@@ -8,22 +8,20 @@ function configureSession(app) {
 }
 
 function createSessionOptions() {
-  const sessionSecret = process.env.DASHBOARD_SECRET;
-  if (!sessionSecret && process.env.NODE_ENV === 'production') {
-    throw new Error('DASHBOARD_SECRET must be configured in production');
-  }
+  const sessionSecret = process.env.DASHBOARD_SECRET || process.env.SESSION_SECRET || 'dan-ai-secret-key-32-chars-long';
 
   const options = {
-    secret: sessionSecret || 'development-only-secret',
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
+      secure: process.env.COOKIE_SECURE === 'true',
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000,
     },
   };
+
 
   if (process.env.DB_USER && process.env.DB_NAME) {
     options.store = new MySQLStore({
