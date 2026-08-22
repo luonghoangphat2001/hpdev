@@ -1,0 +1,22 @@
+name: Deploy Dan Learning (learning)
+
+on:
+  push:
+    branches:
+      - learning
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build & Test Dan Learning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm ci || npm install
+      - name: Build Vue 3 App
+        run: npm run build
