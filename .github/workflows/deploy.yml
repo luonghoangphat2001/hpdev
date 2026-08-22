@@ -1,55 +1,14 @@
-name: CI/CD Pipeline
+name: Deploy OpenClaw (openclaw.hpdev.name.vn)
 
 on:
   push:
     branches:
-      - main
-      - ai
-      - openclaw
-  pull_request:
-    branches:
-      - main
-      - ai
       - openclaw
   workflow_dispatch:
 
 jobs:
-  docker-package:
-    name: Build & Package Docker Image
-    runs-on: ubuntu-latest
-    env:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        if: env.DOCKERHUB_USERNAME != '' && github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build Docker image & package
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: ${{ env.DOCKERHUB_USERNAME != '' && github.event_name != 'pull_request' }}
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME || 'hpdev' }}/openclaw:${{ github.ref_name }}
-            ${{ secrets.DOCKERHUB_USERNAME || 'hpdev' }}/openclaw:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
   deploy:
-    name: Deploy to Server
-    needs: [docker-package]
-    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'ai' || github.ref_name == 'openclaw')
+    name: Deploy to openclaw.hpdev.name.vn
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
@@ -60,45 +19,37 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          timeout: 60s
+          command_timeout: 10m
           script: |
-            set -e
-            BRANCH="${{ github.ref_name }}"
-            if [ "$BRANCH" = "main" ]; then
-              cd /home/hpdev/public_html
-              git pull origin main
-              echo "Deploy completed at $(date)"
+            REPO_URL="https://github.com/${{ github.repository }}.git"
+            GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+            B64_TOKEN=$(echo -n "x-access-token:$GITHUB_TOKEN" | base64 | tr -d '\n' || echo "")
 
-            elif [ "$BRANCH" = "ai" ]; then
-              cd ~/ai.hpdev.name.vn
-              git pull origin ai
-              source ~/nodevenv/ai.hpdev.name.vn/19/bin/activate
+            setup_node_runtime() {
+              if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then return; fi
+              if [ -s "$HOME/.nvm/nvm.sh" ]; then . "$HOME/.nvm/nvm.sh"; nvm use --silent default >/dev/null 2>&1 || true; fi
+              if [ -d "$HOME/nodevenv" ]; then
+                ACTIVATE_PATH="$(find "$HOME/nodevenv" -maxdepth 3 -type f -path '*/bin/activate' 2>/dev/null | sort -V | tail -n 1)"
+                if [ -n "$ACTIVATE_PATH" ] && [ -f "$ACTIVATE_PATH" ]; then source "$ACTIVATE_PATH"; fi
+              fi
+            }
+
+            echo "==> Deploying branch openclaw (openclaw.hpdev.name.vn)..."
+            cd /home/hpdev/openclaw.hpdev.name.vn
+            git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $B64_TOKEN"
+            git fetch "$REPO_URL" openclaw
+            
+            if [ ! -d "node_modules" ] || git diff --name-only HEAD FETCH_HEAD 2>/dev/null | grep -q 'package.json'; then
+              echo "==> Cập nhật dependencies và Chromium cho OpenClaw..."
+              setup_node_runtime
               npm install --prefer-offline --no-audit --no-fund
-              mkdir -p tmp && touch tmp/restart.txt
-              which pm2 || npm install -g pm2
-              pm2 reload bot 2>/dev/null || pm2 restart bot 2>/dev/null || pm2 start bot.js --name bot || true
-              pm2 save 2>/dev/null || true
-
-            elif [ "$BRANCH" = "openclaw" ]; then
-              cd ~/openclaw.hpdev.name.vn
-              git fetch origin openclaw
-              
-              # Chỉ npm install nếu package.json có thay đổi
-              if [ ! -d "node_modules" ] || git diff --name-only HEAD origin/openclaw 2>/dev/null | grep -q 'package.json'; then
-                echo "==> Phát hiện thay đổi trong package.json, cập nhật dependencies..."
-                npm install --prefer-offline --no-audit --no-fund
-              else
-                echo "==> package.json không đổi, bỏ qua npm install!"
-              fi
-
-              git pull --ff-only origin openclaw
-              npm run migrate
-              
-              # Chỉ tải Chromium cho Playwright nếu trên server chưa có cache
-              if [ ! -d "$HOME/.cache/ms-playwright" ]; then
-                echo "==> Cài đặt Chromium cho Playwright lần đầu..."
-                npx playwright install chromium 2>/dev/null || true
-              fi
-
-              mkdir -p tmp && touch tmp/restart.txt
-              echo "==> Deploy openclaw hoàn tất siêu tốc lúc $(date)!"
+              npx playwright install chromium 2>/dev/null || true
             fi
+
+            git reset --hard FETCH_HEAD
+            git config --local --unset http.https://github.com/.extraheader || true
+            setup_node_runtime
+            
+            mkdir -p tmp && touch tmp/restart.txt
+            echo "==> Deploy branch openclaw thành công lúc $(date)!"
