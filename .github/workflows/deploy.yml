@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to api.hpdev.name.vn
+    name: Deploy Backend to api.hpdev.name.vn
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
@@ -35,22 +35,21 @@ jobs:
               fi
             }
 
-            echo "==> Deploying branch api (api.hpdev.name.vn)..."
+            echo "==> Fetching latest changes for branch api..."
             cd /home/hpdev/api.hpdev.name.vn
             git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $B64_TOKEN"
             git fetch "$REPO_URL" api
-            
+
+            setup_node_runtime
             if [ ! -d "node_modules" ] || git diff --name-only HEAD FETCH_HEAD 2>/dev/null | grep -q 'package.json'; then
               echo "==> Cài đặt / Cập nhật dependencies cho dan-api..."
-              setup_node_runtime
               npm install --prefer-offline --no-audit --no-fund
             fi
 
             git reset --hard FETCH_HEAD
             git config --local --unset http.https://github.com/.extraheader || true
-            setup_node_runtime
 
             mkdir -p tmp && touch tmp/restart.txt
-            pm2 reload bot 2>/dev/null || pm2 restart bot 2>/dev/null || pm2 start bot.js --name bot || true
+            pm2 reload bot 2>/dev/null || pm2 restart bot 2>/dev/null || pm2 start bot.js --name bot 2>/dev/null || true
             pm2 save 2>/dev/null || true
             echo "==> Deploy branch api thành công lúc $(date)!"
