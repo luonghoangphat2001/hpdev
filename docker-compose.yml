@@ -1,0 +1,101 @@
+services:
+  db:
+    image: mariadb:10.11
+    container_name: dan-ai-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: dan_ai
+      MARIADB_USER: dan_ai
+      MARIADB_PASSWORD: dan_ai
+      MARIADB_ROOT_PASSWORD: root
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "3308:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$$MARIADB_USER -p$$MARIADB_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dan-ai-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: dan_ai
+      DB_PASSWORD: dan_ai
+      DB_NAME: dan_ai
+      PORT: 3000
+      OPENCLAW_URL: http://openclaw:4000
+    ports:
+      - "8003:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      openclaw:
+        condition: service_started
+    command: sh -c "(npm ls --omit=dev --depth=0 >/dev/null 2>&1 || npm install --omit=dev --no-audit --no-fund) && exec node app.js"
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dan-ai-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: dan_ai
+      DB_PASSWORD: dan_ai
+      DB_NAME: dan_ai
+      OPENCLAW_URL: http://openclaw:4000
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "(npm ls --omit=dev --depth=0 >/dev/null 2>&1 || npm install --omit=dev --no-audit --no-fund) && exec node bot.js"
+
+  openclaw:
+    build:
+      context: ../openclaw
+      dockerfile: Dockerfile
+    container_name: openclaw
+    restart: unless-stopped
+    env_file:
+      - ../openclaw/.env
+    environment:
+      PORT: 4000
+      ORCHESTRATOR_DB_HOST: db
+      ORCHESTRATOR_DB_PORT: 3306
+      ORCHESTRATOR_DB_USER: dan_ai
+      ORCHESTRATOR_DB_PASSWORD: dan_ai
+      ORCHESTRATOR_DB_NAME: dan_ai
+      DAN_AI_API_URL: http://dan-ai-app:3000
+    ports:
+      - "4003:4000"
+    volumes:
+      - ../openclaw/logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    command: node src/server.js
+
+volumes:
+  db_data:

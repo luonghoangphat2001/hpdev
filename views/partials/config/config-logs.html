@@ -1,0 +1,36 @@
+<!-- 📜 Quản lý Log & Tự động dọn dẹp -->
+<div class="bg-gray-800/90 rounded-xl p-6 border border-gray-700/60 shadow-lg space-y-4">
+  <div>
+    <h2 class="font-semibold text-gray-200 flex items-center gap-2">
+      <span>📜</span> Quản lý Log & Tự động dọn dẹp (Log Retention)
+    </h2>
+    <p class="text-xs text-gray-400 mt-1">Cấu hình thời gian lưu trữ file log hệ thống (logs/YYYY-MM-DD.log). Hệ thống sẽ tự động dọn dẹp các file cũ hơn số ngày thiết lập khi khởi động hoặc khi chuyển ngày.</p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-4 items-center">
+    <div>
+      <label class="block text-xs font-semibold text-gray-300 mb-1">Số ngày lưu trữ log</label>
+      <div class="flex items-center gap-2">
+        <input type="number" id="log-retention-days" min="1" max="365" placeholder="14" class="w-28 px-3.5 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none text-sm font-semibold text-center" />
+        <span class="text-xs text-gray-400">ngày</span>
+      </div>
+      <div class="flex items-center gap-1.5 mt-2.5">
+        <span class="text-[11px] text-gray-400">Chọn nhanh:</span>
+        <button type="button" data-action="config.setLogRetentionDays" data-action-args="[7]" class="px-2 py-0.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs border border-gray-600 transition">7 ngày</button>
+        <button type="button" data-action="config.setLogRetentionDays" data-action-args="[14]" class="px-2 py-0.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs border border-gray-600 transition">14 ngày</button>
+        <button type="button" data-action="config.setLogRetentionDays" data-action-args="[30]" class="px-2 py-0.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs border border-gray-600 transition">30 ngày</button>
+        <button type="button" data-action="config.setLogRetentionDays" data-action-args="[60]" class="px-2 py-0.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs border border-gray-600 transition">60 ngày</button>
+      </div>
+    </div>
+
+    <div class="bg-gray-700/40 p-4 rounded-xl border border-gray-700 space-y-2">
+      <div class="flex items-center justify-between">
+        <span class="text-xs text-gray-300 font-medium">Dọn dẹp log thủ công:</span>
+        <button type="button" data-action="config.cleanLogsNow" class="px-3.5 py-1.5 bg-amber-600/80 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1">
+          <span>🧹</span> Dọn dẹp log cũ ngay
+        </button>
+      </div>
+      <p id="clean-logs-msg" class="text-xs font-medium text-amber-300 hidden"></p>
+    </div>
+  </div>
+</div>

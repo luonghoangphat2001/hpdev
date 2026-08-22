@@ -1,0 +1,56 @@
+name: Deploy Dan API (api.hpdev.name.vn)
+
+on:
+  push:
+    branches:
+      - api
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to api.hpdev.name.vn
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          timeout: 60s
+          command_timeout: 10m
+          script: |
+            REPO_URL="https://github.com/${{ github.repository }}.git"
+            GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+            B64_TOKEN=$(echo -n "x-access-token:$GITHUB_TOKEN" | base64 | tr -d '\n' || echo "")
+
+            setup_node_runtime() {
+              if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then return; fi
+              if [ -s "$HOME/.nvm/nvm.sh" ]; then . "$HOME/.nvm/nvm.sh"; nvm use --silent default >/dev/null 2>&1 || true; fi
+              if [ -d "$HOME/nodevenv" ]; then
+                ACTIVATE_PATH="$(find "$HOME/nodevenv" -maxdepth 3 -type f -path '*/bin/activate' 2>/dev/null | sort -V | tail -n 1)"
+                if [ -n "$ACTIVATE_PATH" ] && [ -f "$ACTIVATE_PATH" ]; then source "$ACTIVATE_PATH"; fi
+              fi
+            }
+
+            echo "==> Deploying branch api (api.hpdev.name.vn)..."
+            cd /home/hpdev/api.hpdev.name.vn
+            git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $B64_TOKEN"
+            git fetch "$REPO_URL" api
+            
+            if [ ! -d "node_modules" ] || git diff --name-only HEAD FETCH_HEAD 2>/dev/null | grep -q 'package.json'; then
+              echo "==> Cài đặt / Cập nhật dependencies cho dan-api..."
+              setup_node_runtime
+              npm install --prefer-offline --no-audit --no-fund
+            fi
+
+            git reset --hard FETCH_HEAD
+            git config --local --unset http.https://github.com/.extraheader || true
+            setup_node_runtime
+
+            mkdir -p tmp && touch tmp/restart.txt
+            pm2 reload bot 2>/dev/null || pm2 restart bot 2>/dev/null || pm2 start bot.js --name bot || true
+            pm2 save 2>/dev/null || true
+            echo "==> Deploy branch api thành công lúc $(date)!"

@@ -1,0 +1,516 @@
+/**
+ * ============================================================================
+ * Đần AI Dashboard — Custom Stylesheet
+ * Location: public/css/style.css
+ * (Dự án ưu tiên 100% Tailwind CSS Utilities)
+ * ============================================================================
+ */
+
+/* ============================================================================
+   1. Anti-Layout Shift (Zero-CLS) for Logos & Avatars
+   ============================================================================ */
+.dan-logo-img {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+
+.dan-avatar-lg {
+  width: 80px !important;
+  height: 80px !important;
+  min-width: 80px !important;
+  min-height: 80px !important;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+
+/* ============================================================================
+   2. Custom Sleek Scrollbars (Cross-browser)
+   ============================================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 transparent;
+}
+
+textarea {
+  scrollbar-width: thin;
+}
+
+/* Mobile Drawer Sidebar (< 768px) */
+@media (max-width: 767px) {
+  .app-sidebar {
+    position: fixed !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    width: 17rem !important;
+    min-width: 17rem !important;
+    max-width: 85vw;
+    height: 100vh;
+    height: 100dvh;
+    transform: translateX(-100%);
+    transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  }
+
+  .app-sidebar.sidebar-mobile-open {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Desktop Collapsible Sidebar (>= 768px) */
+@media (min-width: 768px) {
+  .app-sidebar {
+    width: 14rem;
+    min-width: 14rem;
+    height: 100vh;
+    transition: width 180ms ease, min-width 180ms ease;
+  }
+
+  .app-sidebar.sidebar-collapsed {
+    width: 4.5rem;
+    min-width: 4.5rem;
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-label,
+  .app-sidebar.sidebar-collapsed .sidebar-section-label,
+  .app-sidebar.sidebar-collapsed .sidebar-version,
+  .app-sidebar.sidebar-collapsed .sidebar-user-details {
+    display: none;
+  }
+
+  .app-sidebar.sidebar-collapsed .nav-item {
+    justify-content: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-header {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-dropdown-submenu {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .app-sidebar.sidebar-collapsed .sidebar-dropdown-chevron {
+    display: none;
+  }
+
+  .app-sidebar.sidebar-collapsed > div:last-child {
+    flex-direction: column;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+.app-sidebar .sidebar-icon {
+  display: inline-flex;
+  width: 1.25rem;
+  justify-content: center;
+  flex: 0 0 1.25rem;
+}
+
+.app-sidebar .sidebar-dropdown-menu > summary {
+  list-style: none;
+}
+
+.app-sidebar .sidebar-dropdown-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.app-sidebar .sidebar-dropdown-chevron {
+  display: inline-block;
+  transition: transform 260ms ease;
+}
+
+.app-sidebar .sidebar-dropdown-menu[open] .sidebar-dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+/* Mobile Safe-Area & Touch Optimization */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+@media (max-width: 640px) {
+  /* Prevent iOS Safari unwanted auto-zoom on input focus */
+  #page-chat textarea,
+  #page-chat input,
+  #page-learning input,
+  #page-learning select,
+  #page-users input,
+  #page-users select,
+  #page-config input,
+  #page-config select {
+    font-size: 16px !important;
+  }
+}
+
+/* ============================================================================
+   3. User Custom Overrides
+   (Thêm các style tùy biến cá nhân của bạn bên dưới nếu cần)
+   ============================================================================ */
+/* Learning Hub: high-contrast reading theme requested for long study sessions. */
+#page-learning.learning-readable {
+  color: #fffdf5;
+  font-family: Roboto, "Segoe UI", Arial, sans-serif;
+  font-size: 14.4px;
+  line-height: 1.55;
+  max-height: 100%;
+  overscroll-behavior-y: contain;
+  background:
+    radial-gradient(circle at top right, rgba(79, 70, 229, 0.18), transparent 34rem),
+    #111827;
+}
+
+/* Keep mouse-wheel/touch scrolling inside Learning instead of chaining outward. */
+#page-learning.learning-readable .overflow-y-auto,
+#page-learning.learning-readable .overflow-auto {
+  overscroll-behavior: contain;
+}
+
+#page-learning .english-tabs-scroll > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+#page-learning .quiz-toolbar-scroll button,
+#page-learning .quiz-toolbar-scroll select {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+#page-learning #english-sub-quiz > .quiz-toolbar-scroll {
+  overflow-y: hidden;
+}
+
+#page-learning #vocab-words-scroll {
+  max-height: clamp(380px, 62vh, 720px);
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+#page-learning .practice-learning-option {
+  border-color: rgb(55 65 81 / 0.9);
+  background: rgb(17 24 39 / 0.72);
+  color: rgb(209 213 219);
+}
+
+#page-learning .practice-learning-input {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  opacity: 0 !important;
+}
+
+#page-learning .practice-learning-option:hover {
+  border-color: rgb(99 102 241);
+  background: rgb(31 41 55 / 0.95);
+}
+
+#page-learning .practice-learning-option:has(input:checked) {
+  border-color: rgb(99 102 241);
+  background: linear-gradient(135deg, rgb(79 70 229 / 0.42), rgb(49 46 129 / 0.3));
+  box-shadow: 0 0 0 2px rgb(99 102 241 / 0.28), 0 10px 24px rgb(30 27 75 / 0.24);
+}
+
+#page-learning .practice-learning-count {
+  color: rgb(107 114 128);
+}
+
+#page-learning .practice-learning-option:has(input:checked) .practice-learning-count {
+  color: rgb(199 210 254);
+}
+
+#page-learning .practice-learning-option:focus-within {
+  outline: 2px solid rgb(129 140 248);
+  outline-offset: 2px;
+}
+
+/* The English collapse control also hides the active Quiz command bar. */
+#page-learning #english-tools-panel:not([open]) ~ #english-sub-quiz > .quiz-toolbar-scroll {
+  display: none;
+}
+
+#page-learning .tech-study-layout {
+  width: 100%;
+  max-width: 68rem;
+  margin-inline: auto;
+}
+
+#page-learning #tech-detail-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+#page-learning #tech-detail-content {
+  max-height: calc(100dvh - 16rem);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 640px) {
+  #page-learning #tech-detail-content {
+    max-height: calc(100vh - 14rem);
+  }
+}
+
+#page-learning #tech-detail-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+#page-learning #tech-detail-actions > button,
+#page-learning #tech-detail-actions > span {
+  min-height: 2.5rem;
+}
+
+/* Code blocks in learning auto-wrap onto new lines when not enough width */
+#page-learning pre {
+  max-width: 100% !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  overflow-x: hidden !important;
+}
+
+#page-learning pre code {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  display: block;
+}
+
+/* View tabs must fully replace one another; the grid rule above must not
+   override Tailwind's hidden state on the question view. */
+#page-learning #tech-split-view.hidden,
+#page-learning #tech-flashcard-view.hidden,
+#page-learning #tech-practice-exam.hidden {
+  display: none !important;
+}
+
+#page-learning .learning-tools-toggle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  list-style: none !important;
+  height: 1.75rem;
+  width: 2.5rem;
+  margin-inline: auto !important;
+  margin-top: -0.25rem;
+  margin-bottom: 0.125rem;
+  padding: 0 !important;
+  animation:
+    learning-tools-appear 1.4s ease-out both,
+    learning-tools-float 2.8s ease-in-out 1.4s infinite;
+}
+
+#page-learning .learning-tools-toggle::-webkit-details-marker {
+  display: none !important;
+}
+
+#page-learning .learning-tools-chevron {
+  display: block;
+  transform-origin: center center;
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#page-learning .tools-expanded .learning-tools-chevron {
+  transform: rotate(180deg);
+}
+
+#page-learning .learning-tools-content {
+  display: grid !important;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    grid-template-rows 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 500ms ease;
+}
+
+#page-learning details[open] > .learning-tools-content {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+#page-learning .learning-tools-content-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@keyframes learning-tools-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 3px; }
+}
+
+@keyframes learning-tools-appear {
+  from {
+    opacity: 0;
+    scale: 0.75;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #page-learning .learning-tools-toggle {
+    animation: none;
+  }
+}
+
+
+#page-learning.learning-readable button,
+#page-learning.learning-readable input,
+#page-learning.learning-readable select,
+#page-learning.learning-readable textarea {
+  font-family: Roboto, "Segoe UI", Arial, sans-serif;
+  letter-spacing: 0.015em;
+}
+
+#page-learning.learning-readable .text-xs {
+  font-size: 0.855rem !important;
+  line-height: 1.4rem !important;
+}
+
+#page-learning.learning-readable [class~="text-[11px]"] {
+  font-size: 0.81rem !important;
+  line-height: 1.3rem !important;
+}
+
+#page-learning.learning-readable [class~="text-[10px]"] {
+  font-size: 0.738rem !important;
+  line-height: 1.2rem !important;
+}
+
+#page-learning.learning-readable .text-gray-100,
+#page-learning.learning-readable .text-gray-200,
+#page-learning.learning-readable .text-gray-300 {
+  color: #fffdf5 !important;
+}
+
+#page-learning.learning-readable .text-gray-400 {
+  color: #e5e7eb !important;
+}
+
+#page-learning.learning-readable .text-gray-500 {
+  color: #cbd5e1 !important;
+}
+
+#page-learning.learning-readable .text-indigo-300,
+#page-learning.learning-readable .text-indigo-400 {
+  color: #c7d2fe !important;
+}
+
+#page-learning.learning-readable .text-emerald-300,
+#page-learning.learning-readable .text-emerald-400 {
+  color: #a7f3d0 !important;
+}
+
+#page-learning.learning-readable .text-rose-300,
+#page-learning.learning-readable .text-rose-400 {
+  color: #fecdd3 !important;
+}
+
+#page-learning.learning-readable .text-amber-300,
+#page-learning.learning-readable .text-amber-400 {
+  color: #fde68a !important;
+}
+
+#page-learning.learning-readable .bg-gray-800\/90,
+#page-learning.learning-readable .bg-gray-800\/80 {
+  background-color: rgba(31, 41, 55, 0.96) !important;
+}
+
+#page-learning.learning-readable .border-gray-700,
+#page-learning.learning-readable .border-gray-700\/80,
+#page-learning.learning-readable .border-gray-700\/60 {
+  border-color: #64748b !important;
+}
+
+#page-learning.learning-readable input::placeholder,
+#page-learning.learning-readable textarea::placeholder {
+  color: #cbd5e1 !important;
+  opacity: 0.9;
+}
+
+#page-learning.learning-readable code,
+#page-learning.learning-readable pre,
+#page-learning.learning-readable .font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+#page-learning.learning-readable h1,
+#page-learning.learning-readable h2,
+#page-learning.learning-readable h3,
+#page-learning.learning-readable h4,
+#page-learning.learning-readable button,
+#page-learning.learning-readable label,
+#page-learning.learning-readable select {
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================================================
+ * Stats Dropdown / Accordion Enhancements
+ * ============================================================================ */
+.group\/stat > summary {
+  list-style: none;
+}
+
+.group\/stat > summary::-webkit-details-marker {
+  display: none;
+}
+
+.group\/stat .stat-chevron {
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group\/stat[open] .stat-chevron {
+  transform: rotate(180deg);
+}

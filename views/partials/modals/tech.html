@@ -1,0 +1,231 @@
+<!-- MODALS: TECH LEARNING SUITE -->
+
+<!-- MODAL: AI QUESTION GENERATOR -->
+<div id="tech-ai-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-gray-800 border border-gray-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 my-8">
+    <div class="flex items-center justify-between border-b border-gray-700 pb-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">✨</span>
+        <h2 class="font-bold text-lg text-white">AI Tạo Câu Hỏi Kỹ Thuật</h2>
+      </div>
+      <button data-action="tech.closeAiModal" class="text-gray-400 hover:text-white text-xl">✕</button>
+    </div>
+
+    <div class="space-y-4 text-sm">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Tech Stack</label>
+          <select id="tech-ai-stack" class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 text-xs">
+            <option value="php">🐘 PHP</option>
+            <option value="nextjs">▲ Next.js</option>
+            <option value="python">🐍 Python</option>
+            <option value="reactjs">⚛️ React.js</option>
+            <option value="javascript">🟨 JavaScript</option>
+            <option value="nodejs">🟩 Node.js</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1">Cấp độ (Level)</label>
+          <select id="tech-ai-level" class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 text-xs">
+            <option value="junior">⚡ Junior</option>
+            <option value="fresher">🌱 Fresher</option>
+            <option value="mid">🚀 Mid-Level</option>
+            <option value="senior">👑 Senior / Architect</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Chuyên đề / Từ khóa trọng tâm (Tùy chọn)</label>
+        <input id="tech-ai-topic" type="text" placeholder="Ví dụ: Event Loop, Memory Leaks, Server Actions, SQL Injection..."
+          class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 text-xs" />
+      </div>
+
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Yêu cầu tùy biến đặc thù (Tùy chọn)</label>
+        <textarea id="tech-ai-custom-prompt" rows="2" placeholder="Ví dụ: Tạo câu hỏi tình huống thực tế khi gặp lỗi N+1 Query trong Laravel kèm code tối ưu..."
+          class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 text-xs resize-none"></textarea>
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-gray-400">Sinh hàng loạt:</label>
+          <select id="tech-ai-batch-count" class="px-2 py-1 bg-gray-700 rounded border border-gray-600 text-xs">
+            <option value="1">1 câu hỏi</option>
+            <option value="3">3 câu hỏi</option>
+            <option value="5">5 câu hỏi</option>
+          </select>
+        </div>
+        <button id="tech-ai-submit-btn" data-action="tech.generateWithAI"
+          class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl text-xs transition shadow-lg flex items-center gap-2">
+          <span>✨</span> Bắt đầu tạo
+        </button>
+      </div>
+
+      <!-- Loading state & Result preview container -->
+      <div id="tech-ai-result-box" class="hidden border-t border-gray-700 pt-4 space-y-3"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: AI MOCK INTERVIEW -->
+<div id="tech-mock-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-gray-800 border border-gray-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 my-8">
+    <div class="flex items-center justify-between border-b border-gray-700 pb-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🎯</span>
+        <h2 class="font-bold text-lg text-white">Đần AI Phỏng Vấn Giả Lập</h2>
+      </div>
+      <button data-action="tech.closeMockModal" class="text-gray-400 hover:text-white text-xl">✕</button>
+    </div>
+
+    <div id="tech-mock-question-box" class="p-4 bg-gray-900/90 rounded-xl border border-gray-700 text-sm text-gray-200"></div>
+
+    <div>
+      <label class="block text-xs font-semibold text-gray-300 mb-1.5">Câu trả lời của bạn (Hãy trả lời như đang trong buổi phỏng vấn thật):</label>
+      <textarea id="tech-mock-answer" rows="5" placeholder="Nhập câu trả lời của bạn vào đây..."
+        class="w-full px-3.5 py-3 bg-gray-700/80 rounded-xl border border-gray-600 focus:outline-none focus:border-indigo-500 text-sm text-white resize-none"></textarea>
+    </div>
+
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-gray-400">Đần AI sẽ đóng vai Senior Interviewer để chấm điểm & góp ý.</span>
+      <button id="tech-mock-submit-btn" data-action="tech.submitMockInterview"
+        class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl text-xs text-white transition flex items-center gap-2">
+        <span>🎯</span> Chấm điểm câu trả lời
+      </button>
+    </div>
+
+    <div id="tech-mock-feedback-box" class="hidden border-t border-gray-700 pt-4 space-y-3"></div>
+  </div>
+</div>
+
+<!-- MODAL: CRUD QUESTION FORM -->
+<div id="tech-crud-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-gray-800 border border-gray-700 rounded-2xl max-w-3xl w-full p-6 shadow-2xl space-y-4 my-8 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between border-b border-gray-700 pb-3">
+      <h2 id="tech-crud-title" class="font-bold text-lg text-white">Thêm câu hỏi mới</h2>
+      <button data-action="tech.closeCrudModal" class="text-gray-400 hover:text-white text-xl">✕</button>
+    </div>
+
+    <form id="tech-crud-form" data-submit-action="tech.saveCrudQuestion" data-pass-event="true" class="space-y-4 text-xs">
+      <input type="hidden" id="tech-crud-id" value="" />
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <label class="block text-gray-400 mb-1">Tech Stack *</label>
+          <select id="tech-crud-stack" class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500">
+            <option value="1">PHP (🐘)</option>
+            <option value="2">Next.js (▲)</option>
+            <option value="3">Python (🐍)</option>
+            <option value="4">React.js (⚛️)</option>
+            <option value="5">JavaScript (🟨)</option>
+            <option value="6">Node.js (🟩)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1">Cấp độ *</label>
+          <select id="tech-crud-level" class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500">
+            <option value="junior">Junior</option>
+            <option value="fresher">Fresher</option>
+            <option value="mid">Mid-Level</option>
+            <option value="senior">Senior</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1">Chuyên đề (Topic)</label>
+          <input id="tech-crud-topic" type="text" placeholder="Core, Async, DB..."
+            class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-gray-400 mb-1">Tiêu đề câu hỏi *</label>
+        <input id="tech-crud-q-title" type="text" required placeholder="Tiêu đề súc tích"
+          class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 text-sm" />
+      </div>
+
+      <div>
+        <label class="block text-gray-400 mb-1">Nội dung câu hỏi chi tiết *</label>
+        <textarea id="tech-crud-question" rows="2" required placeholder="Đề bài câu hỏi..."
+          class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-gray-400 mb-1">⚡ Trả lời nhanh 30s phỏng vấn (Quick Pitch) *</label>
+        <textarea id="tech-crud-quick-answer" rows="3" required placeholder="Tóm tắt trọng tâm để trả lời trong 30s..."
+          class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-gray-400 mb-1">🔬 Phân tích chuyên sâu & Cơ chế hoạt động (Deep-dive)</label>
+        <textarea id="tech-crud-detailed-answer" rows="4" placeholder="Giải thích chi tiết dưới dạng Markdown..."
+          class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 resize-none font-mono"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-gray-400 mb-1">💻 Đoạn Code minh họa (Code Example)</label>
+        <textarea id="tech-crud-code" rows="4" placeholder="Code snippet..."
+          class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 resize-none font-mono"></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-gray-400 mb-1">⚠️ Bẫy phỏng vấn (Interview Traps & Follow-up)</label>
+          <textarea id="tech-crud-interview-tips" rows="2" placeholder="Những bẫy interviewer hay hỏi..."
+            class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-gray-400 mb-1">🛠️ Lưu ý thực chiến (Practical Tips)</label>
+          <textarea id="tech-crud-practical-tips" rows="2" placeholder="Kinh nghiệm khi làm dự án thực tế..."
+            class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-gray-400 mb-1">Tags (phân cách bởi dấu phẩy)</label>
+        <input id="tech-crud-tags" type="text" placeholder="PHP, OOP, Async, Security..."
+          class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500" />
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-700">
+        <button type="button" data-action="tech.closeCrudModal" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-xl font-semibold">Hủy</button>
+        <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold">Lưu câu hỏi</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: IMPORT EXCEL -->
+<div id="tech-import-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-gray-800 border border-gray-700 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+    <div class="flex items-center justify-between border-b border-gray-700 pb-3">
+      <h2 class="font-bold text-lg text-white">📥 Import Câu Hỏi từ Excel</h2>
+      <button data-action="tech.closeImportModal" class="text-gray-400 hover:text-white text-xl">✕</button>
+    </div>
+    <div class="space-y-3 text-xs">
+      <div>
+        <label class="block text-gray-400 mb-1">Default Tech Stack</label>
+        <select id="tech-import-default-stack" class="w-full px-3 py-2 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-indigo-500">
+          <option value="php">PHP</option>
+          <option value="nextjs">Next.js</option>
+          <option value="python">Python</option>
+          <option value="reactjs">React.js</option>
+          <option value="javascript">JavaScript</option>
+          <option value="nodejs">Node.js</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-gray-400 mb-1">File Excel (.xlsx, .xls)</label>
+        <input id="tech-import-file" type="file" accept=".xlsx,.xls"
+          class="w-full text-xs text-gray-300 file:mr-3 file:rounded-lg file:border-0 file:bg-gray-700 file:px-3 file:py-1.5 file:text-gray-200 hover:file:bg-gray-600 cursor-pointer" />
+      </div>
+      <p class="text-gray-500 leading-relaxed">
+        Các cột hỗ trợ: Stack, Tiêu đề, Câu hỏi, Trả lời nhanh, Phân tích sâu, Code ví dụ, Bẫy phỏng vấn, Lưu ý thực chiến, Level, Tags, Chuyên đề.
+      </p>
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-700">
+        <button type="button" data-action="tech.closeImportModal" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-xl font-semibold">Đóng</button>
+        <button type="button" data-action="tech.submitImportExcel" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold">Bắt đầu Import</button>
+      </div>
+      <div id="tech-import-msg" class="hidden text-xs font-semibold mt-2"></div>
+    </div>
+  </div>
+</div>
