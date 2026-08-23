@@ -24,12 +24,6 @@
                                 <option value="advanced">Advanced / Senior</option>
                             </select>
 
-                            <!-- Question List Button -->
-                            <button @click="questionDrawerOpen = true" class="h-10 px-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 shadow-sm shrink-0" title="Xem danh sách tất cả câu hỏi">
-                                <i class="fa-solid fa-list-check text-xs"></i>
-                                <span>Danh sách câu ({{ learningStore.techQuestions.length }})</span>
-                            </button>
-
                             <!-- Bookmark Filter -->
                             <button @click="toggleTechBookmark" class="h-10 px-3 rounded-xl border text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 shrink-0" :class="learningStore.filterBookmark ? 'bg-amber-100 dark:bg-amber-900/50 border-amber-400 dark:border-amber-600 text-amber-800 dark:text-amber-300' : 'bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300'">
                                 <i class="fa-solid fa-bookmark text-xs"></i>
