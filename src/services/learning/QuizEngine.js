@@ -110,6 +110,8 @@ class QuizEngine {
     return {
       wordId,
       isCorrect,
+      isLearned: isCorrect,
+      status: isCorrect ? 'mastered' : 'studying',
       expected,
       scoreDelta,
       userStats: updatedStats,
@@ -129,6 +131,18 @@ class QuizEngine {
    */
   async getLeaderboard(limit = 10) {
     return this.#quizRepo.getLeaderboard(limit);
+  }
+
+  /**
+   * Get quiz history for a specific user.
+   * @param {string} userId
+   * @param {{ limit?: number, offset?: number }} [opts]
+   */
+  async getUserHistory(userId, opts = {}) {
+    if (typeof this.#quizRepo.getUserQuizHistory === 'function') {
+      return this.#quizRepo.getUserQuizHistory(userId, opts);
+    }
+    return { history: [], total: 0 };
   }
 
   // ── Question Builders ─────────────────────────────────────

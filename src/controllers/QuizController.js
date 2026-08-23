@@ -13,6 +13,7 @@ class QuizController {
     this.generate = this.generate.bind(this);
     this.submit = this.submit.bind(this);
     this.leaderboard = this.leaderboard.bind(this);
+    this.history = this.history.bind(this);
   }
 
   async generate(req, res) {
@@ -51,6 +52,18 @@ class QuizController {
       const limit = req.query.limit || 10;
       const rankings = await this.#quizEngine.getLeaderboard(limit);
       res.json({ ok: true, rankings });
+    } catch (err) {
+      res.status(500).json({ ok: false, error: err.message });
+    }
+  }
+
+  async history(req, res) {
+    try {
+      const userId = req.session?.userId ? String(req.session.userId) : (req.query.user_id || 'admin_user');
+      const limit = Number(req.query.limit || 20);
+      const offset = Number(req.query.offset || 0);
+      const result = await this.#quizEngine.getUserHistory(userId, { limit, offset });
+      res.json({ ok: true, ...result });
     } catch (err) {
       res.status(500).json({ ok: false, error: err.message });
     }

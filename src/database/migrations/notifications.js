@@ -19,6 +19,8 @@ module.exports = async function initializeNotifications(db, helpers) {
         attempt_count   INT NOT NULL DEFAULT 0,
         last_error      VARCHAR(500),
         created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at      DATETIME NULL,
         sent_at         DATETIME,
         INDEX idx_delivery (status, created_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4

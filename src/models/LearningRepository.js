@@ -36,8 +36,9 @@ class LearningRepository {
   /**
    * @param {string|number} categoryIdOrSlug
    * @param {string|null} [type]
+   * @param {string} [username]
    */
-  async findLearnings(categoryIdOrSlug, type = null) {
+  async findLearnings(categoryIdOrSlug, type = null, username = '') {
     const params = [];
     const where = ['l.is_active = 1'];
 
@@ -54,18 +55,49 @@ class LearningRepository {
       params.push(type);
     }
 
-    return this.#db.query(
+    let selectExtra = '';
+    let joinExtra = '';
+    const userParams = [];
+
+    if (username) {
+      userParams.push(username);
+      selectExtra = `,
+        COUNT(DISTINCT CASE WHEN m.status = 'mastered' AND i.is_active = 1 THEN i.id END) AS mastered_item_count,
+        COUNT(DISTINCT CASE WHEN m.status = 'studying' AND i.is_active = 1 THEN i.id END) AS studying_item_count
+      `;
+      joinExtra = 'LEFT JOIN learning_meta_data m ON m.item_id = i.id AND m.username = ? AND m.meta_key = "progress"';
+    }
+
+    const rows = await this.#db.query(
       `SELECT l.*, c.slug AS category_slug, c.name AS category_name,
-              COUNT(i.id) AS item_count,
-              SUM(CASE WHEN i.is_active = 1 THEN 1 ELSE 0 END) AS active_item_count
+              COUNT(DISTINCT i.id) AS item_count,
+              COUNT(DISTINCT CASE WHEN i.is_active = 1 THEN i.id END) AS active_item_count
+              ${selectExtra}
        FROM learning l
        JOIN learning_category c ON c.id = l.category_id
        LEFT JOIN learning_item i ON i.learning_id = l.id AND i.type = l.type
+       ${joinExtra}
        WHERE ${where.join(' AND ')}
        GROUP BY l.id
        ORDER BY l.sort_order ASC, l.topic_no ASC, l.id ASC`,
-      params
+      [...userParams, ...params]
     );
+
+    return rows.map((r) => {
+      const activeCount = Number(r.active_item_count || 0);
+      const masteredCount = Number(r.mastered_item_count || 0);
+      const studyingCount = Number(r.studying_item_count || 0);
+      const isCompleted = activeCount > 0 && masteredCount >= activeCount;
+      const progressPercent = activeCount > 0 ? Number(((masteredCount / activeCount) * 100).toFixed(1)) : 0;
+      return {
+        ...r,
+        active_item_count: activeCount,
+        mastered_item_count: masteredCount,
+        studying_item_count: studyingCount,
+        is_completed: isCompleted,
+        progress_percent: progressPercent,
+      };
+    });
   }
 
   async findLearningBySlug(slug) {
@@ -277,7 +309,7 @@ class LearningRepository {
     );
   }
 
-  /** Append every answered quiz/exam item; history is never overwritten. */
+  /** Append every answered quiz/exam item; update learning progress and topic completion. */
   async recordItemAttempts(userId, username, quizType, attempts = []) {
     const valid = (Array.isArray(attempts) ? attempts : [])
       .map((attempt) => ({
@@ -301,7 +333,323 @@ class LearningRepository {
        VALUES ${placeholders}`,
       params
     );
+
+    // Update user learning progress for each item
+    if (username) {
+      for (const attempt of valid) {
+        if (attempt.isCorrect) {
+          await this.#db.query(
+            `INSERT INTO learning_meta_data (item_id, username, meta_key, status, score, last_activity_at)
+             VALUES (?, ?, 'progress', 'mastered', 10, NOW())
+             ON DUPLICATE KEY UPDATE
+               status = 'mastered',
+               score = COALESCE(score, 10),
+               last_activity_at = NOW()`,
+            [attempt.itemId, username]
+          );
+        } else {
+          await this.#db.query(
+            `INSERT INTO learning_meta_data (item_id, username, meta_key, status, score, last_activity_at)
+             VALUES (?, ?, 'progress', 'studying', 0, NOW())
+             ON DUPLICATE KEY UPDATE
+               status = IF(status = 'mastered', 'mastered', 'studying'),
+               last_activity_at = NOW()`,
+            [attempt.itemId, username]
+          );
+        }
+      }
+
+      // Check if any topics have now been completed
+      const itemIds = valid.map((a) => a.itemId);
+      if (itemIds.length) {
+        try {
+          const items = await this.#db.query(
+            `SELECT DISTINCT learning_id FROM learning_item WHERE id IN (${itemIds.map(() => '?').join(', ')})`,
+            itemIds
+          );
+          for (const item of items) {
+            if (item.learning_id) {
+              await this.checkTopicCompletion(item.learning_id, username);
+            }
+          }
+        } catch {
+          // Non-blocking topic completion check
+        }
+      }
+    }
+
     return valid.length;
+  }
+
+  /**
+   * Check and record topic completion if all active items in learningId are mastered.
+   * @param {number} learningId
+   * @param {string} username
+   */
+  async checkTopicCompletion(learningId, username) {
+    if (!learningId || !username) return false;
+    try {
+      const totalRow = await this.#db.queryOne(
+        'SELECT COUNT(*) AS total FROM learning_item WHERE learning_id = ? AND is_active = 1',
+        [learningId]
+      );
+      const totalActive = totalRow ? Number(totalRow.total) : 0;
+      if (totalActive <= 0) return false;
+
+      const masteredRow = await this.#db.queryOne(
+        `SELECT COUNT(DISTINCT i.id) AS mastered_count
+         FROM learning_item i
+         JOIN learning_meta_data m ON m.item_id = i.id AND m.username = ? AND m.meta_key = 'progress' AND m.status = 'mastered'
+         WHERE i.learning_id = ? AND i.is_active = 1`,
+        [username, learningId]
+      );
+      const masteredCount = masteredRow ? Number(masteredRow.mastered_count) : 0;
+
+      if (masteredCount >= totalActive) {
+        await this.#db.query(
+          `INSERT INTO learning_meta_data (item_id, username, meta_key, status, score, last_activity_at)
+           VALUES (?, ?, 'topic_progress', 'completed', 100, NOW())
+           ON DUPLICATE KEY UPDATE
+             status = 'completed',
+             last_activity_at = NOW()`,
+          [learningId, username]
+        );
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Find paginated learning history for users/admin.
+   * @param {object} [filters]
+   */
+  async findLearningHistory(filters = {}) {
+    const where = [];
+    const params = [];
+
+    if (filters.userId) {
+      where.push('r.user_id = ?');
+      params.push(String(filters.userId));
+    }
+    if (filters.username) {
+      where.push('r.username = ?');
+      params.push(String(filters.username));
+    }
+    if (filters.quizType || filters.type) {
+      where.push('r.quiz_type = ?');
+      params.push(filters.quizType || filters.type);
+    }
+    if (filters.isCorrect !== undefined && filters.isCorrect !== null && filters.isCorrect !== '') {
+      where.push('r.is_correct = ?');
+      params.push([true, 1, '1', 'true'].includes(filters.isCorrect) ? 1 : 0);
+    }
+    if (filters.learningSlug) {
+      where.push('l.slug = ?');
+      params.push(filters.learningSlug);
+    }
+    if (filters.categorySlug) {
+      where.push('c.slug = ?');
+      params.push(filters.categorySlug);
+    }
+    if (filters.startDate) {
+      where.push('r.created_at >= ?');
+      params.push(filters.startDate);
+    }
+    if (filters.endDate) {
+      where.push('r.created_at <= ?');
+      params.push(filters.endDate);
+    }
+    if (filters.search) {
+      where.push('(i.title LIKE ? OR l.name LIKE ?)');
+      const q = `%${filters.search.trim()}%`;
+      params.push(q, q);
+    }
+
+    const sqlWhere = where.length ? `WHERE ${where.join(' AND ')}` : '';
+    const limit = Math.min(Math.max(Number(filters.limit || 20), 1), 100);
+    const offset = Math.max(Number(filters.offset || 0), 0);
+
+    const rows = await this.#db.query(
+      `SELECT r.id, r.item_id, r.user_id, r.username, r.quiz_type, r.is_correct, r.score_delta, r.created_at,
+              i.title AS item_title, i.type AS item_type, i.level AS item_level,
+              l.id AS learning_id, l.name AS learning_name, l.slug AS learning_slug, l.topic_no,
+              c.name AS category_name, c.slug AS category_slug,
+              m.status AS current_status
+       FROM learning_quiz_result r
+       JOIN learning_item i ON i.id = r.item_id
+       JOIN learning l ON l.id = i.learning_id
+       JOIN learning_category c ON c.id = l.category_id
+       LEFT JOIN learning_meta_data m ON m.item_id = i.id AND m.username = r.username AND m.meta_key = 'progress'
+       ${sqlWhere}
+       ORDER BY r.created_at DESC, r.id DESC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+
+    return rows.map((r) => ({
+      ...r,
+      is_correct: Boolean(r.is_correct),
+    }));
+  }
+
+  /**
+   * Count learning history rows matching filters.
+   * @param {object} [filters]
+   */
+  async countLearningHistory(filters = {}) {
+    const where = [];
+    const params = [];
+
+    if (filters.userId) {
+      where.push('r.user_id = ?');
+      params.push(String(filters.userId));
+    }
+    if (filters.username) {
+      where.push('r.username = ?');
+      params.push(String(filters.username));
+    }
+    if (filters.quizType || filters.type) {
+      where.push('r.quiz_type = ?');
+      params.push(filters.quizType || filters.type);
+    }
+    if (filters.isCorrect !== undefined && filters.isCorrect !== null && filters.isCorrect !== '') {
+      where.push('r.is_correct = ?');
+      params.push([true, 1, '1', 'true'].includes(filters.isCorrect) ? 1 : 0);
+    }
+    if (filters.learningSlug) {
+      where.push('l.slug = ?');
+      params.push(filters.learningSlug);
+    }
+    if (filters.categorySlug) {
+      where.push('c.slug = ?');
+      params.push(filters.categorySlug);
+    }
+    if (filters.startDate) {
+      where.push('r.created_at >= ?');
+      params.push(filters.startDate);
+    }
+    if (filters.endDate) {
+      where.push('r.created_at <= ?');
+      params.push(filters.endDate);
+    }
+    if (filters.search) {
+      where.push('(i.title LIKE ? OR l.name LIKE ?)');
+      const q = `%${filters.search.trim()}%`;
+      params.push(q, q);
+    }
+
+    const sqlWhere = where.length ? `WHERE ${where.join(' AND ')}` : '';
+    const row = await this.#db.queryOne(
+      `SELECT COUNT(*) AS total
+       FROM learning_quiz_result r
+       JOIN learning_item i ON i.id = r.item_id
+       JOIN learning l ON l.id = i.learning_id
+       JOIN learning_category c ON c.id = l.category_id
+       ${sqlWhere}`,
+      params
+    );
+
+    return row ? Number(row.total) : 0;
+  }
+
+  /**
+   * Get learning summary statistics for a user account.
+   * @param {string} userId
+   * @param {string} username
+   */
+  async getUserLearningSummary(userId, username) {
+    const safeUserId = String(userId || '');
+    const safeUsername = String(username || '');
+
+    // Quiz result attempts aggregate
+    const attemptStats = await this.#db.queryOne(
+      `SELECT COUNT(*) AS total_attempts,
+              SUM(is_correct = 1) AS correct_count,
+              SUM(is_correct = 0) AS wrong_count,
+              COUNT(DISTINCT item_id) AS distinct_items_practiced,
+              MAX(created_at) AS last_attempt_at
+       FROM learning_quiz_result
+       WHERE user_id = ? OR username = ?`,
+      [safeUserId, safeUsername]
+    );
+
+    const totalAttempts = attemptStats ? Number(attemptStats.total_attempts || 0) : 0;
+    const correctCount = attemptStats ? Number(attemptStats.correct_count || 0) : 0;
+    const wrongCount = attemptStats ? Number(attemptStats.wrong_count || 0) : 0;
+    const accuracyRate = totalAttempts > 0 ? Number(((correctCount / totalAttempts) * 100).toFixed(1)) : 0;
+
+    // Item progress stats from learning_meta_data
+    const progressStats = await this.#db.queryOne(
+      `SELECT SUM(CASE WHEN status = 'mastered' THEN 1 ELSE 0 END) AS mastered_count,
+              SUM(CASE WHEN status = 'studying' THEN 1 ELSE 0 END) AS studying_count,
+              COUNT(DISTINCT item_id) AS total_tracked_items
+       FROM learning_meta_data
+       WHERE username = ? AND meta_key = 'progress'`,
+      [safeUsername]
+    );
+
+    // Completed topics count
+    const completedTopicsRow = await this.#db.queryOne(
+      `SELECT COUNT(DISTINCT item_id) AS completed_topics
+       FROM learning_meta_data
+       WHERE username = ? AND meta_key = 'topic_progress' AND status = 'completed'`,
+      [safeUsername]
+    );
+
+    // User quiz stats (streak, total score)
+    const quizStats = await this.#db.queryOne(
+      `SELECT total_score, correct_count, wrong_count, streak_days, last_active_date
+       FROM user_quiz_stats
+       WHERE user_id = ? OR username = ?`,
+      [safeUserId, safeUsername]
+    );
+
+    // Category breakdown
+    const categoryStats = await this.#db.query(
+      `SELECT c.id AS category_id, c.name AS category_name, c.slug AS category_slug,
+              COUNT(DISTINCT i.id) AS total_items,
+              COUNT(DISTINCT CASE WHEN m.status = 'mastered' THEN i.id END) AS mastered_items,
+              COUNT(DISTINCT CASE WHEN m.status = 'studying' THEN i.id END) AS studying_items
+       FROM learning_category c
+       JOIN learning l ON l.category_id = c.id AND l.is_active = 1
+       JOIN learning_item i ON i.learning_id = l.id AND i.is_active = 1
+       LEFT JOIN learning_meta_data m ON m.item_id = i.id AND m.username = ? AND m.meta_key = 'progress'
+       WHERE c.is_active = 1
+       GROUP BY c.id
+       ORDER BY c.sort_order ASC, c.id ASC`,
+      [safeUsername]
+    );
+
+    const categories = Array.isArray(categoryStats) ? categoryStats.map((c) => {
+      const total = Number(c.total_items || 0);
+      const mastered = Number(c.mastered_items || 0);
+      return {
+        ...c,
+        total_items: total,
+        mastered_items: mastered,
+        studying_items: Number(c.studying_items || 0),
+        progress_percent: total > 0 ? Number(((mastered / total) * 100).toFixed(1)) : 0,
+      };
+    }) : [];
+
+    return {
+      total_attempts: totalAttempts,
+      correct_count: correctCount,
+      wrong_count: wrongCount,
+      accuracy_rate: accuracyRate,
+      distinct_items_practiced: attemptStats ? Number(attemptStats.distinct_items_practiced || 0) : 0,
+      last_attempt_at: attemptStats?.last_attempt_at || null,
+      mastered_count: progressStats ? Number(progressStats.mastered_count || 0) : 0,
+      studying_count: progressStats ? Number(progressStats.studying_count || 0) : 0,
+      completed_topics_count: completedTopicsRow ? Number(completedTopicsRow.completed_topics || 0) : 0,
+      total_score: quizStats ? Number(quizStats.total_score || 0) : 0,
+      streak_days: quizStats ? Number(quizStats.streak_days || 0) : 0,
+      last_active_date: quizStats?.last_active_date || null,
+      categories,
+    };
   }
 
   /**

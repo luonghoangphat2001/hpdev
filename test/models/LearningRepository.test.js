@@ -214,4 +214,93 @@ describe('LearningRepository (4-Table Architecture)', () => {
     const sentLog = queryLog.find(q => q.sql.includes('is_sent = 1'));
     assert.ok(sentLog);
   });
+
+  it('findLearnings computes progress and completion when username is passed', async () => {
+    mockDb.query = async (sql) => {
+      if (sql.includes('FROM learning l')) {
+        return [{
+          id: 10,
+          category_id: 1,
+          type: 'tech_question',
+          slug: 'php',
+          name: 'PHP',
+          item_count: 5,
+          active_item_count: 5,
+          mastered_item_count: 5,
+          studying_item_count: 0,
+        }];
+      }
+      return [];
+    };
+
+    const learnings = await repo.findLearnings('tech', 'tech_question', 'testuser');
+    assert.strictEqual(learnings.length, 1);
+    assert.strictEqual(learnings[0].is_completed, true);
+    assert.strictEqual(learnings[0].progress_percent, 100);
+  });
+
+  it('findLearningHistory and countLearningHistory return filtered history', async () => {
+    mockDb.query = async (sql) => {
+      if (sql.includes('FROM learning_quiz_result r')) {
+        return [{
+          id: 1,
+          item_id: 101,
+          user_id: 'user-7',
+          username: 'testuser',
+          quiz_type: 'vocabulary',
+          is_correct: 1,
+          score_delta: 10,
+          item_title: 'Resilience',
+          learning_name: 'Topic 1',
+        }];
+      }
+      return [];
+    };
+    mockDb.queryOne = async (sql) => {
+      if (sql.includes('COUNT(*) AS total')) {
+        return { total: 1 };
+      }
+      return null;
+    };
+
+    const history = await repo.findLearningHistory({ userId: 'user-7', limit: 10 });
+    const count = await repo.countLearningHistory({ userId: 'user-7' });
+
+    assert.strictEqual(history.length, 1);
+    assert.strictEqual(history[0].is_correct, true);
+    assert.strictEqual(count, 1);
+  });
+
+  it('getUserLearningSummary calculates complete statistics for an account', async () => {
+    mockDb.queryOne = async (sql) => {
+      if (sql.includes('COUNT(*) AS total_attempts')) {
+        return { total_attempts: 10, correct_count: 8, wrong_count: 2, distinct_items_practiced: 10, last_attempt_at: '2026-08-23' };
+      }
+      if (sql.includes('status = \'mastered\'')) {
+        return { mastered_count: 8, studying_count: 2, total_tracked_items: 10 };
+      }
+      if (sql.includes('completed_topics')) {
+        return { completed_topics: 2 };
+      }
+      if (sql.includes('FROM user_quiz_stats')) {
+        return { total_score: 80, correct_count: 8, wrong_count: 2, streak_days: 3, last_active_date: '2026-08-23' };
+      }
+      return null;
+    };
+    mockDb.query = async (sql) => {
+      if (sql.includes('FROM learning_category c')) {
+        return [{ category_id: 1, category_name: 'Tech', total_items: 20, mastered_items: 10, studying_items: 5 }];
+      }
+      return [];
+    };
+
+    const summary = await repo.getUserLearningSummary('user-7', 'testuser');
+    assert.strictEqual(summary.total_attempts, 10);
+    assert.strictEqual(summary.correct_count, 8);
+    assert.strictEqual(summary.accuracy_rate, 80);
+    assert.strictEqual(summary.mastered_count, 8);
+    assert.strictEqual(summary.completed_topics_count, 2);
+    assert.strictEqual(summary.streak_days, 3);
+    assert.strictEqual(summary.categories[0].progress_percent, 50);
+  });
 });

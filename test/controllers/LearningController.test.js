@@ -172,4 +172,46 @@ describe('LearningController', () => {
     await controller.updateConfig({ body: { notify_tech_enabled: true } }, res2);
     assert.strictEqual(res2.jsonData.ok, true);
   });
+
+  it('history returns user learning history and summary', async () => {
+    mockLearningService.getLearningHistory = async (params) => {
+      assert.strictEqual(params.userId, '7');
+      assert.strictEqual(params.username, 'admin');
+      return {
+        history: [{ id: 1, item_title: 'Apple', is_correct: true }],
+        pagination: { total: 1, page: 1, limit: 20, totalPages: 1 },
+        summary: { total_attempts: 1, correct_count: 1, accuracy_rate: 100 },
+      };
+    };
+
+    const res = mockRes();
+    await controller.history({
+      session: { userId: 7, username: 'admin', role: 'user' },
+      query: { limit: '20' },
+    }, res);
+
+    assert.strictEqual(res.jsonData.ok, true);
+    assert.strictEqual(res.jsonData.history.length, 1);
+    assert.strictEqual(res.jsonData.summary.accuracy_rate, 100);
+  });
+
+  it('userStats returns learning stats summary', async () => {
+    mockLearningService.getUserLearningStats = async (params) => {
+      assert.strictEqual(params.userId, '7');
+      return {
+        total_attempts: 10,
+        mastered_count: 5,
+        completed_topics_count: 1,
+      };
+    };
+
+    const res = mockRes();
+    await controller.userStats({
+      session: { userId: 7, username: 'admin' },
+    }, res);
+
+    assert.strictEqual(res.jsonData.ok, true);
+    assert.strictEqual(res.jsonData.summary.mastered_count, 5);
+    assert.strictEqual(res.jsonData.summary.completed_topics_count, 1);
+  });
 });

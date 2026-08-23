@@ -18,6 +18,8 @@ module.exports = async function initializeConversations(db, helpers) {
         tokens_in INT NOT NULL DEFAULT 0,
         tokens_out INT NOT NULL DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at DATETIME NULL,
         INDEX idx_channel (channel_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);

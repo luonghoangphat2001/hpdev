@@ -18,6 +18,8 @@ module.exports = async function initializeSchedules(db, helpers) {
         repeat_type ENUM('none','daily','weekly') DEFAULT 'none',
         is_active   TINYINT      DEFAULT 1,
         created_at  DATETIME     DEFAULT CURRENT_TIMESTAMP,
+        updated_at  DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at  DATETIME     NULL,
         INDEX idx_remind (remind_at, is_active)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);

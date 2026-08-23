@@ -76,6 +76,8 @@ describe('QuizEngine', () => {
     });
 
     expect(result.isCorrect).toBe(true);
+    expect(result.isLearned).toBe(true);
+    expect(result.status).toBe('mastered');
     expect(result.scoreDelta).toBe(10);
     expect(result.explanation.word).toBe('apple');
   });
@@ -90,6 +92,20 @@ describe('QuizEngine', () => {
     });
 
     expect(result.isCorrect).toBe(false);
+    expect(result.isLearned).toBe(false);
+    expect(result.status).toBe('studying');
     expect(result.scoreDelta).toBe(0);
+  });
+
+  it('getUserHistory delegates to quizRepo.getUserQuizHistory', async () => {
+    mockQuizRepo.getUserQuizHistory = jest.fn().mockResolvedValue({
+      history: [{ id: 1, word: 'apple', is_correct: true }],
+      total: 1,
+    });
+
+    const res = await quizEngine.getUserHistory('user1', { limit: 10 });
+    expect(mockQuizRepo.getUserQuizHistory).toHaveBeenCalledWith('user1', { limit: 10 });
+    expect(res.total).toBe(1);
+    expect(res.history.length).toBe(1);
   });
 });

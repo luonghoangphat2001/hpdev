@@ -18,6 +18,8 @@ module.exports = async function initializeInsights(db, helpers) {
         result_preview TEXT,
         ai_summary     TEXT,
         created_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at     DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at     DATETIME NULL,
         INDEX idx_created (created_at)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);

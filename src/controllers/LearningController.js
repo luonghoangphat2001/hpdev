@@ -38,6 +38,8 @@ class LearningController {
     this.submitPracticeExam = this.submitPracticeExam.bind(this);
     this.submitQuiz = this.submitQuiz.bind(this);
     this.getLeaderboard = this.getLeaderboard.bind(this);
+    this.history = this.history.bind(this);
+    this.userStats = this.userStats.bind(this);
     this.fillPronunciations = this.fillPronunciations.bind(this);
     this.getConfig = this.getConfig.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
@@ -55,7 +57,8 @@ class LearningController {
   async learnings(req, res) {
     const category = req.query.category || 'tech';
     const type = req.query.type || null;
-    const learnings = await this.#learningRepo.findLearnings(category, type);
+    const username = req.session?.username || '';
+    const learnings = await this.#learningRepo.findLearnings(category, type, username);
     res.json({ ok: true, learnings });
   }
 
@@ -312,6 +315,34 @@ class LearningController {
       const limit = req.query.limit ? Number(req.query.limit) : 10;
       const leaderboard = await this.#learningRepo.getLeaderboard(limit);
       res.json({ ok: true, leaderboard });
+    } catch (err) {
+      res.status(500).json({ ok: false, error: err.message });
+    }
+  }
+
+  async history(req, res) {
+    try {
+      const username = req.session?.username || 'guest';
+      const userId = req.session?.userId ? String(req.session.userId) : username;
+      const isAdmin = req.session?.role === 'admin';
+      const result = await this.#learningService.getLearningHistory({
+        userId,
+        username,
+        isAdmin,
+        query: req.query,
+      });
+      res.json({ ok: true, ...result });
+    } catch (err) {
+      res.status(500).json({ ok: false, error: err.message });
+    }
+  }
+
+  async userStats(req, res) {
+    try {
+      const username = req.session?.username || 'guest';
+      const userId = req.session?.userId ? String(req.session.userId) : username;
+      const summary = await this.#learningService.getUserLearningStats({ userId, username });
+      res.json({ ok: true, summary });
     } catch (err) {
       res.status(500).json({ ok: false, error: err.message });
     }

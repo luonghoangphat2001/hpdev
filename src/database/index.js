@@ -12,6 +12,7 @@ const schemaMigrations = [
   require('./migrations/notifications'),
   require('./migrations/learning'),
   require('./migrations/tech'),
+  require('./migrations/timestamps'),
 ];
 
 const seeders = [

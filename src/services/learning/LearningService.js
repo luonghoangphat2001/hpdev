@@ -849,6 +849,75 @@ class LearningService {
     return this.#learningRepo.recordItemAttempts(userId, username, 'practice_exam', attempts);
   }
 
+  /**
+   * Get learning history with pagination and account summary.
+   * @param {{ userId?: string, username?: string, isAdmin?: boolean, query?: object }} opts
+   */
+  async getLearningHistory({ userId, username, isAdmin = false, query = {} }) {
+    const targetUserId = isAdmin && (query.userId || query.user_id)
+      ? String(query.userId || query.user_id)
+      : (isAdmin && (query.all === '1' || query.all === 'true') ? undefined : String(userId || username || ''));
+
+    const targetUsername = isAdmin && query.username
+      ? String(query.username)
+      : (isAdmin && (query.userId || query.user_id || query.all === '1' || query.all === 'true') ? undefined : String(username || ''));
+
+    const limit = Math.min(Math.max(Number(query.limit || 20), 1), 100);
+    const page = Math.max(1, Number(query.page || 1));
+    const offset = query.offset !== undefined ? Math.max(0, Number(query.offset)) : (page - 1) * limit;
+
+    const filters = {
+      userId: targetUserId,
+      username: targetUsername,
+      quizType: query.quiz_type || query.type,
+      isCorrect: query.is_correct !== undefined ? query.is_correct : query.correct,
+      learningSlug: query.learning || query.learning_slug,
+      categorySlug: query.category || query.category_slug,
+      search: query.search,
+      startDate: query.start_date || query.startDate,
+      endDate: query.end_date || query.endDate,
+      limit,
+      offset,
+    };
+
+    const [history, total, summary] = await Promise.all([
+      typeof this.#learningRepo.findLearningHistory === 'function'
+        ? this.#learningRepo.findLearningHistory(filters)
+        : [],
+      typeof this.#learningRepo.countLearningHistory === 'function'
+        ? this.#learningRepo.countLearningHistory(filters)
+        : 0,
+      typeof this.#learningRepo.getUserLearningSummary === 'function'
+        ? this.#learningRepo.getUserLearningSummary(targetUserId || userId, targetUsername || username)
+        : null,
+    ]);
+
+    const totalPages = Math.ceil(total / limit) || 1;
+
+    return {
+      history,
+      pagination: {
+        total,
+        page: Math.floor(offset / limit) + 1,
+        limit,
+        offset,
+        totalPages,
+      },
+      summary,
+    };
+  }
+
+  /**
+   * Get learning statistics summary for a user.
+   * @param {{ userId?: string, username?: string }} opts
+   */
+  async getUserLearningStats({ userId, username }) {
+    if (typeof this.#learningRepo.getUserLearningSummary === 'function') {
+      return this.#learningRepo.getUserLearningSummary(userId, username);
+    }
+    return null;
+  }
+
   // ─── 4. SELECTIVE DISCORD NOTIFICATIONS ──────────────────────
   getConfig() {
     const rawVocabEnabled = this.#configRepo.get('vocab_enabled');

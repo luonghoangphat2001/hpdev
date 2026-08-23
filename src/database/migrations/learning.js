@@ -18,6 +18,7 @@ module.exports = async function initializeLearning(db, helpers) {
         is_active   TINYINT DEFAULT 1,
         created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at  DATETIME NULL,
         INDEX idx_active (is_active, sort_order)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
@@ -36,6 +37,7 @@ module.exports = async function initializeLearning(db, helpers) {
         is_active   TINYINT DEFAULT 1,
         created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at  DATETIME NULL,
         INDEX idx_cat_type (category_id, type),
         INDEX idx_active (is_active, sort_order),
         CONSTRAINT fk_learning_cat FOREIGN KEY (category_id) REFERENCES learning_category(id) ON DELETE CASCADE
@@ -58,6 +60,7 @@ module.exports = async function initializeLearning(db, helpers) {
         created_by      VARCHAR(50) DEFAULT 'ai',
         created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at      DATETIME NULL,
         INDEX idx_learning_id (learning_id),
         INDEX idx_type (type),
         INDEX idx_is_sent (is_sent),
@@ -79,6 +82,7 @@ module.exports = async function initializeLearning(db, helpers) {
         last_activity_at DATETIME NULL,
         created_at       DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at       DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at       DATETIME NULL,
         UNIQUE KEY uniq_item_user_key (item_id, username, meta_key),
         INDEX idx_user_key (username, meta_key),
         CONSTRAINT fk_learning_meta_item FOREIGN KEY (item_id) REFERENCES learning_item(id) ON DELETE CASCADE
@@ -97,6 +101,8 @@ module.exports = async function initializeLearning(db, helpers) {
         error TEXT NULL,
         channel_id VARCHAR(64) NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at DATETIME NULL,
         INDEX idx_delivery_item (item_id),
         CONSTRAINT fk_delivery_item FOREIGN KEY (item_id) REFERENCES learning_item(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
@@ -113,6 +119,8 @@ module.exports = async function initializeLearning(db, helpers) {
         is_correct TINYINT(1) NOT NULL DEFAULT 0,
         score_delta INT NOT NULL DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at DATETIME NULL,
         INDEX idx_quiz_item_user (item_id, username),
         INDEX idx_quiz_user_item (user_id, item_id, created_at),
         INDEX idx_quiz_created (created_at),
@@ -138,6 +146,7 @@ module.exports = async function initializeLearning(db, helpers) {
         last_active_date DATE NULL,
         created_at       DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at       DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at       DATETIME NULL,
         INDEX idx_score (total_score DESC)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);

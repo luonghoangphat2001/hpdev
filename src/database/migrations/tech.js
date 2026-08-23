@@ -15,7 +15,9 @@ module.exports = async function initializeTech(db, helpers) {
         description TEXT,
         sort_order  INT DEFAULT 0,
         is_active   TINYINT DEFAULT 1,
-        created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at  DATETIME NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
 
@@ -30,6 +32,8 @@ module.exports = async function initializeTech(db, helpers) {
         sort_order  INT DEFAULT 0,
         is_active   TINYINT DEFAULT 1,
         created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at  DATETIME NULL,
         FOREIGN KEY (stack_id) REFERENCES tech_stacks(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     `);
@@ -57,6 +61,8 @@ module.exports = async function initializeTech(db, helpers) {
         created_by      VARCHAR(64) DEFAULT 'ai',
         is_active       TINYINT DEFAULT 1,
         created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at      DATETIME NULL,
         INDEX idx_stack_level (stack_id, level),
         INDEX idx_active (is_active),
         FOREIGN KEY (stack_id) REFERENCES tech_stacks(id) ON DELETE CASCADE,
@@ -78,6 +84,9 @@ module.exports = async function initializeTech(db, helpers) {
         personal_notes   TEXT NULL,
         last_practiced_at DATETIME NULL,
         last_studied_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at       DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at       DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at       DATETIME NULL,
         UNIQUE KEY uniq_user_question (user_id, question_id),
         FOREIGN KEY (question_id) REFERENCES tech_questions(id) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4

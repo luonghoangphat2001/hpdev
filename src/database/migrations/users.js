@@ -12,9 +12,13 @@ module.exports = async function initializeUsers(db, helpers) {
       username VARCHAR(64) NOT NULL UNIQUE,
       password_hash VARCHAR(255) NOT NULL,
       role ENUM('admin','user') NOT NULL DEFAULT 'user',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      deleted_at DATETIME NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   `);
 
   await helpers.addColumnIfMissing('users', 'last_active', 'DATETIME NULL');
+  await helpers.addColumnIfMissing('users', 'updated_at', 'DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');
+  await helpers.addColumnIfMissing('users', 'deleted_at', 'DATETIME NULL');
 };

@@ -17,6 +17,7 @@ module.exports = async function initializeAgents(db, helpers) {
         source     VARCHAR(500),
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at DATETIME NULL,
         UNIQUE KEY uniq_user_key (user_id, platform, mem_key),
         INDEX idx_user (user_id, platform)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
@@ -33,6 +34,8 @@ module.exports = async function initializeAgents(db, helpers) {
         status       ENUM('pending','running','done','failed') DEFAULT 'pending',
         result       MEDIUMTEXT,
         created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at   DATETIME NULL,
         completed_at DATETIME,
         INDEX idx_channel (channel_id),
         INDEX idx_status  (status)

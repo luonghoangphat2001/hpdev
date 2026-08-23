@@ -153,6 +153,7 @@ function createApiRouter(controllers) {
     quizRouter.get('/generate', authUser, controllers.quiz.generate);
     quizRouter.post('/submit', authUser, controllers.quiz.submit);
     quizRouter.get('/leaderboard', authUser, controllers.quiz.leaderboard);
+    quizRouter.get('/history', authUser, controllers.quiz.history);
     router.use('/quiz', quizRouter);
   }
 
@@ -194,8 +195,10 @@ function createApiRouter(controllers) {
     learningRouter.get('/items', authUser, controllers.learning.items);
     learningRouter.get('/items/:id', authUser, controllers.learning.itemDetail);
 
-    // Progress & Bookmark
+    // Progress, Bookmark, Learning History & Stats
     learningRouter.post('/items/:id/progress', authUser, controllers.learning.updateProgress);
+    learningRouter.get('/history', authUser, controllers.learning.history);
+    learningRouter.get('/stats/summary', authUser, controllers.learning.userStats);
 
     // AI Evaluation (Mock Interview, Essay grading, IELTS score)
     learningRouter.post('/ai/evaluate', authUser, controllers.learning.evaluateAI);

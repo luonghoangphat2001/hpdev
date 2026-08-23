@@ -294,4 +294,40 @@ describe('LearningService', () => {
     assert.ok(Buffer.isBuffer(buf));
     assert.ok(buf.length > 100);
   });
+
+  it('getLearningHistory fetches paginated history and summary for user', async () => {
+    mockLearningRepo.findLearningHistory = async (filters) => {
+      assert.strictEqual(filters.userId, 'user-1');
+      return [{ id: 1, item_title: 'Resilience', is_correct: true }];
+    };
+    mockLearningRepo.countLearningHistory = async () => 1;
+    mockLearningRepo.getUserLearningSummary = async () => ({
+      total_attempts: 1,
+      correct_count: 1,
+      accuracy_rate: 100,
+    });
+
+    const res = await service.getLearningHistory({
+      userId: 'user-1',
+      username: 'learner',
+      isAdmin: false,
+      query: { limit: 10 },
+    });
+
+    assert.strictEqual(res.history.length, 1);
+    assert.strictEqual(res.pagination.total, 1);
+    assert.strictEqual(res.summary.accuracy_rate, 100);
+  });
+
+  it('getUserLearningStats returns summary from repository', async () => {
+    mockLearningRepo.getUserLearningSummary = async (userId, username) => ({
+      total_attempts: 5,
+      mastered_count: 4,
+      completed_topics_count: 1,
+    });
+
+    const res = await service.getUserLearningStats({ userId: 'user-1', username: 'learner' });
+    assert.strictEqual(res.mastered_count, 4);
+    assert.strictEqual(res.completed_topics_count, 1);
+  });
 });

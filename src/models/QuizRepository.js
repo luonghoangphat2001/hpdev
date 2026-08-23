@@ -49,6 +49,7 @@ class QuizRepository {
          correct_count = correct_count + IF(VALUES(correct_count) > 0, 1, 0),
          wrong_count = wrong_count + IF(VALUES(wrong_count) > 0, 1, 0),
          streak_days = VALUES(streak_days),
+         last_activity_at = NOW(),
          last_active_date = VALUES(last_active_date)`,
       [
         userId,
@@ -61,7 +62,92 @@ class QuizRepository {
       ]
     );
 
+    // Update individual item learning progress
+    if (username) {
+      if (isCorrect) {
+        await this.#db.query(
+          `INSERT INTO learning_meta_data (item_id, username, meta_key, status, score, last_activity_at)
+           VALUES (?, ?, 'progress', 'mastered', 10, NOW())
+           ON DUPLICATE KEY UPDATE
+             status = 'mastered',
+             score = COALESCE(score, 10),
+             last_activity_at = NOW()`,
+          [wordId, username]
+        );
+      } else {
+        await this.#db.query(
+          `INSERT INTO learning_meta_data (item_id, username, meta_key, status, score, last_activity_at)
+           VALUES (?, ?, 'progress', 'studying', 0, NOW())
+           ON DUPLICATE KEY UPDATE
+             status = IF(status = 'mastered', 'mastered', 'studying'),
+             last_activity_at = NOW()`,
+          [wordId, username]
+        );
+      }
+
+      // Check if all words in this item's topic are now mastered
+      await this.checkTopicCompletionByItem(wordId, username);
+    }
+
     return this.getUserStats(userId);
+  }
+
+  /**
+   * Check if all items in the topic containing itemId are mastered.
+   * If all active items are mastered, mark the topic as completed.
+   * @param {number} itemId
+   * @param {string} username
+   */
+  async checkTopicCompletionByItem(itemId, username) {
+    if (!itemId || !username) return false;
+    try {
+      const item = await this.#db.queryOne('SELECT learning_id FROM learning_item WHERE id = ?', [itemId]);
+      if (!item || !item.learning_id) return false;
+      return this.checkTopicCompletion(item.learning_id, username);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Check and record topic completion if all active items in learningId are mastered.
+   * @param {number} learningId
+   * @param {string} username
+   */
+  async checkTopicCompletion(learningId, username) {
+    if (!learningId || !username) return false;
+    try {
+      const totalRow = await this.#db.queryOne(
+        'SELECT COUNT(*) AS total FROM learning_item WHERE learning_id = ? AND is_active = 1',
+        [learningId]
+      );
+      const totalActive = totalRow ? Number(totalRow.total) : 0;
+      if (totalActive <= 0) return false;
+
+      const masteredRow = await this.#db.queryOne(
+        `SELECT COUNT(DISTINCT i.id) AS mastered_count
+         FROM learning_item i
+         JOIN learning_meta_data m ON m.item_id = i.id AND m.username = ? AND m.meta_key = 'progress' AND m.status = 'mastered'
+         WHERE i.learning_id = ? AND i.is_active = 1`,
+        [username, learningId]
+      );
+      const masteredCount = masteredRow ? Number(masteredRow.mastered_count) : 0;
+
+      if (masteredCount >= totalActive) {
+        await this.#db.query(
+          `INSERT INTO learning_meta_data (item_id, username, meta_key, status, score, last_activity_at)
+           VALUES (?, ?, 'topic_progress', 'completed', 100, NOW())
+           ON DUPLICATE KEY UPDATE
+             status = 'completed',
+             last_activity_at = NOW()`,
+          [learningId, username]
+        );
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
   }
 
   /** @param {string} userId */
@@ -93,6 +179,42 @@ class QuizRepository {
        ORDER BY id DESC LIMIT 5`,
       [userId, wordId]
     );
+  }
+
+  /**
+   * Get paginated quiz history for a user.
+   * @param {string} userId
+   * @param {{ limit?: number, offset?: number }} [opts]
+   */
+  async getUserQuizHistory(userId, opts = {}) {
+    const limit = Math.min(Math.max(Number(opts.limit || 20), 1), 100);
+    const offset = Math.max(Number(opts.offset || 0), 0);
+
+    const rows = await this.#db.query(
+      `SELECT r.id, r.item_id, r.user_id, r.username, r.quiz_type, r.is_correct, r.score_delta, r.created_at,
+              i.title AS word, i.level,
+              JSON_UNQUOTE(JSON_EXTRACT(i.content, '$.meaning')) AS meaning,
+              l.name AS topic_name, l.topic_no, l.slug AS topic_slug
+       FROM learning_quiz_result r
+       JOIN learning_item i ON i.id = r.item_id
+       JOIN learning l ON l.id = i.learning_id
+       WHERE r.user_id = ?
+       ORDER BY r.created_at DESC, r.id DESC
+       LIMIT ? OFFSET ?`,
+      [String(userId), limit, offset]
+    );
+
+    const countRow = await this.#db.queryOne(
+      'SELECT COUNT(*) AS total FROM learning_quiz_result WHERE user_id = ?',
+      [String(userId)]
+    );
+
+    return {
+      history: rows,
+      total: countRow ? Number(countRow.total) : 0,
+      limit,
+      offset,
+    };
   }
 
   /** Aggregate correct/wrong attempts for adaptive selection. */
