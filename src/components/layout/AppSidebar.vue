@@ -9,7 +9,7 @@
                 <span v-if="!collapsed" class="sidebar-label font-bold text-white text-sm truncate">Đần AI</span>
             </router-link>
             <div class="flex items-center gap-1">
-                <span v-if="!collapsed" class="sidebar-version text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-700/80 text-gray-400 font-semibold">v2.1.0</span>
+                <span v-if="!collapsed" class="sidebar-version text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-700/80 text-gray-400 font-semibold">v2.0.0</span>
                 <button @click="toggleCollapse" type="button" class="hidden md:flex w-6 h-6 rounded-md bg-gray-700 hover:bg-indigo-600 text-gray-200 transition items-center justify-center text-xs" :title="collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'">
                     {{ collapsed ? "»" : "«" }}
                 </button>
