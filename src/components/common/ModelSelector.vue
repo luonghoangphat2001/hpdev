@@ -1,23 +1,23 @@
 <template>
     <div class="relative inline-block text-left">
-        <button @click="isOpen = !isOpen" type="button" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-800/90 hover:bg-gray-700/90 border border-gray-700 text-xs font-semibold text-gray-200 transition shadow-sm">
+        <button @click="isOpen = !isOpen" type="button" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800/90 hover:bg-gray-200 dark:hover:bg-gray-700/90 border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-800 dark:text-gray-200 transition shadow-sm">
             <span class="w-2 h-2 rounded-full" :class="activeColor"></span>
             <span>{{ activeLabel }}</span>
-            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
         </button>
 
         <div v-if="isOpen" @click="isOpen = false" class="fixed inset-0 z-40"></div>
 
-        <div v-if="isOpen" class="absolute left-0 mt-2 w-48 rounded-2xl bg-gray-800 border border-gray-700 shadow-2xl py-1 z-50 overflow-hidden">
-            <div class="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-wider border-b border-gray-700/60">Chọn Model AI</div>
-            <button v-for="m in models" :key="m.id" @click="selectModel(m.id)" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left hover:bg-gray-700/80 transition" :class="chatStore.activeModel === m.id ? 'text-indigo-400 bg-indigo-500/10' : 'text-gray-200'">
+        <div v-if="isOpen" class="absolute left-0 mt-2 w-48 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl py-1 z-50 overflow-hidden">
+            <div class="px-3 py-1.5 text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700/60">Chọn Model AI</div>
+            <button v-for="m in models" :key="m.id" @click="selectModel(m.id)" class="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left hover:bg-gray-100 dark:hover:bg-gray-700/80 transition" :class="chatStore.activeModel === m.id ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10' : 'text-gray-700 dark:text-gray-200'">
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full" :class="m.color"></span>
                     <span>{{ m.name }}</span>
                 </div>
-                <span v-if="chatStore.activeModel === m.id" class="text-indigo-400 text-xs">✓</span>
+                <i v-if="chatStore.activeModel === m.id" class="fa-solid fa-check text-indigo-600 dark:text-indigo-400 text-xs font-bold"></i>
             </button>
         </div>
     </div>

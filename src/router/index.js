@@ -31,15 +31,12 @@ const routes = [
     },
   },
   {
-    path: '/config',
-    redirect: '/config/models',
-  },
-  {
     path: '/config/:tab(models|providers|openclaw|prompts|logs)?',
     name: 'config',
     component: () => import('../views/ConfigView.vue'),
     meta: { requiresAuth: true, requiresAdmin: true },
   },
+  { path: '/config/:pathMatch(.*)*', redirect: '/config/models' },
 
   {
     path: '/schedule',

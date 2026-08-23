@@ -1,353 +1,364 @@
 <template>
-    <div id="page-config" class="flex-1 overflow-y-auto bg-gray-900 text-gray-100 touch-scroll h-full">
-        <div class="max-w-7xl mx-auto px-3.5 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6 safe-area-pb">
-            <!-- Header Section -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4 sm:pb-6 border-b border-gray-800">
+    <div id="page-config" class="flex-1 h-full overflow-y-auto bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 touch-scroll transition-colors duration-200">
+        <div class="max-w-7xl mx-auto px-3.5 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6">
+            <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-4 sm:pb-6 border-b border-gray-200 dark:border-gray-800">
                 <div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5 sm:gap-3">
-                        <span class="p-1.5 sm:p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-base sm:text-lg">⚙️</span>
-                        Cấu hình Hệ thống
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2.5 sm:gap-3">
+                        <span class="p-1.5 sm:p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-base sm:text-lg flex items-center justify-center">
+                            <i class="fa-solid fa-gear"></i>
+                        </span>
+                        <span>Cấu hình Hệ thống</span>
                     </h1>
-                    <p class="text-[11px] sm:text-xs text-gray-400 mt-1">Quản trị mô hình AI đa nền tảng, OpenClaw, Providers và Prompts</p>
+                    <p class="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">Quản trị mô hình AI đa nền tảng, OpenClaw, Providers và Prompts</p>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
-                    <span v-if="savedMsg" class="text-xs text-emerald-400 font-medium px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-800/60 flex items-center gap-1.5 shadow-sm"> <span>✓</span> Đã lưu! </span>
-                    <button @click="saveConfig" :disabled="saving" class="px-4 sm:px-5 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl font-semibold text-xs transition shadow-lg shadow-indigo-600/30 flex items-center gap-1.5 sm:gap-2 active:scale-95 disabled:opacity-50"><span>💾</span> {{ saving ? "Đang lưu..." : "Lưu cấu hình" }}</button>
+                    <span v-if="saveMessage" class="text-xs font-medium px-3 py-1.5 rounded-xl border flex items-center gap-1.5 shadow-sm" :class="saveOk ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800/60' : 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/60 border-red-300 dark:border-red-800/60'">
+                        <i :class="saveOk ? 'fa-solid fa-check text-emerald-500' : 'fa-solid fa-circle-exclamation text-rose-500'"></i>
+                        <span>{{ saveMessage }}</span>
+                    </span>
+                    <button @click="save" :disabled="saving" class="px-4 sm:px-5 py-2 sm:py-2.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 disabled:opacity-50 text-white rounded-xl font-semibold text-xs transition shadow-md flex items-center gap-2">
+                        <i :class="saving ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-floppy-disk'"></i>
+                        <span>{{ saving ? "Đang lưu…" : "Lưu cấu hình" }}</span>
+                    </button>
                 </div>
-            </div>
+            </header>
 
-            <!-- Tab Navigation (Slug-based) -->
-            <div class="flex items-center gap-2 border-b border-gray-800 pb-2 overflow-x-auto">
-                <router-link v-for="t in tabs" :key="t.id" :to="'/config/' + t.id" :class="['px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2 whitespace-nowrap', currentTab === t.id ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white']">
-                    <span>{{ t.icon }}</span>
-                    <span>{{ t.label }}</span>
-                </router-link>
-            </div>
-
-            <!-- Tab Panels Container -->
-            <div class="pt-1 sm:pt-2">
-                <!-- Panel 1: Multi-Platform Models -->
-                <div v-show="currentTab === 'models'" class="space-y-6">
-                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        <!-- Discord Bot Model -->
-                        <div class="bg-gray-800/90 rounded-2xl p-6 border border-gray-700/60 shadow-xl space-y-4">
-                            <div class="flex items-start justify-between">
-                                <div>
-                                    <h2 class="font-bold text-base text-gray-100 flex items-center gap-2.5">
-                                        <span class="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-lg">🤖</span>
-                                        Discord Bot — Model Mặc Định
-                                    </h2>
-                                    <p class="text-xs text-gray-400 mt-1">Mô hình AI xử lý tin nhắn trực tiếp và lệnh trong server Discord</p>
-                                </div>
-                            </div>
-                            <input v-model="form.discord_active_model" placeholder="gemini" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
+            <div v-if="activeTab === 'models'" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <section v-for="platform in platforms" :key="platform.key" class="bg-white dark:bg-gray-800/90 rounded-2xl p-6 border border-gray-200 dark:border-gray-700/60 shadow-sm space-y-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 class="font-bold text-base text-gray-900 dark:text-gray-100 flex items-center gap-2.5">
+                                <span class="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-base text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                                    <i :class="platform.iconClass"></i>
+                                </span>
+                                <span>{{ platform.title }}</span>
+                            </h2>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ platform.description }}</p>
                         </div>
-
-                        <!-- Telegram Bot Model -->
-                        <div class="bg-gray-800/90 rounded-2xl p-6 border border-gray-700/60 shadow-xl space-y-4">
-                            <div class="flex items-start justify-between">
-                                <div>
-                                    <h2 class="font-bold text-base text-gray-100 flex items-center gap-2.5">
-                                        <span class="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-lg">📱</span>
-                                        Telegram Bot — Model Mặc Định
-                                    </h2>
-                                    <p class="text-xs text-gray-400 mt-1">Mô hình AI xử lý tin nhắn chat và lệnh trong bot Telegram</p>
-                                </div>
-                            </div>
-                            <input v-model="form.telegram_active_model" placeholder="gemini" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
-                        </div>
-
-                        <!-- Learning Hub Model -->
-                        <div class="bg-gray-800/90 rounded-2xl p-6 border border-gray-700/60 shadow-xl space-y-4">
-                            <div class="flex items-start justify-between">
-                                <div>
-                                    <h2 class="font-bold text-base text-gray-100 flex items-center gap-2.5">
-                                        <span class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-lg">🎓</span>
-                                        Learning Hub — Model Mặc Định
-                                    </h2>
-                                    <p class="text-xs text-gray-400 mt-1">Dùng để sinh bài tập Tech, Vocab, Quiz và chấm điểm AI</p>
-                                </div>
-                            </div>
-                            <input v-model="form.learning_active_model" placeholder="gemini" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
-                        </div>
-
-                        <!-- Web Chat Model -->
-                        <div class="bg-gray-800/90 rounded-2xl p-6 border border-gray-700/60 shadow-xl space-y-4">
-                            <div class="flex items-start justify-between">
-                                <div>
-                                    <h2 class="font-bold text-base text-gray-100 flex items-center gap-2.5">
-                                        <span class="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 text-lg">💻</span>
-                                        Web Chat — Model Mặc Định
-                                    </h2>
-                                    <p class="text-xs text-gray-400 mt-1">Mô hình AI mặc định cho giao diện Web Dashboard Chat</p>
-                                </div>
-                            </div>
-                            <input v-model="form.active_model" placeholder="gemini" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
+                        <div class="text-right shrink-0">
+                            <span class="text-[11px] text-gray-400 block">Đang dùng</span><span class="text-sm font-bold" :class="platform.color">{{ providerName(form[platform.field]) }}</span>
                         </div>
                     </div>
-                </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-2">
+                        <button v-for="provider in providers" :key="`${platform.key}-${provider.key}`" @click="form[platform.field] = provider.key" class="p-3.5 rounded-xl font-semibold border-2 transition-all flex flex-col items-center justify-center gap-2 text-xs" :class="form[platform.field] === provider.key ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/60 text-indigo-700 dark:text-white shadow-sm ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700/80 bg-gray-50 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 hover:border-indigo-300 dark:hover:border-gray-500 hover:text-gray-900 dark:hover:text-gray-200'">
+                            <i :class="provider.iconClass || getProviderIcon(provider.key)" class="text-xl text-indigo-600 dark:text-indigo-400"></i>
+                            <span class="font-medium text-center truncate max-w-full">{{ provider.shortLabel || provider.label || provider.key }}</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
 
-                <!-- Panel 2: Providers -->
-                <div v-show="currentTab === 'providers'" class="space-y-6">
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div class="bg-gray-800/90 rounded-xl p-6 border border-gray-700/60 shadow-lg">
-                            <h2 class="font-semibold mb-1 text-gray-200 flex items-center gap-2"><span>🌟</span> Gemini Model</h2>
-                            <p class="text-xs text-gray-400 mb-4">Chọn phiên bản Google Gemini</p>
-                            <select v-model="form.gemini_model" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-sm text-white focus:outline-none focus:border-indigo-500">
-                                <option value="models/gemini-2.5-flash">gemini-2.5-flash (Khuyên dùng)</option>
-                                <option value="models/gemini-2.0-flash">gemini-2.0-flash</option>
-                                <option value="models/gemini-1.5-pro">gemini-1.5-pro</option>
-                                <option value="models/gemini-1.5-flash">gemini-1.5-flash</option>
+            <div v-else-if="activeTab === 'providers'" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <section class="panel">
+                        <h2 class="flex items-center gap-2 font-bold mb-1 text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                            <i class="fa-solid fa-wand-magic-sparkles text-indigo-500"></i>
+                            <span>Gemini Model</span>
+                        </h2>
+                        <p>Chọn phiên bản Google Gemini</p>
+                        <select v-model="form.gemini_model" class="field">
+                            <option v-for="model in modelOptions.gemini" :key="model.id" :value="model.id">{{ model.label }}</option>
+                        </select>
+                    </section>
+                    <section class="panel">
+                        <h2 class="flex items-center gap-2 font-bold mb-1 text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                            <i class="fa-solid fa-robot text-emerald-500"></i>
+                            <span>ChatGPT Model</span>
+                        </h2>
+                        <p>Chọn phiên bản OpenAI GPT</p>
+                        <select v-model="form.chatgpt_model" class="field">
+                            <option v-for="model in modelOptions.chatgpt" :key="model.id" :value="model.id">{{ model.label }}</option>
+                        </select>
+                    </section>
+                </div>
+                <section class="panel">
+                    <h2 class="flex items-center gap-2 font-bold mb-1 text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                        <i class="fa-solid fa-brain text-amber-500"></i>
+                        <span>Claude Model & Base URL</span>
+                    </h2>
+                    <p>Cấu hình phiên bản Anthropic Claude và Proxy Endpoint.</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <label>
+                            <span class="label">Phiên bản Claude</span>
+                            <select v-model="form.claude_model" class="field">
+                                <option v-for="model in modelOptions.claude" :key="model.id" :value="model.id">{{ model.label }}</option>
                             </select>
-                        </div>
-
-                        <div class="bg-gray-800/90 rounded-xl p-6 border border-gray-700/60 shadow-lg">
-                            <h2 class="font-semibold mb-1 text-gray-200 flex items-center gap-2"><span>🤖</span> ChatGPT Model</h2>
-                            <p class="text-xs text-gray-400 mb-4">Chọn phiên bản OpenAI GPT</p>
-                            <select v-model="form.chatgpt_model" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-sm text-white focus:outline-none focus:border-indigo-500">
-                                <option value="gpt-4o">gpt-4o (Khuyên dùng)</option>
-                                <option value="gpt-4o-mini">gpt-4o-mini</option>
-                                <option value="gpt-4-turbo">gpt-4-turbo</option>
-                                <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-                            </select>
-                        </div>
+                        </label>
+                        <label>
+                            <span class="label">Claude Base URL (Proxy)</span>
+                            <input v-model.trim="form.claude_base_url" type="url" class="field" placeholder="https://your-claude-proxy.example.com/" />
+                        </label>
                     </div>
-
-                    <div class="bg-gray-800/90 rounded-xl p-6 border border-gray-700/60 shadow-lg">
-                        <h2 class="font-semibold mb-1 text-gray-200 flex items-center gap-2"><span>✳️</span> Claude Model & Base URL</h2>
-                        <p class="text-xs text-gray-400 mb-4">Cấu hình phiên bản Anthropic Claude và Proxy Endpoint.</p>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Phiên bản Claude</label>
-                                <select v-model="form.claude_model" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-sm text-white focus:outline-none focus:border-indigo-500">
-                                    <optgroup label="Claude 4.6">
-                                        <option value="claude-sonnet-4-6">Sonnet 4.6 (Khuyên dùng)</option>
-                                        <option value="claude-opus-4-6">Opus 4.6</option>
-                                    </optgroup>
-                                    <optgroup label="Claude 4.5">
-                                        <option value="claude-sonnet-4-5">Sonnet 4.5</option>
-                                        <option value="claude-opus-4-5">Opus 4.5</option>
-                                        <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Claude Base URL (Proxy)</label>
-                                <input v-model="form.claude_base_url" type="url" placeholder="https://your-claude-proxy.example.com/" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-sm text-white focus:outline-none focus:border-indigo-500" />
-                            </div>
-                        </div>
+                </section>
+                <section class="panel">
+                    <h2 class="flex items-center gap-2 font-bold mb-1 text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                        <i class="fa-solid fa-cubes text-purple-500"></i>
+                        <span>Model các Provider bổ sung</span>
+                    </h2>
+                    <p>Cấu hình phiên bản model cho từng provider (DeepSeek, Kimi, vLLM, Ollama, NVIDIA, Cloudflare).</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <label v-for="provider in additionalProviders" :key="provider.field">
+                            <span class="label flex items-center gap-1.5">
+                                <i :class="provider.iconClass" class="text-xs"></i>
+                                <span>{{ provider.label }}</span>
+                            </span>
+                            <input v-model.trim="form[provider.field]" class="field" :placeholder="provider.placeholder" />
+                        </label>
                     </div>
-                </div>
-
-                <!-- Panel 3: OpenClaw -->
-                <div v-show="currentTab === 'openclaw'" class="space-y-6">
-                    <div class="bg-gray-800/90 rounded-xl p-6 border border-gray-700/60 shadow-lg space-y-4">
-                        <h2 class="font-semibold text-gray-200 flex items-center gap-2"><span>🦅</span> OpenClaw Autonomous Agents</h2>
-                        <p class="text-xs text-gray-400">Cấu hình kết nối hệ thống Multi-Agent OpenClaw Crawler & Task Workers</p>
-                        <label class="flex items-center gap-3 text-sm text-gray-300"><input v-model="form.openclaw_enabled" type="checkbox" class="w-4 h-4 accent-indigo-500" /> Bật tích hợp OpenClaw</label>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">OpenClaw Base URL</label>
-                                <input v-model="form.openclaw_url" type="text" placeholder="http://openclaw:4000" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-sm text-white focus:outline-none focus:border-indigo-500" />
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Google Custom Search Engine ID (CX)</label>
-                                <input v-model="form.google_cx" type="text" placeholder="xxxxxxxxxxxxxxx:xxxxxxxxxx" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-sm text-white focus:outline-none focus:border-indigo-500" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Panel 4: Prompts -->
-                <div v-show="currentTab === 'prompts'" class="space-y-6">
-                    <!-- System Persona Prompt -->
-                    <div class="bg-gray-800/90 rounded-xl p-6 border border-gray-700/60 shadow-lg">
-                        <h2 class="font-semibold mb-1 text-gray-200 flex items-center gap-2"><span>📝</span> System Persona Prompt</h2>
-                        <p class="text-xs text-gray-400 mb-4">Định hình tính cách, phong cách trả lời và ngữ cảnh hoạt động của bot.</p>
-                        <textarea v-model="form.system_prompt" rows="5" class="w-full px-4 py-3 bg-gray-700 rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none resize-y text-sm font-sans text-white"></textarea>
-                    </div>
-
-                    <!-- 🎓 Learning Hub System Prompts Configuration -->
-                    <div class="bg-gray-800/90 rounded-xl p-6 border border-gray-700/60 shadow-lg space-y-4">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div>
-                                <h2 class="font-semibold mb-1 text-gray-200 flex items-center gap-2"><span>🎓</span> Learning Hub — Tuỳ biến System Prompts AI</h2>
-                                <p class="text-xs text-gray-400" v-pre>
-                                    Tuỳ chỉnh System Prompt cho các chức năng sinh bài & chấm điểm (để trống nếu muốn dùng mặc định). Hỗ trợ biến: <code class="text-indigo-300">{{ stackName }}</code
-                                    >, <code class="text-indigo-300">{{ topicName }}</code
-                                    >, <code class="text-indigo-300">{{ level }}</code
-                                    >, <code class="text-indigo-300">{{ count }}</code
-                                    >, <code class="text-indigo-300">{{ existingWords }}</code>
-                                </p>
-                            </div>
-                            <button @click="fillAllPromptTemplates" type="button" class="px-3 py-1.5 bg-indigo-900/60 hover:bg-indigo-800 text-indigo-300 rounded-lg text-xs font-medium border border-indigo-700 transition flex items-center gap-1.5 whitespace-nowrap self-start sm:self-auto">📋 Nhập tất cả mẫu</button>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div v-for="p in promptList" :key="p.key">
-                                <div class="flex items-center justify-between mb-1">
-                                    <label class="block text-xs font-semibold text-indigo-400">{{ p.label }}</label>
-                                    <div class="flex gap-2">
-                                        <button @click="fillPromptTemplate(p.key)" type="button" class="text-xs text-indigo-400 hover:text-indigo-300 underline font-medium">📋 Nhập mẫu</button>
-                                        <button @click="form[p.key] = ''" type="button" class="text-xs text-gray-500 hover:text-gray-400">Xóa</button>
-                                    </div>
-                                </div>
-                                <textarea v-model="form[p.key]" rows="3" :placeholder="p.placeholder" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 focus:border-indigo-500 focus:outline-none text-xs font-mono text-white"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Panel 5: Logs -->
-                <div v-show="currentTab === 'logs'" class="space-y-6">
-                    <div class="bg-gray-800/90 rounded-xl p-6 border border-gray-700/60 shadow-lg space-y-4">
-                        <h2 class="font-semibold text-gray-200 flex items-center gap-2"><span>🪵</span> Cấu hình Nhật ký Logs & Lưu trữ</h2>
-                        <p class="text-xs text-gray-400">Thời gian tự động dọn dẹp log cũ và giới hạn dung lượng</p>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Thời gian lưu log (ngày)</label>
-                                <input v-model="form.log_retention_days" type="number" placeholder="14" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-sm text-white focus:outline-none focus:border-indigo-500" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </section>
             </div>
 
-            <!-- Bottom Save Action Bar -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 pb-8 border-t border-gray-800">
+            <div v-else-if="activeTab === 'openclaw'" class="space-y-6">
+                <section class="panel">
+                    <h2 class="flex items-center gap-2 font-bold mb-1 text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                        <i class="fa-solid fa-robot text-sky-500"></i>
+                        <span>Model từng OpenClaw Agent</span>
+                    </h2>
+                    <p>Chọn provider và model chính / fallback riêng cho 5 agent (R&D, Logistics, CFO, Operations, CSKH).</p>
+                    <div class="space-y-4">
+                        <div v-for="agent in agents" :key="agent.key" class="grid md:grid-cols-[180px_1fr_1fr] gap-3 items-end p-4 rounded-xl bg-gray-900/60 border border-gray-700">
+                            <strong class="text-sm text-indigo-300">{{ agent.label }}</strong>
+                            <label> <span class="label">Primary model</span><input v-model.trim="form[`agent_${agent.key}_primary`]" class="field" placeholder="provider:model" /></label><label><span class="label">Fallback model</span><input v-model.trim="form[`agent_${agent.key}_fallback`]" class="field" placeholder="provider:model" /></label>
+                        </div>
+                    </div>
+                </section>
+                <section class="panel">
+                    <h2 class="flex items-center gap-2 font-bold mb-1 text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                        <i class="fa-solid fa-network-wired text-indigo-500"></i>
+                        <span>OpenClaw Service Integration</span>
+                    </h2>
+                    <p>Tích hợp tìm kiếm Google Search và crawl tự động qua OpenClaw microservice.</p>
+                    <div class="space-y-4">
+                        <label class="flex items-center gap-3 cursor-pointer"><input v-model="form.openclaw_enabled" type="checkbox" class="w-4 h-4 accent-indigo-500" /><span class="text-sm text-gray-200 font-medium">Bật OpenClaw</span></label>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <label><span class="label">OpenClaw Base URL</span><input v-model.trim="form.openclaw_url" type="url" class="field" placeholder="https://your-openclaw.example.com" /></label><label><span class="label">Google Custom Search Engine ID (CX)</span><input v-model.trim="form.google_cx" class="field" placeholder="xxxxxxxxxxxxxxx:xxxxxxxxxx" /></label>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div v-else-if="activeTab === 'prompts'" class="space-y-6">
+                <section class="panel">
+                    <h2 class="flex items-center gap-2 font-bold mb-1 text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                        <i class="fa-solid fa-file-pen text-indigo-500"></i>
+                        <span>System Persona Prompt</span>
+                    </h2>
+                    <p>Định hình tính cách, phong cách trả lời và ngữ cảnh hoạt động của bot.</p>
+                    <textarea v-model="form.system_prompt" rows="5" class="field resize-y"></textarea>
+                </section>
+                <section class="panel space-y-4">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h2 class="flex items-center gap-2 font-bold mb-1 text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                                <i class="fa-solid fa-graduation-cap text-emerald-500"></i>
+                                <span>Learning Hub — Tuỳ biến System Prompts AI</span>
+                            </h2>
+                            <p class="!mb-0">Tuỳ chỉnh System Prompt cho các chức năng sinh bài và chấm điểm; để trống để dùng mặc định.</p>
+                        </div>
+                        <button @click="fillAllPrompts" class="px-3 py-1.5 bg-indigo-900/60 hover:bg-indigo-800 text-indigo-300 rounded-lg text-xs font-medium border border-indigo-700 whitespace-nowrap flex items-center gap-1.5">
+                            <i class="fa-solid fa-clipboard-list text-xs"></i>
+                            <span>Nhập tất cả mẫu</span>
+                        </button>
+                    </div>
+                    <label v-for="prompt in promptFields" :key="prompt.key" class="block">
+                        <span class="flex items-center justify-between mb-1">
+                            <b class="text-xs text-indigo-400 flex items-center gap-1.5">
+                                <i :class="prompt.iconClass" class="text-xs"></i>
+                                <span>{{ prompt.label }}</span>
+                            </b>
+                            <span class="flex gap-2">
+                                <button type="button" @click="form[prompt.key] = prompt.template" class="text-xs text-indigo-400 underline flex items-center gap-1">
+                                    <i class="fa-solid fa-paste text-[10px]"></i>
+                                    <span>Nhập mẫu</span>
+                                </button>
+                                <button type="button" @click="form[prompt.key] = ''" class="text-xs text-gray-500">Xóa</button>
+                            </span>
+                        </span>
+                        <textarea v-model="form[prompt.key]" rows="3" class="field text-xs font-mono" :placeholder="prompt.placeholder"></textarea>
+                    </label>
+                </section>
+            </div>
+
+            <div v-else class="space-y-6">
+                <section class="panel space-y-4">
+                    <div>
+                        <h2 class="flex items-center gap-2 font-bold mb-1 text-gray-900 dark:text-gray-100 text-sm sm:text-base">
+                            <i class="fa-solid fa-receipt text-indigo-500"></i>
+                            <span>Quản lý Log & Tự động dọn dẹp (Log Retention)</span>
+                        </h2>
+                        <p>Thiết lập thời gian lưu file log hệ thống. Hệ thống tự dọn các file cũ hơn số ngày cấu hình.</p>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-4 items-center">
+                        <div>
+                            <span class="label">Số ngày lưu trữ log</span>
+                            <div class="flex items-center gap-2"><input v-model.number="form.log_retention_days" type="number" min="1" max="365" class="w-28 field text-center font-semibold" /><span class="text-xs text-gray-400">ngày</span></div>
+                            <div class="flex items-center gap-1.5 mt-2.5">
+                                <span class="text-[11px] text-gray-400">Chọn nhanh:</span><button v-for="days in [7, 14, 30, 60]" :key="days" @click="form.log_retention_days = days" class="px-2 py-0.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs border border-gray-600">{{ days }} ngày</button>
+                            </div>
+                        </div>
+                        <div class="bg-gray-700/40 p-4 rounded-xl border border-gray-700 space-y-2">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-xs text-gray-300 font-medium">Dọn dẹp log thủ công:</span>
+                                <button @click="cleanLogsNow" class="px-3.5 py-1.5 bg-amber-600/80 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                    <span>Dọn dẹp log cũ ngay</span>
+                                </button>
+                            </div>
+                            <p v-if="cleanMessage" class="text-xs font-medium text-amber-300">{{ cleanMessage }}</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 pb-8 border-t border-gray-800">
                 <p class="text-xs text-gray-500 text-center sm:text-left">Mọi thay đổi sẽ có hiệu lực ngay lập tức sau khi lưu.</p>
-                <button @click="saveConfig" :disabled="saving" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl font-semibold text-xs transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"><span>💾</span> {{ saving ? "Đang lưu..." : "Lưu toàn bộ cấu hình" }}</button>
-            </div>
+                <button @click="save" :disabled="saving" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-semibold text-xs shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Lưu toàn bộ cấu hình</span>
+                </button>
+            </footer>
         </div>
     </div>
 </template>
 
 <script setup>
-import { reactive, computed, onMounted, ref } from "vue"
-import { useRoute } from "vue-router"
-import { useConfigStore } from "@/stores/config"
+import { computed, onMounted, reactive, ref, watch } from "vue"
+import { useRoute, useRouter } from "vue-router"
+import { getConfig, getModelsByProvider, updateConfig } from "@/api/config"
+import { cleanLogs } from "@/api/stats"
 
 const route = useRoute()
-const configStore = useConfigStore()
-const saving = ref(false)
-const savedMsg = ref(false)
-
-const tabs = [
-    { id: "models", label: "Models", icon: "🤖" },
-    { id: "providers", label: "Providers", icon: "🔑" },
-    { id: "openclaw", label: "AI Agents", icon: "🦅" },
-    { id: "prompts", label: "Prompts", icon: "📝" },
-    { id: "logs", label: "Log Config", icon: "🪵" },
+const router = useRouter()
+const validTabs = ["models", "providers", "openclaw", "prompts", "logs"]
+const activeTab = computed(() => (validTabs.includes(route.params.tab) ? route.params.tab : "models"))
+watch(
+    () => route.params.tab,
+    (tab) => {
+        if (!tab) router.replace("/config/models")
+    },
+    { immediate: true },
+)
+const fallbackProviders = [
+    { key: "claude", shortLabel: "Claude", iconClass: "fa-solid fa-brain" },
+    { key: "chatgpt", shortLabel: "ChatGPT", iconClass: "fa-solid fa-robot" },
+    { key: "gemini", shortLabel: "Gemini", iconClass: "fa-solid fa-wand-magic-sparkles" },
 ]
-
-const currentTab = computed(() => {
-    const tabParam = route.params.tab || route.query.tab
-    if (tabParam && tabs.some((t) => t.id === tabParam)) {
-        return tabParam
-    }
-    return "models"
-})
-
-const promptTemplates = {
-    learning_prompt_tech: "Bạn là Senior Technical Architect và Lead Interviewer. Tạo {{count}} câu hỏi thực chiến cho {{stackName}}, cấp độ {{level}}. Chỉ trả JSON ARRAY đúng schema Learning, không đánh số title, nội dung ngắn gọn và không thêm văn bản ngoài JSON.",
-    learning_prompt_vocab: "Bạn là giảng viên ngôn ngữ Anh. Tạo {{count}} từ vựng cho {{topicName}}, cấp độ {{level}}. Không lặp từ trong {{existingWords}}. Chỉ trả JSON ARRAY đúng schema Learning.",
-    learning_prompt_quiz: "Bạn là Quiz Master. Tạo {{count}} câu hỏi trắc nghiệm cho {{topicName}}, cấp độ {{level}}, mỗi câu có 4 lựa chọn và đáp án đúng. Chỉ trả JSON ARRAY.",
-    learning_prompt_reading: 'Bạn là Giám khảo IELTS Academic Reading. Tạo {{count}} bài Đọc hiểu chuẩn Cambridge cho "{{topicName}}", cấp độ {{level}}. Bài đọc tiếng Anh 250-400 từ chia đoạn rõ ràng [Paragraph A], [Paragraph B], [Paragraph C]..., kèm 4-6 câu hỏi gồm trắc nghiệm Multiple Choice (4 lựa chọn A, B, C, D) và True/False/Not Given, có đáp án đúng, trích dẫn đoạn văn (paragraph_ref) và lời giải thích chi tiết. Chỉ trả JSON ARRAY đúng schema Learning.',
-    learning_prompt_writing: 'Bạn là Giám khảo IELTS Academic Writing. Tạo {{count}} đề thi Viết chuẩn Cambridge (Task 1 hoặc Task 2) cho "{{topicName}}", Target Band: {{level}}. Đề bài chuẩn rubric Cambridge ("You should spend about 40 minutes... Write at least 250 words"), kèm dạng bài task_type, 5-8 từ vựng học thuật C1/C2 kèm nghĩa tiếng Việt, dàn ý 4 đoạn, bài luận mẫu Band 9.0 (280-330 từ) và lời phê của giám khảo (examiner_notes). Chỉ trả JSON ARRAY đúng schema Learning.',
-    learning_prompt_speaking: 'Bạn là Giám khảo IELTS Speaking Cambridge. Tạo {{count}} đề thi Nói mô phỏng 3 phần chuẩn Cambridge cho "{{topicName}}", Target Band: {{level}}. Bao gồm Part 1 (3-4 câu hỏi phỏng vấn), Part 2 Cue Card (thẻ chủ đề với 4 gợi ý và thời gian chuẩn bị 1 phút), Part 3 (3-4 câu hỏi thảo luận chuyên sâu), 5-8 thành ngữ/collocations bản xứ C1/C2 kèm nghĩa tiếng Việt và bài mẫu câu trả lời Band 8.5+ hoàn chỉnh cho cả 3 phần. Chỉ trả JSON ARRAY đúng schema Learning.',
-    learning_prompt_ielts: 'Bạn là Giám khảo IELTS Quốc tế chấm thi chính thức của Cambridge. Tạo {{count}} đề thi IELTS Academic/General chuẩn Cambridge cho "{{topicName}}", Target Band: {{level}}. Đề bài chuẩn rubric Cambridge ("You should spend about 40 minutes on this task... Write at least 250 words" cho Task 2 hoặc "You should spend about 20 minutes... Write at least 150 words" cho Task 1), kèm dạng bài task_type, 5-8 từ vựng học thuật C1/C2 kèm nghĩa tiếng Việt, dàn ý 4 đoạn gợi ý, bài luận mẫu Band 9.0 (280-340 từ) và lời phê chi tiết của giám khảo (examiner_notes) theo 4 tiêu chí TR, CC, LR, GRA. Chỉ trả JSON ARRAY đúng schema Learning.',
-    learning_prompt_eval_tech: "Bạn là Senior Technical Architect phỏng vấn ứng viên. Chấm câu trả lời dựa trên đề bài {{title}} và câu trả lời {{submission}}, trả JSON có score (thang 10), summary, strengths, improvements và follow_up_trap.",
-    learning_prompt_eval_reading: "Bạn là Giảng viên Tiếng Anh học thuật Cambridge chấm bài đọc hiểu. Đánh giá câu trả lời của học viên dựa trên bài đọc {{title}}, đoạn văn và câu hỏi cho bài làm {{submission}}, trả JSON có score (thang 10), summary, strengths, improvements và detailed_corrections.",
-    learning_prompt_eval_writing: "Bạn là Giám khảo IELTS Writing Quốc tế. Đánh giá bài viết dựa trên đề bài {{title}} và bài làm {{submission}} theo đúng 4 tiêu chí Band Descriptors (TR, CC, LR, GRA từ 0.0 - 9.0), trả JSON có overall_band, criteria_scores, examiner_comment, strengths, improvements và detailed_corrections.",
-    learning_prompt_eval_speaking: "Bạn là Giám khảo IELTS Speaking Cambridge. Đánh giá bài nói dựa trên đề bài {{title}} và bài làm/transcript {{submission}} theo đúng 4 tiêu chí Speaking Descriptors (FC, LR, GRA, PR từ 0.0 - 9.0), trả JSON có overall_band, criteria_scores, summary, examiner_comment, strengths, improvements và native_upgrades.",
-    learning_prompt_eval_ielts: "Bạn là Giám khảo IELTS Quốc tế chấm thi chính thức. Đánh giá bài làm cho đề {{title}} dựa trên bài nộp {{submission}} theo đúng 4 tiêu chí Band Descriptors (TR, CC, LR, GRA), trả JSON có overall_band, criteria_scores, examiner_comment, strengths, improvements và detailed_corrections.",
+const providers = ref(fallbackProviders)
+const getProviderIcon = (key) => {
+    const s = String(key || "").toLowerCase()
+    if (s.includes("gemini")) return "fa-solid fa-wand-magic-sparkles"
+    if (s.includes("claude")) return "fa-solid fa-brain"
+    if (s.includes("chatgpt") || s.includes("gpt")) return "fa-solid fa-robot"
+    if (s.includes("deepseek")) return "fa-solid fa-compass"
+    return "fa-solid fa-microchip"
 }
-
-const promptList = [
-    { key: "learning_prompt_tech", label: "💻 Tech Questions Prompt (Sinh câu hỏi 6 Stacks)", placeholder: "System prompt mặc định cho Tech Question..." },
-    { key: "learning_prompt_vocab", label: "📖 Vocabulary Prompt (Sinh từ vựng 50 Topics)", placeholder: "System prompt mặc định cho Vocabulary..." },
-    { key: "learning_prompt_quiz", label: "🧩 Quiz Prompt (Soạn đề trắc nghiệm)", placeholder: "System prompt mặc định cho Quiz..." },
-    { key: "learning_prompt_reading", label: "📖 Reading Comprehension Prompt (Soạn bài đọc hiểu)", placeholder: "System prompt mặc định cho Reading Comprehension..." },
-    { key: "learning_prompt_writing", label: "✍️ Writing Studio Prompt (Soạn đề bài luyện viết)", placeholder: "System prompt mặc định cho Writing Studio..." },
-    { key: "learning_prompt_speaking", label: "🗣️ Speaking Prompt (Kịch bản luyện nói)", placeholder: "System prompt mặc định cho Speaking..." },
-    { key: "learning_prompt_ielts", label: "🎯 IELTS Prep Prompt (Đề thi IELTS)", placeholder: "System prompt mặc định cho IELTS..." },
-    { key: "learning_prompt_eval_tech", label: "🤖 Tech Mock Interview Evaluator (AI Chấm điểm Tech)", placeholder: "System prompt mặc định cho Mock Interview..." },
-    { key: "learning_prompt_eval_reading", label: "📖 Reading Evaluator (AI Chấm câu trả lời Đọc hiểu)", placeholder: "System prompt mặc định cho chấm Đọc hiểu..." },
-    { key: "learning_prompt_eval_writing", label: "✍️ Writing Evaluator (AI Chấm & Sửa bài Viết)", placeholder: "System prompt mặc định cho chấm bài Viết..." },
-    { key: "learning_prompt_eval_speaking", label: "🗣️ Speaking Evaluator (AI Chấm & Sửa bài Nói chuẩn IELTS)", placeholder: "System prompt mặc định cho chấm bài Nói..." },
-    { key: "learning_prompt_eval_ielts", label: "🎯 IELTS Evaluator (AI Chấm điểm IELTS Band 0-9.0)", placeholder: "System prompt mặc định cho IELTS Examiner..." },
+const modelOptions = reactive({ gemini: [], claude: [], chatgpt: [] })
+const platforms = [
+    { key: "discord", field: "discord_active_model", iconClass: "fa-brands fa-discord", title: "Discord Bot — Model Mặc Định", description: "Mô hình AI xử lý tin nhắn trực tiếp và lệnh trong server Discord", color: "text-indigo-400" },
+    { key: "telegram", field: "telegram_active_model", iconClass: "fa-brands fa-telegram", title: "Telegram Bot — Model Mặc Định", description: "Mô hình AI xử lý tin nhắn chat và lệnh trong bot Telegram", color: "text-blue-400" },
+    { key: "learning", field: "learning_active_model", iconClass: "fa-solid fa-graduation-cap", title: "Learning Hub — Model Mặc Định", description: "Dùng để sinh bài tập Tech, Vocab, Quiz và chấm điểm AI", color: "text-emerald-400" },
+    { key: "web", field: "active_model", iconClass: "fa-solid fa-desktop", title: "Web Chat — Model Mặc Định", description: "Mô hình AI mặc định cho giao diện Web Dashboard Chat", color: "text-purple-400" },
 ]
-
-const form = reactive({
-    active_model: "gemini",
-    learning_active_model: "gemini",
-    discord_active_model: "claude",
-    telegram_active_model: "gemini",
-    gemini_model: "models/gemini-2.5-flash",
-    chatgpt_model: "gpt-4o",
-    claude_model: "claude-sonnet-4-6",
-    claude_base_url: "",
-    openclaw_url: "http://openclaw:4000",
-    openclaw_enabled: true,
-    google_cx: "",
-    system_prompt: "",
-    log_retention_days: 14,
-    learning_prompt_tech: "",
-    learning_prompt_vocab: "",
-    learning_prompt_quiz: "",
-    learning_prompt_reading: "",
-    learning_prompt_writing: "",
-    learning_prompt_speaking: "",
-    learning_prompt_ielts: "",
-    learning_prompt_eval_tech: "",
-    learning_prompt_eval_reading: "",
-    learning_prompt_eval_writing: "",
-    learning_prompt_eval_speaking: "",
-    learning_prompt_eval_ielts: "",
-})
-
-const fillPromptTemplate = (key) => {
-    if (promptTemplates[key]) {
-        form[key] = promptTemplates[key]
-    }
+const additionalProviders = [
+    { field: "deepseek_model", label: "DeepSeek", iconClass: "fa-solid fa-compass text-sky-400", placeholder: "deepseek-v4-flash" },
+    { field: "kimi_model", label: "Kimi", iconClass: "fa-solid fa-brain text-purple-400", placeholder: "kimi-k2.6" },
+    { field: "vllm_model", label: "vLLM", iconClass: "fa-solid fa-bolt text-amber-400", placeholder: "llama3.1" },
+    { field: "ollama_model", label: "Ollama", iconClass: "fa-solid fa-server text-emerald-400", placeholder: "llama3.1" },
+    { field: "nvidia_model", label: "NVIDIA NIM", iconClass: "fa-solid fa-microchip text-green-400", placeholder: "meta/llama-3.1-8b-instruct" },
+    { field: "cloudflare_model", label: "Cloudflare AI", iconClass: "fa-solid fa-cloud text-amber-400", placeholder: "@cf/meta/llama-3.1-8b-instruct" },
+]
+const agents = [
+    { key: "dan_rnd", label: "R&D" },
+    { key: "dan_logistics", label: "Logistics" },
+    { key: "dan_cfo", label: "CFO" },
+    { key: "dan_ops", label: "Operations" },
+    { key: "dan_cskh", label: "CSKH" },
+]
+const promptFields = [
+    ["learning_prompt_tech", "Tech Questions Prompt", "fa-solid fa-laptop-code", "Sinh câu hỏi cho 6 Tech Stacks"],
+    ["learning_prompt_vocab", "Vocabulary Prompt", "fa-solid fa-book-open", "Sinh từ vựng 50 Topics"],
+    ["learning_prompt_quiz", "Quiz Prompt", "fa-solid fa-puzzle-piece", "Soạn đề trắc nghiệm"],
+    ["learning_prompt_reading", "Reading Comprehension Prompt", "fa-solid fa-book-open-reader", "Soạn bài đọc hiểu"],
+    ["learning_prompt_writing", "Writing Studio Prompt", "fa-solid fa-pen-fancy", "Soạn đề luyện viết"],
+    ["learning_prompt_speaking", "Speaking Prompt", "fa-solid fa-microphone-lines", "Kịch bản luyện nói"],
+    ["learning_prompt_ielts", "IELTS Prep Prompt", "fa-solid fa-graduation-cap", "Đề thi IELTS"],
+    ["learning_prompt_eval_tech", "Tech Mock Interview Evaluator", "fa-solid fa-robot", "AI chấm điểm Tech"],
+    ["learning_prompt_eval_reading", "Reading Evaluator", "fa-solid fa-robot", "AI chấm đọc hiểu"],
+    ["learning_prompt_eval_writing", "Writing Evaluator", "fa-solid fa-robot", "AI chấm và sửa bài viết"],
+    ["learning_prompt_eval_speaking", "Speaking Evaluator", "fa-solid fa-robot", "AI chấm bài nói"],
+    ["learning_prompt_eval_ielts", "IELTS Evaluator", "fa-solid fa-robot", "AI chấm IELTS"],
+].map(([key, label, iconClass, placeholder]) => ({ key, label, iconClass, placeholder, template: `Bạn là chuyên gia ${label}. Hãy xử lý {{count}} nội dung cho {{topicName}} ở cấp độ {{level}} và chỉ trả về JSON đúng schema Learning.` }))
+const form = reactive({ active_model: "gemini", learning_active_model: "gemini", discord_active_model: "claude", telegram_active_model: "gemini", gemini_model: "models/gemini-2.5-flash", claude_model: "claude-sonnet-4-6", chatgpt_model: "gpt-4o", claude_base_url: "", system_prompt: "", openclaw_enabled: true, openclaw_url: "", google_cx: "", log_retention_days: 14 })
+for (const item of additionalProviders) form[item.field] = ""
+for (const agent of agents) {
+    form[`agent_${agent.key}_primary`] = ""
+    form[`agent_${agent.key}_fallback`] = ""
 }
-
-const fillAllPromptTemplates = () => {
-    Object.keys(promptTemplates).forEach((key) => {
-        form[key] = promptTemplates[key]
+for (const prompt of promptFields) form[prompt.key] = ""
+const saving = ref(false),
+    saveMessage = ref(""),
+    saveOk = ref(false),
+    cleanMessage = ref("")
+const providerName = (key) => providers.value.find((p) => (p.key || p.id) === key)?.display || providers.value.find((p) => (p.key || p.id) === key)?.label || key
+const normalizeModels = (rows) => (rows || []).map((model) => (typeof model === "string" ? { id: model, label: model } : { id: model.id || model.value, label: model.label || model.name || model.id || model.value }))
+const ensureModel = (provider, value) => {
+    if (value && !modelOptions[provider].some((model) => model.id === value)) modelOptions[provider].push({ id: value, label: value })
+}
+const load = async () => {
+    const [config, ...models] = await Promise.all([getConfig(), ...["gemini", "claude", "chatgpt"].map((p) => getModelsByProvider(p).catch(() => ({ models: [] })))])
+    providers.value = config.ai_providers?.length ? config.ai_providers.map((p) => ({ ...p, key: p.key || p.id })) : fallbackProviders
+    Object.keys(form).forEach((key) => {
+        if (config[key] !== undefined) form[key] = key === "openclaw_enabled" ? String(config[key]) === "true" : config[key]
+    })
+    ;["gemini", "claude", "chatgpt"].forEach((provider, index) => {
+        modelOptions[provider] = normalizeModels(models[index]?.models)
+        ensureModel(provider, form[`${provider}_model`])
     })
 }
-
-const loadConfig = async () => {
-    try {
-        const data = await configStore.fetchConfig()
-        if (data && typeof data === "object") {
-            Object.keys(data).forEach((key) => {
-                if (key in form) {
-                    form[key] = key === "openclaw_enabled" ? String(data[key]) === "true" : data[key]
-                }
-            })
-        }
-    } catch (err) {
-        console.error("Failed to load config", err)
-    }
-}
-
-const saveConfig = async () => {
+const save = async () => {
     saving.value = true
-    savedMsg.value = false
+    saveMessage.value = ""
     try {
-        await configStore.saveConfig({ ...form, openclaw_enabled: form.openclaw_enabled ? "true" : "false" })
-        savedMsg.value = true
-        setTimeout(() => {
-            savedMsg.value = false
-        }, 3000)
-    } catch (err) {
-        alert(err.message || "Lỗi khi lưu cấu hình")
+        await updateConfig({ ...form, openclaw_enabled: form.openclaw_enabled ? "true" : "false" })
+        saveMessage.value = "Đã lưu!"
+        saveOk.value = true
+        setTimeout(() => (saveMessage.value = ""), 2500)
+    } catch (error) {
+        saveMessage.value = error.message
+        saveOk.value = false
     } finally {
         saving.value = false
     }
 }
-
-onMounted(loadConfig)
+const fillAllPrompts = () =>
+    promptFields.forEach((prompt) => {
+        form[prompt.key] = prompt.template
+    })
+const cleanLogsNow = async () => {
+    try {
+        const res = await cleanLogs(form.log_retention_days)
+        cleanMessage.value = `Đã dọn ${res.deletedCount || 0} file log cũ (> ${res.retentionDays || form.log_retention_days} ngày)`
+    } catch (error) {
+        cleanMessage.value = error.message
+    }
+}
+onMounted(load)
 </script>
+
+<style scoped>
+.panel {
+    @apply bg-white dark:bg-gray-800/90 rounded-2xl p-6 border border-gray-200 dark:border-gray-700/60 shadow-sm;
+}
+.panel h2 {
+    @apply font-bold mb-1 text-gray-900 dark:text-gray-100 text-sm sm:text-base;
+}
+.panel p {
+    @apply text-xs text-gray-500 dark:text-gray-400 mb-4;
+}
+.label {
+    @apply block text-xs font-semibold text-gray-700 dark:text-gray-400 mb-1;
+}
+.field {
+    @apply w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-indigo-500 focus:outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition;
+}
+</style>
