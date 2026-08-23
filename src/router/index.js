@@ -19,46 +19,16 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/learning',
-    name: 'learning',
-    component: () => import('../views/LearningView.vue'),
-    meta: { requiresAuth: true },
-    children: [
-      {
-        path: '',
-        redirect: '/learning/tech',
-      },
-      {
-        path: 'tech',
-        name: 'learning-tech',
-        component: () => import('../views/LearningView.vue'),
-      },
-      {
-        path: 'vocab',
-        name: 'learning-vocab',
-        component: () => import('../views/LearningView.vue'),
-      },
-      {
-        path: 'quiz',
-        name: 'learning-quiz',
-        component: () => import('../views/LearningView.vue'),
-      },
-      {
-        path: 'reading',
-        name: 'learning-reading',
-        component: () => import('../views/LearningView.vue'),
-      },
-      {
-        path: 'writing',
-        name: 'learning-writing',
-        component: () => import('../views/LearningView.vue'),
-      },
-      {
-        path: 'speaking',
-        name: 'learning-speaking',
-        component: () => import('../views/LearningView.vue'),
-      },
-    ],
+    path: '/learning/:pathMatch(.*)*',
+    name: 'learning-external',
+    beforeEnter: (to) => {
+      const pathMatch = Array.isArray(to.params.pathMatch)
+        ? to.params.pathMatch.join('/')
+        : to.params.pathMatch;
+      const suffix = pathMatch ? `/${pathMatch}` : '/';
+      window.location.replace(`https://learning.hpdev.name.vn${suffix}`);
+      return false;
+    },
   },
   {
     path: '/config',

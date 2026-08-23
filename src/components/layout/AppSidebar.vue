@@ -24,20 +24,12 @@
                 <span v-if="!collapsed" class="sidebar-label">Chat</span>
             </router-link>
 
-            <!-- Learning Menu -->
-            <div>
-                <button @click="learningOpen = !learningOpen" type="button" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center justify-between gap-2.5 select-none" :class="$route.path.startsWith('/learning') || $route.path.startsWith('/tech') || $route.path.startsWith('/vocab') ? 'bg-indigo-600/30 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <span class="sidebar-icon">🎓</span>
-                        <span v-if="!collapsed" class="sidebar-label flex-1 truncate">Learning</span>
-                    </div>
-                    <span v-if="!collapsed" class="text-xs text-gray-400 transition-transform" :class="{ 'rotate-180': learningOpen }">⌄</span>
-                </button>
-                <div v-if="learningOpen && !collapsed" class="sidebar-dropdown-submenu ml-7 pl-2 border-l border-gray-700 space-y-0.5 mt-0.5">
-                    <router-link to="/learning/tech" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2" :class="$route.path.includes('/tech') ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"> <span class="sidebar-icon">💻</span><span class="sidebar-label">Tech</span> </router-link>
-                    <router-link to="/learning/vocab" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2" :class="$route.path.includes('/vocab') ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"> <span class="sidebar-icon">🇬🇧</span><span class="sidebar-label">English</span> </router-link>
-                </div>
-            </div>
+            <!-- Learning is maintained and deployed as an independent app. -->
+            <a href="https://learning.hpdev.name.vn/" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2.5 text-gray-300 hover:bg-gray-700 hover:text-white">
+                <span class="sidebar-icon">🎓</span>
+                <span v-if="!collapsed" class="sidebar-label flex-1">Learning</span>
+                <span v-if="!collapsed" class="text-xs text-gray-500" aria-hidden="true">↗</span>
+            </a>
 
             <!-- Admin section -->
             <div v-if="authStore.isAdmin" class="pt-3 space-y-0.5">
@@ -99,7 +91,6 @@ import { useAuthStore } from "@/stores/auth"
 const authStore = useAuthStore()
 const collapsed = ref(false)
 const mobileOpen = ref(false)
-const learningOpen = ref(true)
 const configOpen = ref(false)
 
 const toggleCollapse = () => {
