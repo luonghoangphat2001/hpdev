@@ -31,6 +31,9 @@ export const evaluateLearningAI = (payload) => api.post('/learning/ai/evaluate',
 export const buildQuiz = (params = {}) => api.get(`/learning/quiz/generate?${query(params)}`);
 export const submitQuizResult = (payload) => api.post('/learning/quiz/submit', payload);
 export const getQuizLeaderboard = (limit = 10) => api.get(`/learning/quiz/leaderboard?limit=${limit}`);
+export const getQuizHistory = (params = {}) => api.get(`/quiz/history?${query(params)}`);
+export const getLearningHistory = (params = {}) => api.get(`/learning/history?${query(params)}`);
+export const getLearningUserStats = () => api.get('/learning/stats/summary');
 export const buildPracticeExam = (params = {}) => api.get(`/learning/practice-exam?${query(params)}`);
 export const submitPracticeExam = (attempts) => api.post('/learning/practice-exam/submit', { attempts });
 
