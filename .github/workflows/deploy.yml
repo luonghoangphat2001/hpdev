@@ -79,18 +79,31 @@ jobs:
           command_timeout: 5m
           script: |
             TARGET_DIR="/home/hpdev/api.hpdev.name.vn"
-            cd "$TARGET_DIR"
+            STAGING_DIR="/home/hpdev/.deploy-api-${{ github.sha }}"
+            rm -rf "$STAGING_DIR"
+            mkdir -p "$STAGING_DIR"
 
-            if [ -f "api.tar.gz" ]; then
-              tar -xzf api.tar.gz -C "$TARGET_DIR"
-              rm -f api.tar.gz
+            if [ -f "$TARGET_DIR/api.tar.gz" ]; then
+              tar -xzf "$TARGET_DIR/api.tar.gz" -C "$STAGING_DIR"
+              rm -f "$TARGET_DIR/api.tar.gz"
             fi
 
             # Kích hoạt môi trường NodeJS cPanel (đúng venv của api)
             source /home/hpdev/nodevenv/api.hpdev.name.vn/19/bin/activate
 
-            echo "==> Cài đặt dependencies..."
+            # Install/verify dependencies before replacing live application
+            # files. This prevents Passenger from restarting midway through a
+            # deployment and returning 503/MODULE_NOT_FOUND.
+            cp "$STAGING_DIR/package.json" "$TARGET_DIR/package.json"
+            if [ -f "$STAGING_DIR/package-lock.json" ]; then
+              cp "$STAGING_DIR/package-lock.json" "$TARGET_DIR/package-lock.json"
+            fi
+            cd "$TARGET_DIR"
             npm install --omit=dev --no-audit --no-fund
+            node -e "require('dotenv'); require('express'); require('mysql2')"
+
+            cp -a "$STAGING_DIR/." "$TARGET_DIR/"
+            rm -rf "$STAGING_DIR"
 
             echo "==> Nạp cơ sở dữ liệu câu hỏi vào MySQL..."
             node scripts/seed-tech-learning.js || true
