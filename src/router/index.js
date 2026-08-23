@@ -27,6 +27,10 @@ const routes = [
     beforeEnter: (to) => techStacks.has(String(to.params.stack)) ? true : '/tech/php',
   },
   {
+    path: '/english',
+    redirect: '/vocab',
+  },
+  {
     path: '/vocab',
     name: 'learning-vocab',
     component: () => import('../views/learning/VocabView.vue'),

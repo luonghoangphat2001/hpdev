@@ -17,28 +17,22 @@
 
         <!-- Sidebar Navigation List -->
         <nav class="flex-1 px-2.5 py-3 space-y-1 overflow-y-auto overscroll-contain">
-            <template v-for="item in learningItems" :key="item.to">
-                <!-- Item with Submenu -->
-                <div v-if="hasSubmenu(item.to)" class="w-full rounded-xl text-sm transition flex items-center" :class="[isActive(item.to) ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white font-medium']">
-                    <router-link :to="item.to" class="min-w-0 flex-1 h-10 flex items-center gap-2.5" :class="collapsed ? 'px-3 justify-center' : 'pl-3'" :title="collapsed ? item.label : undefined" @click="closeMobile">
-                        <i :class="item.icon" class="w-5 text-center text-sm shrink-0"></i>
-                        <span v-if="!collapsed" class="truncate text-sm">{{ item.label }}</span>
+            <!-- 1. Tech Menu with Submenu -->
+            <div class="space-y-1">
+                <div class="w-full rounded-xl text-sm transition flex items-center" :class="[isTechActive ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white font-medium']">
+                    <router-link to="/tech" class="min-w-0 flex-1 h-10 flex items-center gap-2.5" :class="collapsed ? 'px-3 justify-center' : 'pl-3'" :title="collapsed ? 'Tech' : undefined" @click="closeMobile">
+                        <i class="fa-solid fa-laptop-code w-5 text-center text-sm shrink-0"></i>
+                        <span v-if="!collapsed" class="truncate text-sm">Tech</span>
                     </router-link>
-                    <button v-if="!collapsed" type="button" class="w-9 h-10 self-stretch shrink-0 grid place-items-center rounded-r-xl hover:bg-black/10 dark:hover:bg-black/20 transition" :title="isSubmenuOpen(item.to) ? 'Đóng menu con' : 'Mở menu con'" @click="toggleSubmenu(item.to)">
-                        <svg class="w-4 h-4 block transition-transform duration-200" :class="isSubmenuOpen(item.to) ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <button v-if="!collapsed" type="button" class="w-9 h-10 self-stretch shrink-0 grid place-items-center rounded-r-xl hover:bg-black/10 dark:hover:bg-black/20 transition" :title="techOpen ? 'Đóng menu con' : 'Mở menu con'" @click="techOpen = !techOpen">
+                        <svg class="w-4 h-4 block transition-transform duration-200" :class="techOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <path d="m5 7.5 5 5 5-5" />
                         </svg>
                     </button>
                 </div>
 
-                <!-- Regular Nav Item -->
-                <router-link v-else :to="item.to" class="w-full h-10 rounded-xl text-sm transition flex items-center gap-2.5" :class="[collapsed ? 'px-3 justify-center' : 'px-3', isActive(item.to) ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white font-medium']" :title="collapsed ? item.label : undefined" @click="closeMobile">
-                    <i :class="item.icon" class="w-5 text-center text-sm shrink-0"></i>
-                    <span v-if="!collapsed" class="truncate text-sm">{{ item.label }}</span>
-                </router-link>
-
                 <!-- Tech Submenu -->
-                <div v-if="item.to === '/tech' && techOpen && !collapsed" class="space-y-1 ml-3 pl-2.5 border-l border-gray-200 dark:border-gray-700/80 my-1">
+                <div v-if="techOpen && !collapsed" class="space-y-1 ml-3 pl-2.5 border-l border-gray-200 dark:border-gray-700/80 my-1">
                     <router-link v-for="stack in techStacks" :key="stack.slug" :to="`/tech/${stack.slug}`" class="w-full h-8 rounded-lg text-xs font-medium transition flex items-center gap-2 px-2.5" :class="[isTechStackActive(stack.slug) ? 'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-200 ring-1 ring-indigo-500/40 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white']" @click="closeMobile">
                         <span class="w-4 h-4 shrink-0 flex items-center justify-center" aria-hidden="true">
                             <span v-if="normalizeTechSlug(stack.slug) === 'nextjs'" class="w-3.5 h-3.5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-950 text-[9px] font-black leading-3 text-center">N</span>
@@ -48,15 +42,45 @@
                         <span class="text-[10px] font-mono text-gray-400 dark:text-gray-500 shrink-0">{{ stack.active_item_count || 0 }}</span>
                     </router-link>
                 </div>
+            </div>
 
-                <!-- Quiz Submenu -->
-                <div v-if="item.to === '/quiz' && quizOpen && !collapsed" class="space-y-1 ml-3 pl-2.5 border-l border-gray-200 dark:border-gray-700/80 my-1">
-                    <router-link v-for="mode in quizModes" :key="mode.key" :to="`/quiz/mode/${mode.key}`" class="w-full h-8 rounded-lg text-xs font-medium transition flex items-center gap-2 px-2.5" :class="[isQuizModeActive(mode.key) ? 'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-200 ring-1 ring-indigo-500/40 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white']" @click="closeMobile">
-                        <i :class="mode.icon" class="w-4 text-center text-xs shrink-0"></i>
-                        <span class="truncate text-xs">{{ mode.label }}</span>
+            <!-- 2. English Parent Menu with Submenu -->
+            <div class="space-y-1 pt-0.5">
+                <div class="w-full rounded-xl text-sm transition flex items-center" :class="[isEnglishActive ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white font-medium']">
+                    <router-link to="/vocab" class="min-w-0 flex-1 h-10 flex items-center gap-2.5" :class="collapsed ? 'px-3 justify-center' : 'pl-3'" :title="collapsed ? 'English' : undefined" @click="closeMobile">
+                        <i class="fa-solid fa-language w-5 text-center text-sm shrink-0"></i>
+                        <span v-if="!collapsed" class="truncate text-sm font-semibold">English</span>
+                    </router-link>
+                    <button v-if="!collapsed" type="button" class="w-9 h-10 self-stretch shrink-0 grid place-items-center rounded-r-xl hover:bg-black/10 dark:hover:bg-black/20 transition" :title="englishOpen ? 'Đóng menu con' : 'Mở menu con'" @click="englishOpen = !englishOpen">
+                        <svg class="w-4 h-4 block transition-transform duration-200" :class="englishOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m5 7.5 5 5 5-5" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- English Submenu items -->
+                <div v-if="englishOpen && !collapsed" class="space-y-1 ml-3 pl-2.5 border-l border-gray-200 dark:border-gray-700/80 my-1">
+                    <router-link
+                        v-for="sub in englishSubItems"
+                        :key="sub.to"
+                        :to="sub.to"
+                        class="w-full h-8 rounded-lg text-xs font-medium transition flex items-center gap-2 px-2.5"
+                        :class="[isEnglishSubActive(sub.to) ? 'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-200 ring-1 ring-indigo-500/40 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white']"
+                        @click="closeMobile"
+                    >
+                        <i :class="sub.icon" class="w-4 text-center text-xs shrink-0"></i>
+                        <span class="truncate flex-1 text-xs">{{ sub.label }}</span>
                     </router-link>
                 </div>
-            </template>
+            </div>
+
+            <!-- 3. Discord Bot Item -->
+            <div class="pt-0.5">
+                <router-link to="/discord" class="w-full h-10 rounded-xl text-sm transition flex items-center gap-2.5" :class="[collapsed ? 'px-3 justify-center' : 'px-3', isActive('/discord') ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white font-medium']" :title="collapsed ? 'Discord Bot' : undefined" @click="closeMobile">
+                    <i class="fa-brands fa-discord w-5 text-center text-sm shrink-0"></i>
+                    <span v-if="!collapsed" class="truncate text-sm">Discord Bot</span>
+                </router-link>
+            </div>
         </nav>
 
         <!-- Theme & User Footer -->
@@ -120,26 +144,31 @@ const { isDark, toggleTheme } = useTheme()
 const route = useRoute()
 const collapsed = ref(false)
 const mobileOpen = ref(false)
-const techOpen = ref(route.path === "/tech")
-const quizOpen = ref(route.path.startsWith("/quiz"))
-const learningItems = [
-    { to: "/tech", icon: "fa-solid fa-laptop-code", label: "Tech" },
+
+const isEnglishRoute = (path) => ["/english", "/vocab", "/quiz", "/reading", "/writing", "/speaking", "/ielts", "/exam"].some((p) => path.startsWith(p))
+
+const techOpen = ref(route.path.startsWith("/tech"))
+const englishOpen = ref(isEnglishRoute(route.path))
+
+const isTechActive = computed(() => route.path.startsWith("/tech"))
+const isEnglishActive = computed(() => isEnglishRoute(route.path))
+const isActive = (path) => route.path === path
+
+const englishSubItems = [
     { to: "/vocab", icon: "fa-solid fa-book-open", label: "Vocabulary / Flashcard" },
-    { to: "/discord", icon: "fa-brands fa-discord", label: "Discord Bot" },
     { to: "/quiz", icon: "fa-solid fa-puzzle-piece", label: "Quiz & Practice" },
-    { to: "/exam", icon: "fa-solid fa-file-signature", label: "Thi thử (50 câu)" },
     { to: "/reading", icon: "fa-solid fa-book-open-reader", label: "Reading Comprehension" },
     { to: "/writing", icon: "fa-solid fa-pen-fancy", label: "Writing Studio" },
     { to: "/speaking", icon: "fa-solid fa-microphone-lines", label: "Speaking Coach" },
     { to: "/ielts", icon: "fa-solid fa-graduation-cap", label: "IELTS Prep" },
+    { to: "/exam", icon: "fa-solid fa-file-signature", label: "Thi thử (50 câu)" },
 ]
-const isActive = (path) => (path === "/quiz" || path === "/tech" ? route.path.startsWith(path) : route.path === path)
-const hasSubmenu = (path) => path === "/tech" || path === "/quiz"
-const isSubmenuOpen = (path) => (path === "/tech" ? techOpen.value : quizOpen.value)
-const toggleSubmenu = (path) => {
-    if (path === "/tech") techOpen.value = !techOpen.value
-    if (path === "/quiz") quizOpen.value = !quizOpen.value
+
+const isEnglishSubActive = (path) => {
+    if (path === "/quiz") return route.path.startsWith("/quiz")
+    return route.path === path
 }
+
 const fallbackTechStacks = [
     { slug: "php", name: "PHP", active_item_count: 200 },
     { slug: "nextjs", name: "Next.js", active_item_count: 200 },
@@ -148,11 +177,14 @@ const fallbackTechStacks = [
     { slug: "javascript", name: "JavaScript", active_item_count: 200 },
     { slug: "nodejs", name: "Node.js", active_item_count: 200 },
 ]
+
 const techStacks = computed(() => (learningStore.techStacks.length ? learningStore.techStacks : fallbackTechStacks))
+
 const normalizeTechSlug = (slug) =>
     String(slug || "")
         .toLowerCase()
         .replace(/[^a-z]/g, "")
+
 const techIconClass = (slug) =>
     ({
         php: "fa-brands fa-php",
@@ -164,6 +196,7 @@ const techIconClass = (slug) =>
         node: "fa-brands fa-node-js",
         nodejs: "fa-brands fa-node-js",
     })[normalizeTechSlug(slug)] || "fa-solid fa-code"
+
 const techIconColor = (slug) =>
     ({
         php: "text-indigo-600 dark:text-indigo-300",
@@ -175,13 +208,8 @@ const techIconColor = (slug) =>
         node: "text-emerald-600 dark:text-green-400",
         nodejs: "text-emerald-600 dark:text-green-400",
     })[normalizeTechSlug(slug)] || "text-gray-600 dark:text-gray-300"
+
 const isTechStackActive = (slug) => route.path.startsWith("/tech") && String(route.params.stack || learningStore.activeTechSlug || "php") === slug
-const quizModes = [
-    { key: "multiple_choice", icon: "fa-solid fa-list-check", label: "Trắc nghiệm" },
-    { key: "spelling", icon: "fa-solid fa-keyboard", label: "Gõ từ vựng" },
-    { key: "leaderboard", icon: "fa-solid fa-trophy", label: "Xếp hạng" },
-]
-const isQuizModeActive = (mode) => route.path.startsWith("/quiz") && String(route.params.mode || "multiple_choice") === mode
 
 onMounted(() => {
     if (!learningStore.techStacks.length) learningStore.loadTechStacks()
@@ -191,7 +219,7 @@ watch(
     () => route.path,
     (path) => {
         if (path.startsWith("/tech")) techOpen.value = true
-        if (path.startsWith("/quiz")) quizOpen.value = true
+        if (isEnglishRoute(path)) englishOpen.value = true
     },
 )
 
