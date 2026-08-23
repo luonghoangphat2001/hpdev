@@ -49,8 +49,8 @@ function parseJson(value) {
   const recovered = [];
   let objectStart = -1;
   let depth = 0;
-  quoted = false;
-  escaped = false;
+  let quoted = false;
+  let escaped = false;
   for (let i = 0; i < candidate.length; i++) {
     const ch = candidate[i];
     if (quoted) {

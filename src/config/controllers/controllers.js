@@ -16,7 +16,6 @@ const VocabularyController = require('../../controllers/VocabularyController');
 const QuizController = require('../../controllers/QuizController');
 const TechController = require('../../controllers/TechController');
 const DiscordNotificationController = require('../../controllers/DiscordNotificationController');
-const WebController = require('../../controllers/WebController');
 const OpenClawMonitorService = require('../../services/openclaw/OpenClawMonitorService');
 
 function buildControllers(dependencies) {
@@ -61,7 +60,6 @@ function buildControllers(dependencies) {
     quiz: quizEngine ? new QuizController(quizEngine) : null,
     tech: techRepo && techService ? new TechController(techRepo, techService) : null,
     discordNotification: new DiscordNotificationController(discordNotificationService),
-    web: new WebController(),
   };
 }
 

@@ -2,20 +2,10 @@
 
 const express = require('express');
 const rateLimit = require('express-rate-limit');
-const path = require('path');
-const fs = require('fs');
-
-const PUBLIC_DIR = path.join(__dirname, '../../../public');
-const DIST_DIR = path.join(__dirname, '../../../dist');
 
 function configureRequestMiddleware(app) {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-  
-  if (fs.existsSync(DIST_DIR)) {
-    app.use(express.static(DIST_DIR, { maxAge: '7d' }));
-  }
-  app.use(express.static(PUBLIC_DIR, { maxAge: '7d' }));
   app.use('/api', createApiRateLimiter());
 }
 
@@ -36,4 +26,3 @@ function shouldSkipApiRateLimit(req) {
 
 module.exports = configureRequestMiddleware;
 module.exports.shouldSkipApiRateLimit = shouldSkipApiRateLimit;
-
