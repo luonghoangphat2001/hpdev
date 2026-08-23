@@ -3,7 +3,7 @@
         <!-- Quiz Header with Timer & Streak -->
         <div class="flex items-center justify-between bg-gray-800/90 border border-gray-700/80 rounded-2xl p-4 mb-4">
             <div class="flex items-center gap-3">
-                <span class="text-2xl">🔥</span>
+                <i class="fa-solid fa-fire text-amber-500 text-2xl"></i>
                 <div>
                     <span class="text-xs text-gray-400 uppercase font-semibold">Chuỗi đúng</span>
                     <p class="text-lg font-bold text-amber-400">{{ streak }} câu</p>
@@ -34,15 +34,15 @@
             <div class="space-y-3">
                 <button v-for="(opt, idx) in options" :key="idx" @click="selectOption(opt, idx)" :disabled="answered" :class="['w-full text-left p-4 rounded-2xl border text-sm font-medium transition flex items-center justify-between', getOptionClass(opt, idx)]">
                     <span>{{ opt }}</span>
-                    <span v-if="answered && isCorrectOption(opt)" class="text-emerald-400 font-bold">✓</span>
-                    <span v-else-if="answered && isWrongSelected(idx)" class="text-rose-400 font-bold">✗</span>
+                    <i v-if="answered && isCorrectOption(opt)" class="fa-solid fa-check text-emerald-400 font-bold"></i>
+                    <i v-else-if="answered && isWrongSelected(idx)" class="fa-solid fa-xmark text-rose-400 font-bold"></i>
                 </button>
             </div>
         </div>
 
         <!-- Quiz Completed State -->
         <div v-else class="bg-gray-800/90 border border-gray-700/80 rounded-3xl p-8 text-center shadow-xl">
-            <span class="text-5xl block mb-3">🎉</span>
+            <i class="fa-solid fa-trophy text-5xl text-amber-400 block mb-3"></i>
             <h3 class="text-xl font-bold text-white mb-2">Hoàn thành bài Quiz!</h3>
             <p class="text-sm text-gray-300 mb-6">
                 Bạn đã đạt được <strong class="text-indigo-400 font-bold">{{ score }}</strong> điểm với chuỗi tối đa <strong class="text-amber-400">{{ maxStreak }}</strong> câu!

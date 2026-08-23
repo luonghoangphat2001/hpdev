@@ -1,7 +1,7 @@
 <template>
-    <div class="h-screen w-screen bg-gray-900 text-white flex overflow-hidden">
+    <div class="h-screen w-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white flex overflow-hidden">
         <!-- Sidebar -->
-        <AppSidebar v-if="authStore.isAuthenticated" ref="sidebarRef" />
+        <AppSidebar v-if="authStore.isAuthenticated" ref="sidebarRef" @close-mobile="closeMobileSidebar" />
 
         <!-- Mobile Backdrop -->
         <div v-if="mobileSidebarOpen" @click="closeMobileSidebar" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden transition-opacity"></div>
@@ -22,10 +22,12 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { useAuthStore } from "./stores/auth"
+import { useTheme } from "./composables/useTheme"
 import AppSidebar from "./components/layout/AppSidebar.vue"
 import MobileHeader from "./components/layout/MobileHeader.vue"
 
 const authStore = useAuthStore()
+const { initTheme } = useTheme()
 const sidebarRef = ref(null)
 const mobileSidebarOpen = ref(false)
 
@@ -44,6 +46,7 @@ const closeMobileSidebar = () => {
 }
 
 onMounted(() => {
+    initTheme()
     authStore.fetchUser()
 })
 </script>

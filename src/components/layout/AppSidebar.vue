@@ -1,66 +1,208 @@
 <template>
-    <aside :class="['app-sidebar bg-gray-800 flex flex-col border-r border-gray-700 shrink-0 transition-all duration-200 z-40', collapsed ? 'w-16' : 'w-60', mobileOpen ? 'fixed inset-y-0 left-0 shadow-2xl translate-x-0 flex' : 'hidden md:flex']">
-        <div class="px-3 py-4 border-b border-gray-700 flex items-center justify-between gap-1">
-            <router-link to="/tech" class="flex items-center gap-2 overflow-hidden">
+    <aside :class="['app-sidebar bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 flex flex-col border-r border-gray-200 dark:border-gray-700 shrink-0 transition-all duration-200 z-40', collapsed ? 'w-16' : 'w-60', mobileOpen ? 'fixed inset-y-0 left-0 shadow-2xl translate-x-0 flex' : 'hidden md:flex']">
+        <!-- Sidebar Brand Header -->
+        <div class="px-3.5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-1">
+            <router-link to="/tech" class="flex items-center gap-2.5 overflow-hidden" @click="closeMobile">
                 <img src="/images/dan.png" alt="Đần Learning" class="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-500/40 shrink-0" />
                 <div v-if="!collapsed" class="min-w-0">
-                    <div class="font-bold text-white text-sm truncate">Đần Learning</div>
-                    <div class="text-[10px] font-mono text-indigo-300">v2.0.0</div>
+                    <div class="font-bold text-gray-900 dark:text-white text-sm truncate">Đần Learning</div>
+                    <div class="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-semibold">v2.0.0</div>
                 </div>
             </router-link>
 
             <div class="flex items-center gap-1">
-                <button @click="toggleCollapse" type="button" class="hidden md:flex w-6 h-6 rounded-md bg-gray-700 hover:bg-indigo-600 text-gray-200 transition items-center justify-center text-xs" :title="collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'">
-                    {{ collapsed ? "»" : "«" }}
-                </button>
-                <button @click="closeMobile" type="button" class="md:hidden w-7 h-7 rounded-lg bg-gray-700 hover:bg-red-600 text-gray-200 transition flex items-center justify-center text-xs">✕</button>
+                <button @click="closeMobile" type="button" class="md:hidden w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-red-600 hover:text-white text-gray-600 dark:text-gray-200 transition flex items-center justify-center text-xs">✕</button>
             </div>
         </div>
 
-        <nav class="flex-1 px-2 py-3 space-y-1 overflow-y-auto overscroll-contain">
-            <div v-if="!collapsed" class="px-3 pb-1 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Learning Hub</div>
+        <!-- Sidebar Navigation List -->
+        <nav class="flex-1 px-2.5 py-3 space-y-1 overflow-y-auto overscroll-contain">
+            <template v-for="item in learningItems" :key="item.to">
+                <!-- Item with Submenu -->
+                <div v-if="hasSubmenu(item.to)" class="w-full rounded-xl text-sm transition flex items-center" :class="[isActive(item.to) ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white font-medium']">
+                    <router-link :to="item.to" class="min-w-0 flex-1 h-10 flex items-center gap-2.5" :class="collapsed ? 'px-3 justify-center' : 'pl-3'" :title="collapsed ? item.label : undefined" @click="closeMobile">
+                        <i :class="item.icon" class="w-5 text-center text-sm shrink-0"></i>
+                        <span v-if="!collapsed" class="truncate text-sm">{{ item.label }}</span>
+                    </router-link>
+                    <button v-if="!collapsed" type="button" class="w-9 h-10 self-stretch shrink-0 grid place-items-center rounded-r-xl hover:bg-black/10 dark:hover:bg-black/20 transition" :title="isSubmenuOpen(item.to) ? 'Đóng menu con' : 'Mở menu con'" @click="toggleSubmenu(item.to)">
+                        <svg class="w-4 h-4 block transition-transform duration-200" :class="isSubmenuOpen(item.to) ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m5 7.5 5 5 5-5" />
+                        </svg>
+                    </button>
+                </div>
 
-            <router-link v-for="item in learningMenu" :key="item.to" :to="item.to" class="nav-item w-full px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2.5" :class="$route.path === item.to ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-gray-300 hover:bg-gray-700 hover:text-white'">
-                <span class="sidebar-icon text-base">{{ item.icon }}</span>
-                <span v-if="!collapsed" class="sidebar-label truncate">{{ item.label }}</span>
-            </router-link>
+                <!-- Regular Nav Item -->
+                <router-link v-else :to="item.to" class="w-full h-10 rounded-xl text-sm transition flex items-center gap-2.5" :class="[collapsed ? 'px-3 justify-center' : 'px-3', isActive(item.to) ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white font-medium']" :title="collapsed ? item.label : undefined" @click="closeMobile">
+                    <i :class="item.icon" class="w-5 text-center text-sm shrink-0"></i>
+                    <span v-if="!collapsed" class="truncate text-sm">{{ item.label }}</span>
+                </router-link>
+
+                <!-- Tech Submenu -->
+                <div v-if="item.to === '/tech' && techOpen && !collapsed" class="space-y-1 ml-3 pl-2.5 border-l border-gray-200 dark:border-gray-700/80 my-1">
+                    <router-link v-for="stack in techStacks" :key="stack.slug" :to="`/tech/${stack.slug}`" class="w-full h-8 rounded-lg text-xs font-medium transition flex items-center gap-2 px-2.5" :class="[isTechStackActive(stack.slug) ? 'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-200 ring-1 ring-indigo-500/40 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white']" @click="closeMobile">
+                        <span class="w-4 h-4 shrink-0 flex items-center justify-center" aria-hidden="true">
+                            <span v-if="normalizeTechSlug(stack.slug) === 'nextjs'" class="w-3.5 h-3.5 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-950 text-[9px] font-black leading-3 text-center">N</span>
+                            <i v-else :class="[techIconClass(stack.slug), techIconColor(stack.slug), 'text-sm']"></i>
+                        </span>
+                        <span class="truncate flex-1 text-xs">{{ stack.name }}</span>
+                        <span class="text-[10px] font-mono text-gray-400 dark:text-gray-500 shrink-0">{{ stack.active_item_count || 0 }}</span>
+                    </router-link>
+                </div>
+
+                <!-- Quiz Submenu -->
+                <div v-if="item.to === '/quiz' && quizOpen && !collapsed" class="space-y-1 ml-3 pl-2.5 border-l border-gray-200 dark:border-gray-700/80 my-1">
+                    <router-link v-for="mode in quizModes" :key="mode.key" :to="`/quiz/mode/${mode.key}`" class="w-full h-8 rounded-lg text-xs font-medium transition flex items-center gap-2 px-2.5" :class="[isQuizModeActive(mode.key) ? 'bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-200 ring-1 ring-indigo-500/40 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/60 hover:text-gray-900 dark:hover:text-white']" @click="closeMobile">
+                        <i :class="mode.icon" class="w-4 text-center text-xs shrink-0"></i>
+                        <span class="truncate text-xs">{{ mode.label }}</span>
+                    </router-link>
+                </div>
+            </template>
         </nav>
 
-        <div class="border-t border-gray-700 px-3 py-3 flex items-center gap-2.5 shrink-0">
-            <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                {{ authStore.userInitial }}
+        <!-- Theme & User Footer -->
+        <div class="border-t border-gray-200 dark:border-gray-700 px-3 py-2.5 space-y-2 shrink-0">
+            <!-- Theme Toggle Button -->
+            <button
+                @click="toggleTheme"
+                type="button"
+                class="w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/80 transition"
+                :class="collapsed ? 'justify-center' : ''"
+                :title="isDark ? 'Chuyển sang Chế độ Sáng' : 'Chuyển sang Chế độ Tối'">
+                <i :class="isDark ? 'fa-solid fa-moon text-indigo-400' : 'fa-solid fa-sun text-amber-500'" class="text-sm"></i>
+                <span v-if="!collapsed" class="truncate">{{ isDark ? 'Giao diện Tối' : 'Giao diện Sáng' }}</span>
+            </button>
+
+            <!-- User Info Bar -->
+            <div class="flex items-center gap-2.5 pt-1">
+                <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                    {{ authStore.userInitial }}
+                </div>
+                <div v-if="!collapsed" class="flex-1 min-w-0">
+                    <div class="text-xs font-bold truncate text-gray-900 dark:text-white">{{ authStore.username }}</div>
+                    <div class="text-[10px] text-gray-500 dark:text-gray-400 capitalize">{{ authStore.user?.role || "user" }}</div>
+                </div>
+                <button
+                    @click="toggleCollapse"
+                    type="button"
+                    class="hidden md:flex w-6 h-6 rounded bg-gray-100 dark:bg-gray-700 hover:bg-indigo-600 hover:text-white text-gray-500 dark:text-gray-300 transition items-center justify-center text-xs shrink-0"
+                    :title="collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'">
+                    {{ collapsed ? "»" : "«" }}
+                </button>
+                <button
+                    v-if="!collapsed"
+                    @click="authStore.logout"
+                    type="button"
+                    title="Đăng xuất"
+                    class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-white transition p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                </button>
             </div>
-            <div v-if="!collapsed" class="flex-1 min-w-0">
-                <div class="text-sm font-medium truncate text-white">{{ authStore.username }}</div>
-                <div class="text-xs text-gray-400 capitalize">{{ authStore.user?.role || "user" }}</div>
-            </div>
-            <button v-if="!collapsed" @click="authStore.logout" type="button" title="Đăng xuất" class="text-gray-400 hover:text-white transition p-1 rounded hover:bg-gray-700">⇥</button>
         </div>
     </aside>
 </template>
 
 <script setup>
-import { ref } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
+import { useRoute } from "vue-router"
 import { useAuthStore } from "@/stores/auth"
+import { useLearningStore } from "@/stores/learning"
+import { useTheme } from "@/composables/useTheme"
 
+const emit = defineEmits(["close-mobile"])
 const authStore = useAuthStore()
+const learningStore = useLearningStore()
+const { isDark, toggleTheme } = useTheme()
+
+const route = useRoute()
 const collapsed = ref(false)
 const mobileOpen = ref(false)
-
-const learningMenu = [
-    { to: "/tech", icon: "💻", label: "Lập trình & Tech" },
-    { to: "/vocab", icon: "📖", label: "Vocabulary (50 Topics)" },
-    { to: "/quiz", icon: "🧩", label: "Quiz & Practice" },
-    { to: "/writing", icon: "✍️", label: "Writing Studio" },
-    { to: "/speaking", icon: "🗣️", label: "Speaking Coach" },
+const techOpen = ref(route.path === "/tech")
+const quizOpen = ref(route.path.startsWith("/quiz"))
+const learningItems = [
+    { to: "/tech", icon: "fa-solid fa-laptop-code", label: "Tech" },
+    { to: "/vocab", icon: "fa-solid fa-book-open", label: "Vocabulary / Flashcard" },
+    { to: "/discord", icon: "fa-brands fa-discord", label: "Discord Bot" },
+    { to: "/quiz", icon: "fa-solid fa-puzzle-piece", label: "Quiz & Practice" },
+    { to: "/exam", icon: "fa-solid fa-file-signature", label: "Thi thử (50 câu)" },
+    { to: "/reading", icon: "fa-solid fa-book-open-reader", label: "Reading Comprehension" },
+    { to: "/writing", icon: "fa-solid fa-pen-fancy", label: "Writing Studio" },
+    { to: "/speaking", icon: "fa-solid fa-microphone-lines", label: "Speaking Coach" },
+    { to: "/ielts", icon: "fa-solid fa-graduation-cap", label: "IELTS Prep" },
 ]
+const isActive = (path) => (path === "/quiz" || path === "/tech" ? route.path.startsWith(path) : route.path === path)
+const hasSubmenu = (path) => path === "/tech" || path === "/quiz"
+const isSubmenuOpen = (path) => (path === "/tech" ? techOpen.value : quizOpen.value)
+const toggleSubmenu = (path) => {
+    if (path === "/tech") techOpen.value = !techOpen.value
+    if (path === "/quiz") quizOpen.value = !quizOpen.value
+}
+const fallbackTechStacks = [
+    { slug: "php", name: "PHP", active_item_count: 200 },
+    { slug: "nextjs", name: "Next.js", active_item_count: 200 },
+    { slug: "python", name: "Python", active_item_count: 200 },
+    { slug: "reactjs", name: "React.js", active_item_count: 200 },
+    { slug: "javascript", name: "JavaScript", active_item_count: 200 },
+    { slug: "nodejs", name: "Node.js", active_item_count: 200 },
+]
+const techStacks = computed(() => (learningStore.techStacks.length ? learningStore.techStacks : fallbackTechStacks))
+const normalizeTechSlug = (slug) =>
+    String(slug || "")
+        .toLowerCase()
+        .replace(/[^a-z]/g, "")
+const techIconClass = (slug) =>
+    ({
+        php: "fa-brands fa-php",
+        python: "fa-brands fa-python",
+        react: "fa-brands fa-react",
+        reactjs: "fa-brands fa-react",
+        javascript: "fa-brands fa-js",
+        js: "fa-brands fa-js",
+        node: "fa-brands fa-node-js",
+        nodejs: "fa-brands fa-node-js",
+    })[normalizeTechSlug(slug)] || "fa-solid fa-code"
+const techIconColor = (slug) =>
+    ({
+        php: "text-indigo-600 dark:text-indigo-300",
+        python: "text-sky-600 dark:text-sky-400",
+        react: "text-cyan-600 dark:text-cyan-400",
+        reactjs: "text-cyan-600 dark:text-cyan-400",
+        javascript: "text-amber-600 dark:text-yellow-400",
+        js: "text-amber-600 dark:text-yellow-400",
+        node: "text-emerald-600 dark:text-green-400",
+        nodejs: "text-emerald-600 dark:text-green-400",
+    })[normalizeTechSlug(slug)] || "text-gray-600 dark:text-gray-300"
+const isTechStackActive = (slug) => route.path.startsWith("/tech") && String(route.params.stack || learningStore.activeTechSlug || "php") === slug
+const quizModes = [
+    { key: "multiple_choice", icon: "fa-solid fa-list-check", label: "Trắc nghiệm" },
+    { key: "spelling", icon: "fa-solid fa-keyboard", label: "Gõ từ vựng" },
+    { key: "leaderboard", icon: "fa-solid fa-trophy", label: "Xếp hạng" },
+]
+const isQuizModeActive = (mode) => route.path.startsWith("/quiz") && String(route.params.mode || "multiple_choice") === mode
+
+onMounted(() => {
+    if (!learningStore.techStacks.length) learningStore.loadTechStacks()
+})
+
+watch(
+    () => route.path,
+    (path) => {
+        if (path.startsWith("/tech")) techOpen.value = true
+        if (path.startsWith("/quiz")) quizOpen.value = true
+    },
+)
 
 const toggleCollapse = () => {
     collapsed.value = !collapsed.value
 }
 
 const closeMobile = () => {
+    if (!mobileOpen.value) return
     mobileOpen.value = false
+    emit("close-mobile")
 }
 
 defineExpose({

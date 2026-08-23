@@ -4,48 +4,109 @@
 
 @layer base {
   body {
-    @apply bg-gray-900 text-gray-100 selection:bg-indigo-500 selection:text-white;
+    @apply bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 selection:bg-indigo-500 selection:text-white transition-colors duration-200 text-[15px] sm:text-base font-sans antialiased leading-relaxed;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+}
+
+.learning-readable {
+  max-height: 100%;
+  overscroll-behavior-y: contain;
+}
+
+.learning-readable .overflow-y-auto,
+.learning-readable .overflow-auto {
+  overscroll-behavior: contain;
+}
+
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.learning-section-screen,
+.learning-section-workspace {
+  min-height: calc(100dvh - 5rem);
+}
+
+@media (min-width: 768px) {
+  .learning-section-screen,
+  .learning-section-workspace {
+    min-height: calc(100dvh - 2rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .learning-section-workspace {
+    height: calc(100dvh - 2rem);
   }
 }
 
 @layer components {
+  /* Studio Base Card */
   .studio-card {
-    @apply rounded-2xl border border-gray-700/80 bg-gray-800/90 p-4 sm:p-5 shadow-xl;
+    @apply rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 shadow-[0_1px_3px_0_rgba(0,0,0,0.04),0_1px_2px_-1px_rgba(0,0,0,0.04)] dark:shadow-md text-slate-800 dark:text-slate-100 transition-all;
   }
+
   .loading-card {
-    @apply rounded-2xl border border-gray-700/80 bg-gray-800/70 p-8 text-center text-sm text-gray-400;
+    @apply rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center text-sm sm:text-base font-medium text-slate-500 dark:text-slate-400 shadow-sm;
   }
+
+  /* Form Controls */
   .input-control {
-    @apply w-full rounded-xl border border-gray-700 bg-gray-900 px-3 py-2.5 text-xs text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none;
+    @apply w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-950 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 focus:outline-none transition;
   }
+
   .primary-button {
-    @apply rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-indigo-600/20 transition hover:bg-indigo-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
   }
+
   .secondary-button,
   .nav-button {
-    @apply rounded-xl border border-gray-600 bg-gray-700 px-3 py-2 text-xs font-semibold text-gray-200 transition hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-30;
+    @apply rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100/90 dark:bg-slate-800 px-3.5 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-30;
   }
+
   .answer-button {
-    @apply rounded-xl border border-gray-700 bg-gray-900 p-4 text-left text-xs font-semibold text-gray-200 transition hover:border-indigo-500 hover:bg-gray-800 disabled:cursor-default;
+    @apply rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 text-left text-sm sm:text-base font-medium text-slate-800 dark:text-slate-100 leading-relaxed transition hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-slate-800 shadow-sm disabled:cursor-default;
   }
+
   .badge {
-    @apply inline-flex rounded-full border border-indigo-700/60 bg-indigo-950/60 px-2.5 py-0.5 text-[10px] font-semibold text-indigo-300;
+    @apply inline-flex items-center rounded-full border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/60 px-3 py-0.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300;
   }
+
   .info-box {
-    @apply rounded-2xl border border-gray-700 bg-gray-900/90 p-4 text-sm leading-relaxed text-gray-200;
+    @apply rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4 text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-100;
   }
-  .info-box h3,
-  .tip-box h3 {
-    @apply mb-2 text-xs font-bold uppercase tracking-wide text-indigo-300;
-  }
-  .tip-box {
-    @apply rounded-xl border border-indigo-800/60 bg-indigo-950/40 p-3 text-xs leading-relaxed text-gray-200;
-  }
+
   .code-box {
-    @apply overflow-x-auto rounded-xl border border-gray-700 bg-gray-950 p-4 text-xs leading-relaxed text-emerald-300;
+    @apply overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 text-xs sm:text-sm leading-relaxed text-emerald-400 font-mono shadow-sm;
   }
+
   .tech-study-layout {
-    @apply mx-auto w-full max-w-5xl;
+    @apply mx-auto w-full max-w-4xl;
+  }
+
+  .tech-questions-scroll {
+    max-height: clamp(360px, calc(100vh - 16rem), 760px);
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .tech-content-scroll {
+    max-height: clamp(400px, calc(100vh - 14rem), 860px);
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .vocab-words-scroll {
+    max-height: clamp(380px, 62vh, 720px);
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .crud-label {
+    @apply block text-xs sm:text-sm text-slate-700 dark:text-slate-300 mb-1.5 font-semibold;
   }
 }
 
@@ -54,27 +115,78 @@
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
-  background: rgba(17, 24, 39, 0.7);
+  background: rgba(0, 0, 0, 0.03);
 }
+
+.dark ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.7);
+}
+
 ::-webkit-scrollbar-thumb {
-  background: rgba(75, 85, 99, 0.8);
+  background: rgba(148, 163, 184, 0.5);
   border-radius: 9999px;
 }
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.8);
+}
+
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 114, 128, 1);
+  background: rgba(100, 116, 139, 0.8);
 }
 
 /* 3D Flip Card Effect */
 .perspective-1000 {
   perspective: 1000px;
 }
+
 .transform-style-3d {
   transform-style: preserve-3d;
 }
+
 .backface-hidden {
   backface-visibility: hidden;
 }
+
 .rotate-y-180 {
   transform: rotateY(180deg);
+}
+
+/* Learning Collapsible Tools */
+.learning-readable .learning-tools-toggle {
+  display: flex;
+  list-style: none;
+}
+
+.learning-readable .learning-tools-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.learning-readable .learning-tools-chevron {
+  transform-origin: center;
+  transition: transform 300ms ease;
+}
+
+.learning-readable details[open]>.learning-tools-toggle .learning-tools-chevron {
+  transform: rotate(180deg);
+}
+
+.learning-readable .learning-tools-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  overflow: hidden;
+  transition: grid-template-rows 300ms ease, opacity 250ms ease;
+}
+
+.learning-readable details[open]>.learning-tools-content {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.learning-readable .learning-tools-content-inner {
+  min-height: 0;
+  overflow: hidden;
 }
