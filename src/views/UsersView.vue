@@ -1,93 +1,13 @@
-<template>
-    <div class="h-full flex flex-col min-w-0">
-        <header class="h-14 px-4 border-b border-gray-800 bg-gray-900/90 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-2">
-                <span class="text-lg">👥</span>
-                <h2 class="text-sm font-bold text-white">Quản lý Tài khoản Người dùng</h2>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto p-4 md:p-6 max-w-5xl mx-auto w-full space-y-6">
-            <!-- Create User Card -->
-            <div class="bg-gray-800/90 border border-gray-700/80 rounded-3xl p-6 shadow-xl">
-                <h3 class="text-base font-bold text-white mb-4">Tạo Tài Khoản Mới</h3>
-                <form @submit.prevent="handleCreateUser" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <input v-model="newUsername" type="text" placeholder="Username" required class="px-3.5 py-2.5 rounded-xl bg-gray-900 border border-gray-700 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500" />
-                    <input v-model="newPassword" type="password" placeholder="Password" required class="px-3.5 py-2.5 rounded-xl bg-gray-900 border border-gray-700 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500" />
-                    <button type="submit" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-md shadow-indigo-600/30">+ Thêm người dùng</button>
-                </form>
-            </div>
-
-            <!-- User List Table -->
-            <div class="bg-gray-800/90 border border-gray-700/80 rounded-3xl p-6 shadow-xl overflow-hidden">
-                <h3 class="text-base font-bold text-white mb-4">Danh Sách Người Dùng</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="border-b border-gray-700 text-gray-400">
-                            <tr>
-                                <th class="pb-3 font-semibold">Username</th>
-                                <th class="pb-3 font-semibold">Vai trò</th>
-                                <th class="pb-3 font-semibold text-right">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-700/50 text-gray-200">
-                            <tr v-for="u in users" :key="u.username">
-                                <td class="py-3 font-mono font-medium">{{ u.username }}</td>
-                                <td class="py-3">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase" :class="u.role === 'admin' ? 'bg-indigo-500/20 text-indigo-300' : 'bg-gray-700 text-gray-300'">
-                                        {{ u.role || "user" }}
-                                    </span>
-                                </td>
-                                <td class="py-3 text-right">
-                                    <button @click="handleDelete(u.username)" class="text-rose-400 hover:text-rose-300 hover:underline text-xs">Xóa</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</template>
-
+<template><div class="h-full overflow-y-auto"><div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+  <div class="flex justify-between"><h1 class="text-2xl font-bold">👥 Users</h1><button @click="load" class="text-sm text-indigo-400">↻ Refresh</button></div>
+  <form @submit.prevent="add" class="bg-gray-800 rounded-xl p-6 space-y-4"><h2 class="font-semibold text-gray-300">Thêm user</h2><div class="grid sm:grid-cols-3 gap-3"><input v-model.trim="newUser.username" required placeholder="Username" class="field"/><input v-model="newUser.password" required minlength="6" type="password" placeholder="Password (min 6)" class="field"/><select v-model="newUser.role" class="field"><option value="user">User</option><option value="admin">Admin</option></select></div><button class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-sm font-semibold">+ Thêm user</button><p v-if="message" :class="ok?'text-green-400':'text-red-400'" class="text-sm">{{ message }}</p></form>
+  <section class="bg-gray-800 rounded-xl p-6"><h2 class="font-semibold text-gray-300 mb-4">Danh sách users</h2><p v-if="!users.length" class="text-sm text-gray-500">Chưa có user nào.</p><div v-else class="divide-y divide-gray-700"><article v-for="user in users" :key="user.username" class="flex items-center gap-3 py-3"><div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold">{{ user.username?.charAt(0).toUpperCase() }}</div><div class="flex-1 min-w-0"><div class="text-sm font-medium flex items-center gap-2">{{ user.username }}<span v-if="user.username===auth.username" class="text-xs text-gray-500">(bạn)</span><span v-if="isOnline(user)" class="w-2 h-2 rounded-full bg-green-400" title="Online"></span></div><div class="text-xs text-gray-500">{{ user.role }} · {{ formatDate(user.created_at) }} · {{ relative(user.last_active) }}</div></div><button @click="changePassword(user.username)" class="text-xs text-amber-400">Đổi MK</button><button v-if="user.username!==auth.username" @click="remove(user.username)" class="text-xs text-red-400">Xóa</button></article></div></section>
+</div></div></template>
 <script setup>
-import { ref, onMounted } from "vue"
-import { getUsers, createUser, deleteUser } from "@/api/users"
-
-const users = ref([])
-const newUsername = ref("")
-const newPassword = ref("")
-
-const loadUsers = async () => {
-    try {
-        const res = await getUsers()
-        users.value = res?.users || []
-    } catch (_) {}
-}
-
-const handleCreateUser = async () => {
-    if (!newUsername.value || !newPassword.value) return
-    try {
-        await createUser({ username: newUsername.value, password: newPassword.value })
-        newUsername.value = ""
-        newPassword.value = ""
-        await loadUsers()
-    } catch (err) {
-        alert(err.message)
-    }
-}
-
-const handleDelete = async (username) => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa user ${username}?`)) return
-    try {
-        await deleteUser(username)
-        await loadUsers()
-    } catch (err) {
-        alert(err.message)
-    }
-}
-
-onMounted(() => {
-    loadUsers()
-})
-</script>
+import { onMounted, reactive, ref } from 'vue'; import { createUser, deleteUser, getUsers, updateUserPassword } from '@/api/users'; import { useAuthStore } from '@/stores/auth';
+const auth=useAuthStore(),users=ref([]),newUser=reactive({username:'',password:'',role:'user'}),message=ref(''),ok=ref(false); const load=async()=>{users.value=await getUsers()||[];};
+const add=async()=>{try{await createUser({...newUser});Object.assign(newUser,{username:'',password:'',role:'user'});message.value='✓ Đã thêm user.';ok.value=true;await load();}catch(e){message.value=e.message;ok.value=false;}};
+const remove=async(username)=>{if(confirm(`Xóa user "${username}"?`)){await deleteUser(username);await load();}};
+const changePassword=async(username)=>{const password=prompt(`Mật khẩu mới cho ${username} (tối thiểu 6 ký tự):`);if(password){try{await updateUserPassword(username,password);message.value=`✓ Đã đổi mật khẩu cho ${username}.`;ok.value=true;}catch(e){message.value=e.message;ok.value=false;}}};
+const formatDate=v=>v?new Date(v).toLocaleDateString('vi-VN'):'—'; const relative=v=>{if(!v)return'Chưa online';const s=(Date.now()-new Date(v).getTime())/1000;return s<60?'vừa xong':s<3600?`${Math.floor(s/60)} phút trước`:s<86400?`${Math.floor(s/3600)} giờ trước`:`${Math.floor(s/86400)} ngày trước`;}; const isOnline=u=>u.last_active&&Date.now()-new Date(u.last_active).getTime()<300000;onMounted(load);
+</script><style scoped>.field{@apply px-3.5 py-2.5 rounded-lg bg-gray-700 border border-gray-600 text-sm focus:outline-none focus:border-indigo-500}</style>

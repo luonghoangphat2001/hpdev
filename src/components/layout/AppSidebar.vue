@@ -35,6 +35,8 @@
             <div v-if="authStore.isAdmin" class="pt-3 space-y-0.5">
                 <div v-if="!collapsed" class="sidebar-section-label px-3 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">Management</div>
 
+                <router-link to="/schedule" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2.5" :class="$route.path === '/schedule' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"> <span class="sidebar-icon">📅</span><span v-if="!collapsed" class="sidebar-label">Schedule</span> </router-link>
+
                 <!-- Config Menu -->
                 <div>
                     <button @click="configOpen = !configOpen" type="button" class="nav-item w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center justify-between gap-2.5 select-none" :class="$route.path.startsWith('/config') ? 'bg-indigo-600/30 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'">
@@ -45,10 +47,11 @@
                         <span v-if="!collapsed" class="text-xs text-gray-400 transition-transform" :class="{ 'rotate-180': configOpen }">⌄</span>
                     </button>
                     <div v-if="configOpen && !collapsed" class="sidebar-dropdown-submenu ml-7 pl-2 border-l border-gray-700 space-y-0.5 mt-0.5">
-                        <router-link to="/config" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2" :class="$route.path === '/config' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'"> <span class="sidebar-icon">🤖</span><span class="sidebar-label">Models</span> </router-link>
-                        <router-link to="/config?tab=providers" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"> <span class="sidebar-icon">🔑</span><span class="sidebar-label">Providers</span> </router-link>
-                        <router-link to="/config?tab=openclaw" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"> <span class="sidebar-icon">🦅</span><span class="sidebar-label">AI Agents</span> </router-link>
-                        <router-link to="/config?tab=prompts" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"> <span class="sidebar-icon">📝</span><span class="sidebar-label">Prompts</span> </router-link>
+                        <router-link to="/config/models" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"> <span class="sidebar-icon">🤖</span><span class="sidebar-label">Models</span> </router-link>
+                        <router-link to="/config/providers" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"> <span class="sidebar-icon">🔑</span><span class="sidebar-label">Providers</span> </router-link>
+                        <router-link to="/config/openclaw" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"> <span class="sidebar-icon">🦅</span><span class="sidebar-label">AI Agents</span> </router-link>
+                        <router-link to="/config/prompts" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"> <span class="sidebar-icon">📝</span><span class="sidebar-label">Prompts</span> </router-link>
+                        <router-link to="/config/logs" class="nav-item w-full px-2 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-2 text-gray-400 hover:bg-gray-700 hover:text-white"> <span class="sidebar-icon">🪵</span><span class="sidebar-label">Log Config</span> </router-link>
                     </div>
                 </div>
 

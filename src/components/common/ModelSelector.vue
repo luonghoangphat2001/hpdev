@@ -33,7 +33,9 @@ const isOpen = ref(false)
 const models = [
     { id: "gemini", name: "Gemini 2.5 Flash", color: "bg-emerald-400" },
     { id: "claude", name: "Claude 3.7 Sonnet", color: "bg-amber-400" },
-    { id: "openai", name: "GPT-4o Mini", color: "bg-teal-400" },
+    { id: "chatgpt", name: "ChatGPT", color: "bg-teal-400" },
+    { id: "deepseek", name: "DeepSeek", color: "bg-blue-400" },
+    { id: "ollama", name: "Ollama", color: "bg-orange-400" },
 ]
 
 const activeLabel = computed(() => {

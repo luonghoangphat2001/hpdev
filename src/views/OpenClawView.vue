@@ -1,82 +1,22 @@
-<template>
-    <div class="h-full flex flex-col min-w-0">
-        <header class="h-14 px-4 border-b border-gray-800 bg-gray-900/90 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-2">
-                <span class="text-lg">🕷️</span>
-                <h2 class="text-sm font-bold text-white">OpenClaw Crawler & Agent Monitor</h2>
-            </div>
-            <a href="https://openclaw.hpdev.name.vn" target="_blank" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">
-                <span>Mở OpenClaw Portal</span>
-                <span>↗</span>
-            </a>
-        </header>
+<template><div class="h-full overflow-y-auto"><div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+  <div class="flex items-center justify-between"><div><h1 class="text-2xl font-bold">🦞 OpenClaw Monitor</h1><p class="text-sm text-gray-500 mt-1">Control-plane, agents, workflows và tool history.</p></div><button @click="load" class="text-sm text-indigo-400">↻ Refresh</button></div>
+  <p v-if="error" class="p-3 rounded-lg bg-red-950/40 border border-red-800 text-red-300 text-sm">{{ error }}</p>
+  <div class="grid grid-cols-2 lg:grid-cols-6 gap-3"><div v-for="card in overviewCards" :key="card.label" class="bg-gray-800 rounded-xl p-4 border border-gray-700"><div class="text-[11px] uppercase text-gray-500">{{ card.label }}</div><div class="text-lg font-bold mt-1" :class="card.color">{{ card.value }}</div></div></div>
 
-        <div class="flex-1 overflow-y-auto p-4 md:p-6 max-w-5xl mx-auto w-full space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="p-5 rounded-3xl bg-gray-800/90 border border-gray-700/80 shadow-xl">
-                    <span class="text-xs text-gray-400 font-semibold uppercase">Trạng thái Worker</span>
-                    <p class="text-xl font-bold text-emerald-400 mt-1">● Đang hoạt động</p>
-                    <span class="text-[10px] text-gray-500 font-mono">Playwright Headless Chrome</span>
-                </div>
+  <section><div class="flex justify-between mb-3"><h2 class="font-semibold">Agent lifecycle</h2><span class="text-xs text-gray-500">{{ agents.length }} agents</span></div><div class="grid md:grid-cols-2 xl:grid-cols-3 gap-3"><article v-for="agent in agents" :key="agent.agentId" class="bg-gray-800 rounded-xl p-4 border border-gray-700"><div class="flex justify-between gap-2"><strong>{{ agent.displayName || agent.agentId }}</strong><span class="text-xs px-2 py-1 rounded bg-gray-900 text-green-300">{{ agent.lifecycleStatus || agent.status }}</span></div><div class="text-xs text-gray-500 mt-2">{{ agent.agentId }} · v{{ agent.stateVersion || 0 }}</div><div class="flex flex-wrap gap-1 mt-3"><button v-for="action in lifecycleActions(agent)" :key="action.state" @click="control(agent,action.state)" class="px-2 py-1 text-xs rounded border border-gray-600 hover:border-indigo-500">{{ action.label }}</button></div></article><p v-if="!agents.length" class="text-sm text-gray-500">Không tải được agent.</p></div></section>
 
-                <div class="p-5 rounded-3xl bg-gray-800/90 border border-gray-700/80 shadow-xl">
-                    <span class="text-xs text-gray-400 font-semibold uppercase">Database</span>
-                    <p class="text-xl font-bold text-indigo-400 mt-1">dan_ai</p>
-                    <span class="text-[10px] text-gray-500 font-mono">17 Workflows & Event Tables</span>
-                </div>
+  <section class="bg-gray-800 rounded-xl overflow-hidden"><div class="p-4 border-b border-gray-700 flex flex-wrap gap-3 items-center"><h2 class="font-semibold mr-auto">Workflows</h2><input v-model.trim="filters.search" @input="scheduleFilter" placeholder="Tìm workflow…" class="filter"/><input v-model.trim="filters.agentId" @input="scheduleFilter" placeholder="Agent ID" class="filter"/><select v-model="filters.state" @change="loadWorkflows" class="filter"><option value="">All states</option><option>running</option><option>awaiting_approval</option><option>completed</option><option>failed</option><option>paused</option></select></div><button v-for="flow in workflows" :key="flow.workflowId" @click="openWorkflow(flow.workflowId)" class="w-full text-left px-5 py-4 border-b border-gray-700 hover:bg-gray-750"><div class="flex items-center gap-2"><strong class="font-mono text-sm">{{ flow.workflowId }}</strong><span class="badge">{{ flow.state }}</span><span class="badge">{{ flow.riskLevel }}</span><span class="ml-auto text-xs text-gray-500">{{ formatDate(flow.updatedAt) }}</span></div><div class="mt-2 text-xs text-gray-400">{{ flow.assignedAgentId || 'unassigned' }} · {{ flow.workflowType }} · priority {{ flow.priority }}</div></button><p v-if="!workflows.length" class="p-5 text-sm text-gray-500">Không có workflow phù hợp.</p></section>
 
-                <div class="p-5 rounded-3xl bg-gray-800/90 border border-gray-700/80 shadow-xl">
-                    <span class="text-xs text-gray-400 font-semibold uppercase">Tổng lượt cào</span>
-                    <p class="text-xl font-bold text-amber-400 mt-1">{{ logs.length }} logs</p>
-                    <span class="text-[10px] text-gray-500 font-mono">Lịch sử sự kiện gần nhất</span>
-                </div>
-            </div>
+  <section v-if="workflowDetail" class="bg-gray-850 border border-indigo-500/40 rounded-xl p-5"><div class="flex justify-between"><h2 class="font-semibold">Timeline · {{ workflowDetail.workflow?.workflowId }}</h2><button @click="workflowDetail=null" class="text-xs text-gray-400">Đóng</button></div><div class="grid md:grid-cols-3 gap-3 mt-4 text-xs"><div class="detail">State<br/><strong>{{ workflowDetail.workflow?.state }}</strong></div><div class="detail">Risk<br/><strong>{{ workflowDetail.workflow?.riskLevel }}</strong></div><div class="detail">Agent<br/><strong>{{ workflowDetail.workflow?.assignedAgentId || 'unassigned' }}</strong></div></div><div class="mt-4 space-y-2"><article v-for="(event,index) in workflowEvents" :key="event.eventId||index" class="border-l-2 border-indigo-500 pl-3 text-xs"><strong>{{ event.eventType || event.type || event.state }}</strong><div class="text-gray-500">{{ formatDate(event.createdAt || event.occurredAt || event.timestamp) }}</div></article></div></section>
 
-            <!-- Logs Table -->
-            <div class="bg-gray-800/90 border border-gray-700/80 rounded-3xl p-6 shadow-xl overflow-hidden">
-                <h3 class="text-base font-bold text-white mb-4">Nhật Ký Tác Vụ Cào Web Gần Đây</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead class="border-b border-gray-700 text-gray-400">
-                            <tr>
-                                <th class="pb-3 font-semibold">Thời gian</th>
-                                <th class="pb-3 font-semibold">Loại</th>
-                                <th class="pb-3 font-semibold">Truy vấn / URL</th>
-                                <th class="pb-3 font-semibold">Tóm tắt AI</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-700/50 text-gray-200">
-                            <tr v-for="(log, idx) in logs" :key="idx">
-                                <td class="py-3 font-mono text-[10px] text-gray-400">{{ log.created_at || "Vừa xong" }}</td>
-                                <td class="py-3">
-                                    <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono text-[10px]">
-                                        {{ log.query_type || "crawl" }}
-                                    </span>
-                                </td>
-                                <td class="py-3 font-mono max-w-[200px] truncate text-gray-300">{{ log.query }}</td>
-                                <td class="py-3 max-w-[300px] truncate text-gray-400">{{ log.ai_summary || log.result_preview }}</td>
-                            </tr>
-                            <tr v-if="logs.length === 0">
-                                <td colspan="4" class="py-6 text-center text-gray-500">Chưa có tác vụ cào nào gần đây.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</template>
-
+  <section class="bg-gray-800 rounded-xl overflow-hidden"><div class="p-4 border-b border-gray-700 flex justify-between"><h2 class="font-semibold">OpenClaw tool history</h2><span class="text-xs text-gray-500">{{ Math.min(logs.length,totalLogs) }} / {{ totalLogs }}</span></div><article v-for="log in logs" :key="log.id" class="p-4 border-b border-gray-700 space-y-2"><div class="flex gap-2 text-xs"><span class="badge">{{ log.query_type }}</span><span class="text-indigo-400">{{ log.platform }}</span><strong>{{ log.username }}</strong><span class="ml-auto text-gray-500">{{ log.created_at }}</span></div><div class="text-sm text-yellow-200">{{ log.query }}</div><details class="text-xs"><summary class="cursor-pointer text-gray-400">Kết quả OpenClaw</summary><pre class="mt-2 whitespace-pre-wrap bg-gray-900 p-3 rounded">{{ log.result_preview }}</pre></details><details class="text-xs"><summary class="cursor-pointer text-gray-400">AI tóm tắt</summary><div class="mt-2 bg-gray-900 p-3 rounded">{{ log.ai_summary }}</div></details></article><button v-if="logs.length<totalLogs" @click="loadMore" class="w-full p-3 text-sm text-indigo-400">Tải thêm</button></section>
+</div></div></template>
 <script setup>
-import { ref, onMounted } from "vue"
-import { getOpenClawLogs } from "@/api/stats"
-
-const logs = ref([])
-
-onMounted(async () => {
-    try {
-        const res = await getOpenClawLogs(50)
-        logs.value = res?.logs || []
-    } catch (_) {}
-})
+import { computed, onMounted, reactive, ref } from 'vue'; import { controlOpenClawAgent,getOpenClawAgents,getOpenClawLogs,getOpenClawOverview,getOpenClawWorkflow,getOpenClawWorkflows } from '@/api/stats';
+const overview=ref({}),agents=ref([]),workflows=ref([]),workflowDetail=ref(null),logs=ref([]),totalLogs=ref(0),error=ref(''),filters=reactive({search:'',agentId:'',state:''});let timer;
+const overviewCards=computed(()=>{const o=overview.value?.overview||{},c=o.operationalCounts||{};return[{label:'Health',value:o.status||'OFFLINE',color:o.status==='UP'?'text-green-300':'text-red-300'},{label:'Production',value:o.productionEnabled?'ON':'LOCKED',color:o.productionEnabled?'text-green-300':'text-amber-300'},{label:'Active',value:c.activeWorkflowCount||0,color:'text-cyan-300'},{label:'Approvals',value:c.pendingApprovalCount||0,color:'text-amber-300'},{label:'Dead letters',value:c.unresolvedDeadLetterCount||0,color:'text-red-300'},{label:'Exceptions',value:c.openExceptionCount||0,color:'text-fuchsia-300'}];});
+const loadWorkflows=async()=>{const r=await getOpenClawWorkflows(filters);workflows.value=r?.workflows||[];};const load=async()=>{error.value='';const results=await Promise.allSettled([getOpenClawOverview(),getOpenClawAgents(),getOpenClawWorkflows(filters),getOpenClawLogs(30,0)]);if(results[0].status==='fulfilled')overview.value=results[0].value;else error.value='Không thể kết nối control-plane OpenClaw.';if(results[1].status==='fulfilled')agents.value=results[1].value?.agents||[];if(results[2].status==='fulfilled')workflows.value=results[2].value?.workflows||[];if(results[3].status==='fulfilled'){logs.value=results[3].value?.logs||[];totalLogs.value=Number(results[3].value?.total||0);}};
+const scheduleFilter=()=>{clearTimeout(timer);timer=setTimeout(loadWorkflows,250);};const openWorkflow=async id=>{workflowDetail.value=(await getOpenClawWorkflow(id))?.detail||null;};const workflowEvents=computed(()=>workflowDetail.value?.timeline||workflowDetail.value?.events||workflowDetail.value?.history||[]);const loadMore=async()=>{const r=await getOpenClawLogs(30,logs.value.length);logs.value.push(...(r?.logs||[]));};const formatDate=v=>v?new Date(v).toLocaleString('vi-VN'):'—';
+const actions={ACTIVE:[['Tạm dừng','PAUSED'],['Cách ly','QUARANTINED']],PAUSED:[['Tiếp tục','ACTIVE'],['Đình chỉ','SUSPENDED']],SUSPENDED:[['Tiếp tục','ACTIVE'],['Sửa lỗi','FIXING']],QUARANTINED:[['Sửa lỗi','FIXING']],FIXING:[['Chuyển test','TESTING']],TESTING:[['Canary','CANARY'],['Kích hoạt','ACTIVE']],CANARY:[['Kích hoạt','ACTIVE'],['Cách ly','QUARANTINED']]};const lifecycleActions=a=>(actions[a.lifecycleStatus]||[]).map(([label,state])=>({label,state}));const control=async(a,state)=>{const reason=prompt(`Lý do chuyển ${a.agentId} sang ${state}:`);if(!reason?.trim()||!confirm(`Xác nhận chuyển ${a.agentId} sang ${state}?`))return;await controlOpenClawAgent(a.agentId,{toState:state,expectedVersion:a.stateVersion,reason:reason.trim()});await load();};onMounted(load);
 </script>
+<style scoped>.filter{@apply px-3 py-1.5 bg-gray-900 border border-gray-700 rounded text-xs}.badge{@apply px-2 py-0.5 rounded bg-gray-900 text-gray-300 text-xs}.detail{@apply rounded-lg bg-gray-800 p-3 text-gray-500}.detail strong{@apply text-white}</style>

@@ -42,6 +42,16 @@ const routes = [
   },
 
   {
+    path: '/schedule',
+    name: 'schedule',
+    component: () => import('../views/ScheduleView.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/study',
+    redirect: '/schedule',
+  },
+  {
     path: '/users',
     name: 'users',
     component: () => import('../views/UsersView.vue'),

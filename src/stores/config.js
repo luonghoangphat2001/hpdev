@@ -13,6 +13,7 @@ export const useConfigStore = defineStore('config', {
       try {
         const res = await getConfig();
         this.config = res;
+        return res;
       } catch (err) {
         console.error('Failed to fetch config:', err);
       } finally {
@@ -24,9 +25,9 @@ export const useConfigStore = defineStore('config', {
       try {
         const res = await updateConfig(updatedData);
         this.config = res;
-        return { success: true };
+        return res;
       } catch (err) {
-        return { success: false, error: err.message };
+        throw err;
       } finally {
         this.saving = false;
       }

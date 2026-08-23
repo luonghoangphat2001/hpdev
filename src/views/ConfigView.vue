@@ -40,7 +40,7 @@
                                     <p class="text-xs text-gray-400 mt-1">Mô hình AI xử lý tin nhắn trực tiếp và lệnh trong server Discord</p>
                                 </div>
                             </div>
-                            <input v-model="form.discord_model" placeholder="models/gemini-2.5-flash" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
+                            <input v-model="form.discord_active_model" placeholder="gemini" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
                         </div>
 
                         <!-- Telegram Bot Model -->
@@ -54,7 +54,7 @@
                                     <p class="text-xs text-gray-400 mt-1">Mô hình AI xử lý tin nhắn chat và lệnh trong bot Telegram</p>
                                 </div>
                             </div>
-                            <input v-model="form.telegram_model" placeholder="models/gemini-2.5-flash" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
+                            <input v-model="form.telegram_active_model" placeholder="gemini" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
                         </div>
 
                         <!-- Learning Hub Model -->
@@ -68,7 +68,7 @@
                                     <p class="text-xs text-gray-400 mt-1">Dùng để sinh bài tập Tech, Vocab, Quiz và chấm điểm AI</p>
                                 </div>
                             </div>
-                            <input v-model="form.learning_model" placeholder="models/gemini-2.5-flash" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
+                            <input v-model="form.learning_active_model" placeholder="gemini" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
                         </div>
 
                         <!-- Web Chat Model -->
@@ -82,7 +82,7 @@
                                     <p class="text-xs text-gray-400 mt-1">Mô hình AI mặc định cho giao diện Web Dashboard Chat</p>
                                 </div>
                             </div>
-                            <input v-model="form.web_model" placeholder="models/gemini-2.5-flash" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
+                            <input v-model="form.active_model" placeholder="gemini" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
                         </div>
                     </div>
                 </div>
@@ -144,14 +144,15 @@
                     <div class="bg-gray-800/90 rounded-xl p-6 border border-gray-700/60 shadow-lg space-y-4">
                         <h2 class="font-semibold text-gray-200 flex items-center gap-2"><span>🦅</span> OpenClaw Autonomous Agents</h2>
                         <p class="text-xs text-gray-400">Cấu hình kết nối hệ thống Multi-Agent OpenClaw Crawler & Task Workers</p>
+                        <label class="flex items-center gap-3 text-sm text-gray-300"><input v-model="form.openclaw_enabled" type="checkbox" class="w-4 h-4 accent-indigo-500" /> Bật tích hợp OpenClaw</label>
                         <div class="grid md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs text-gray-400 mb-1">OpenClaw Base URL</label>
                                 <input v-model="form.openclaw_url" type="text" placeholder="http://openclaw:4000" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-sm text-white focus:outline-none focus:border-indigo-500" />
                             </div>
                             <div>
-                                <label class="block text-xs text-gray-400 mb-1">OpenClaw Secret Token</label>
-                                <input v-model="form.openclaw_secret" type="password" placeholder="Mã bí mật kết nối nội bộ" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-sm text-white focus:outline-none focus:border-indigo-500" />
+                                <label class="block text-xs text-gray-400 mb-1">Google Custom Search Engine ID (CX)</label>
+                                <input v-model="form.google_cx" type="text" placeholder="xxxxxxxxxxxxxxx:xxxxxxxxxx" class="w-full px-4 py-2.5 bg-gray-700 rounded-lg border border-gray-600 text-sm text-white focus:outline-none focus:border-indigo-500" />
                             </div>
                         </div>
                     </div>
@@ -278,16 +279,17 @@ const promptList = [
 ]
 
 const form = reactive({
-    discord_model: "models/gemini-2.5-flash",
-    telegram_model: "models/gemini-2.5-flash",
-    learning_model: "models/gemini-2.5-flash",
-    web_model: "models/gemini-2.5-flash",
+    active_model: "gemini",
+    learning_active_model: "gemini",
+    discord_active_model: "claude",
+    telegram_active_model: "gemini",
     gemini_model: "models/gemini-2.5-flash",
     chatgpt_model: "gpt-4o",
     claude_model: "claude-sonnet-4-6",
     claude_base_url: "",
     openclaw_url: "http://openclaw:4000",
-    openclaw_secret: "",
+    openclaw_enabled: true,
+    google_cx: "",
     system_prompt: "",
     log_retention_days: 14,
     learning_prompt_tech: "",
@@ -322,7 +324,7 @@ const loadConfig = async () => {
         if (data && typeof data === "object") {
             Object.keys(data).forEach((key) => {
                 if (key in form) {
-                    form[key] = data[key]
+                    form[key] = key === "openclaw_enabled" ? String(data[key]) === "true" : data[key]
                 }
             })
         }
@@ -335,7 +337,7 @@ const saveConfig = async () => {
     saving.value = true
     savedMsg.value = false
     try {
-        await configStore.saveConfig({ ...form })
+        await configStore.saveConfig({ ...form, openclaw_enabled: form.openclaw_enabled ? "true" : "false" })
         savedMsg.value = true
         setTimeout(() => {
             savedMsg.value = false

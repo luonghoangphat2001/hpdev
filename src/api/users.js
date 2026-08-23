@@ -2,4 +2,5 @@ import { api } from './request';
 
 export const getUsers = () => api.get('/users');
 export const createUser = (data) => api.post('/users', data);
-export const deleteUser = (username) => api.delete(`/users/${username}`);
+export const deleteUser = (username) => api.delete(`/users/${encodeURIComponent(username)}`);
+export const updateUserPassword = (username, password) => api.post(`/users/${encodeURIComponent(username)}/password`, { password });

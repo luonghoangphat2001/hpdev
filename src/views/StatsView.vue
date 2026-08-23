@@ -1,41 +1,17 @@
 <template>
-    <div class="h-full flex flex-col min-w-0">
-        <header class="h-14 px-4 border-b border-gray-800 bg-gray-900/90 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-2">
-                <span class="text-lg">📊</span>
-                <h2 class="text-sm font-bold text-white">Thống kê Sử dụng Tokens</h2>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto p-4 md:p-6 max-w-5xl mx-auto w-full space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="p-5 rounded-3xl bg-gray-800/90 border border-gray-700/80 shadow-xl">
-                    <span class="text-xs text-gray-400 font-semibold uppercase">Tổng số tin nhắn</span>
-                    <p class="text-2xl font-bold text-indigo-400 mt-1">{{ stats?.total_messages || 0 }}</p>
-                </div>
-                <div class="p-5 rounded-3xl bg-gray-800/90 border border-gray-700/80 shadow-xl">
-                    <span class="text-xs text-gray-400 font-semibold uppercase">Tổng Tokens đã dùng</span>
-                    <p class="text-2xl font-bold text-emerald-400 mt-1">{{ stats?.total_tokens || 0 }}</p>
-                </div>
-                <div class="p-5 rounded-3xl bg-gray-800/90 border border-gray-700/80 shadow-xl">
-                    <span class="text-xs text-gray-400 font-semibold uppercase">Ước tính chi phí</span>
-                    <p class="text-2xl font-bold text-amber-400 mt-1">${{ stats?.estimated_cost || "0.00" }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
+  <div class="h-full overflow-y-auto"><div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div class="flex justify-between"><h1 class="text-2xl font-bold">📊 Stats</h1><button @click="load" class="text-sm text-indigo-400">↻ Refresh</button></div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4"><div class="card"><span class="label">Tổng tin nhắn</span><p class="value text-indigo-400">{{ stats.total || 0 }}</p></div><div class="card"><span class="label">Hôm nay</span><p class="value text-emerald-400">{{ stats.today || 0 }}</p></div><div class="card"><span class="label">Tokens toàn thời gian</span><p class="value text-amber-400">{{ formatTokens(totalTokens) }}</p></div></div>
+    <section class="panel"><h2 class="title">Token hôm nay · {{ new Date().toLocaleDateString('vi-VN') }}</h2><TokenRows :rows="stats.todayByModel" /></section>
+    <div class="grid lg:grid-cols-2 gap-6"><section class="panel"><h2 class="title">Tin nhắn theo model</h2><div v-for="row in stats.byModel || []" :key="row.model" class="row"><span>{{ icon(row.model) }} {{ label(row.model) }}</span><strong class="text-indigo-400">{{ row.count }} msgs</strong></div><p v-if="!stats.byModel?.length" class="empty">Chưa có dữ liệu.</p></section><section class="panel"><h2 class="title">Tokens theo model</h2><TokenRows :rows="stats.tokensByModel" /><p v-if="!stats.tokensByModel?.length" class="empty">Chưa có dữ liệu.</p></section></div>
+    <section class="panel"><h2 class="title">7 ngày gần nhất</h2><div v-for="(rows, day) in dailyGroups" :key="day" class="mb-4"><div class="text-xs font-semibold text-gray-400 mb-1">{{ day }}</div><TokenRows :rows="rows" compact /></div><p v-if="!Object.keys(dailyGroups).length" class="empty">Chưa có dữ liệu.</p></section>
+  </div></div>
 </template>
-
 <script setup>
-import { ref, onMounted } from "vue"
-import { getStats } from "@/api/stats"
-
-const stats = ref(null)
-
-onMounted(async () => {
-    try {
-        const res = await getStats()
-        stats.value = res
-    } catch (_) {}
-})
+import { computed, defineComponent, h, onMounted, ref } from 'vue'; import { getStats } from '@/api/stats';
+const stats=ref({}); const formatTokens=(n)=>Intl.NumberFormat('vi-VN',{notation:Number(n)>9999?'compact':'standard'}).format(Number(n)||0); const label=(m)=>String(m||'unknown').replace(/^models\//,'');
+const icon=(m)=>{const s=String(m||'').toLowerCase();return s.includes('gemini')?'🌟':s.includes('claude')?'✳️':s.includes('gpt')?'🤖':s.includes('deepseek')?'🐋':s.includes('ollama')||s.includes('llama')?'🦙':'🤖';};
+const totalTokens=computed(()=>(stats.value.tokensByModel||[]).reduce((n,r)=>n+Number(r.tokens_in||0)+Number(r.tokens_out||0),0)); const dailyGroups=computed(()=>(stats.value.dailyUsage||[]).reduce((all,row)=>{const day=String(row.day).slice(0,10);(all[day]||=[]).push(row);return all;},{}));
+const TokenRows=defineComponent({props:{rows:Array,compact:Boolean},setup(p){return()=>h('div',{class:'space-y-3'},(p.rows||[]).map(r=>h('div',{class:p.compact?'row':'space-y-1'},[h('div',{class:'flex justify-between text-sm w-full'},[h('span',{class:'text-gray-300'},`${icon(r.model)} ${label(r.model)}`),h('span',{class:'text-yellow-400 font-semibold'},`${formatTokens(Number(r.tokens_in||0)+Number(r.tokens_out||0))} · ${r.requests||0} reqs`)]),p.compact?null:h('div',{class:'text-xs text-gray-500'},`📥 ${formatTokens(r.tokens_in)} · 📤 ${formatTokens(r.tokens_out)}`)])));}}); const load=async()=>{stats.value=await getStats()||{};};onMounted(load);
 </script>
+<style scoped>.card{@apply p-5 rounded-xl bg-gray-800 border border-gray-700}.label{@apply text-xs text-gray-400 font-semibold uppercase}.value{@apply text-2xl font-bold mt-1}.panel{@apply bg-gray-800 rounded-xl p-5}.title{@apply font-semibold text-gray-300 mb-4}.row{@apply flex justify-between text-sm py-2 border-b border-gray-700 last:border-0}.empty{@apply text-gray-500 text-sm}</style>

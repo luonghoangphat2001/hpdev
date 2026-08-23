@@ -1,39 +1,10 @@
-<template>
-    <div class="h-full flex flex-col min-w-0">
-        <header class="h-14 px-4 border-b border-gray-800 bg-gray-900/90 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-2">
-                <span class="text-lg">📋</span>
-                <h2 class="text-sm font-bold text-white">Nhật ký Server Logs</h2>
-            </div>
-            <button @click="loadLogs" class="text-xs text-gray-400 hover:text-white px-2.5 py-1 rounded bg-gray-800">Làm mới</button>
-        </header>
-
-        <div class="flex-1 overflow-y-auto p-4 md:p-6 max-w-5xl mx-auto w-full">
-            <div class="p-4 rounded-2xl bg-black border border-gray-800 font-mono text-xs text-gray-300 space-y-1 max-h-[650px] overflow-y-auto">
-                <div v-for="(log, idx) in logs" :key="idx" class="leading-relaxed">
-                    <span class="text-indigo-400">[{{ log.time || "INFO" }}]</span>
-                    <span class="ml-2">{{ log.message || log }}</span>
-                </div>
-                <div v-if="logs.length === 0" class="text-gray-500 text-center py-4">Chưa có logs ghi nhận.</div>
-            </div>
-        </div>
-    </div>
-</template>
-
+<template><div class="h-full overflow-y-auto"><div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+  <div class="flex items-center justify-between"><h1 class="text-2xl font-bold">📋 Logs</h1><div class="flex gap-3"><button @click="clean" class="text-sm text-red-400">Dọn log cũ</button><button @click="loadFiles" class="text-sm text-indigo-400">↻ Refresh</button></div></div>
+  <section class="bg-gray-800 rounded-xl p-4"><div class="flex flex-wrap gap-2"><div v-for="file in files" :key="file.filename" class="flex items-center gap-1"><button @click="open(file.filename)" class="px-3 py-1.5 rounded-lg text-xs font-mono border transition" :class="current===file.filename?'border-indigo-500 text-white':'border-gray-600 text-gray-300'">{{ file.filename }}</button><a :href="downloadUrl(file.filename)" :download="file.filename" class="px-2 py-1.5 text-xs border border-gray-700 rounded">⤓</a><span class="text-[10px] text-gray-500">{{ size(file.sizeBytes) }}</span></div><span v-if="!files.length" class="text-xs text-gray-500">Không có file log nào.</span></div></section>
+  <section class="bg-black border border-gray-800 rounded-xl overflow-hidden"><div class="px-4 py-3 border-b border-gray-800 flex flex-wrap items-center gap-3"><strong class="text-sm text-gray-300">{{ current || 'Chọn file log' }}</strong><input v-model="filter" placeholder="Lọc nội dung…" class="ml-auto px-3 py-1.5 bg-gray-900 border border-gray-700 rounded text-xs"/><label class="text-xs text-gray-400"><input v-model="autoScroll" type="checkbox" class="accent-indigo-500"/> Auto-scroll</label></div><pre ref="pre" class="p-4 text-xs leading-5 font-mono whitespace-pre-wrap break-words h-[60vh] overflow-auto"><template v-for="(line,index) in filteredLines" :key="index"><span :class="lineClass(line)">{{ line }}</span>{{ '\n' }}</template></pre></section>
+</div></div></template>
 <script setup>
-import { ref, onMounted } from "vue"
-import { getLogs } from "@/api/stats"
-
-const logs = ref([])
-
-const loadLogs = async () => {
-    try {
-        const res = await getLogs(100)
-        logs.value = res?.logs || []
-    } catch (_) {}
-}
-
-onMounted(() => {
-    loadLogs()
-})
+import { computed, nextTick, onMounted, ref, watch } from 'vue'; import { API_BASE } from '@/api/request'; import { cleanLogs, getLogContent, getLogs } from '@/api/stats';
+const files=ref([]),current=ref(''),raw=ref(''),filter=ref(''),autoScroll=ref(true),pre=ref(null);const filteredLines=computed(()=>raw.value.split('\n').filter(line=>!filter.value||line.toLowerCase().includes(filter.value.toLowerCase())));
+const loadFiles=async()=>{files.value=await getLogs()||[];const today=`${new Date().toISOString().slice(0,10)}.log`;if(!current.value&&files.value.some(f=>f.filename===today))await open(today);};const open=async filename=>{current.value=filename;raw.value=await getLogContent(filename);};const downloadUrl=f=>`${API_BASE}/logs/${encodeURIComponent(f)}`;const size=b=>!Number.isFinite(b)?'':b<1024?`${b}B`:b<1048576?`${(b/1024).toFixed(1)}KB`:`${(b/1048576).toFixed(1)}MB`;const lineClass=l=>/\[ERROR\]/.test(l)?'text-red-400':/\[WARN\]/.test(l)?'text-yellow-400':/\[INFO\]/.test(l)?'text-green-400':/\[OpenClaw\]/.test(l)?'text-cyan-400':'text-gray-300';const clean=async()=>{if(confirm('Xóa các log đã hết hạn lưu trữ?')){await cleanLogs();await loadFiles();}};watch([filteredLines,autoScroll],async()=>{if(autoScroll.value){await nextTick();if(pre.value)pre.value.scrollTop=pre.value.scrollHeight;}});onMounted(loadFiles);
 </script>
