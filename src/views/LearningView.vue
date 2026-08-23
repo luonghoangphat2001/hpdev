@@ -3,15 +3,15 @@
         <!-- Top Navigation Subtabs -->
         <header class="h-14 px-4 border-b border-gray-800 bg-gray-900/90 backdrop-blur-md flex items-center justify-between shrink-0 overflow-x-auto">
             <div class="flex items-center gap-2">
-                <router-link to="/learning/tech" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition" :class="$route.name === 'learning-tech' || $route.path === '/learning' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"> 💻 Lập trình & Tech </router-link>
+                <router-link to="/tech" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition" :class="$route.name === 'learning-tech' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"> 💻 Lập trình & Tech </router-link>
 
-                <router-link to="/learning/vocab" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition" :class="$route.name === 'learning-vocab' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"> 📖 Từ vựng IELTS </router-link>
+                <router-link to="/vocab" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition" :class="$route.name === 'learning-vocab' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"> 📖 Từ vựng IELTS </router-link>
 
-                <router-link to="/learning/quiz" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition" :class="$route.name === 'learning-quiz' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"> ⚡ Trắc nghiệm Quiz </router-link>
+                <router-link to="/quiz" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition" :class="$route.name === 'learning-quiz' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"> ⚡ Trắc nghiệm Quiz </router-link>
 
-                <router-link to="/learning/writing" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition" :class="$route.name === 'learning-writing' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"> ✍️ Writing Studio </router-link>
+                <router-link to="/writing" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition" :class="$route.name === 'learning-writing' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"> ✍️ Writing Studio </router-link>
 
-                <router-link to="/learning/speaking" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition" :class="$route.name === 'learning-speaking' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"> 🎙️ Speaking Coach </router-link>
+                <router-link to="/speaking" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition" :class="$route.name === 'learning-speaking' ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"> 🎙️ Speaking Coach </router-link>
             </div>
 
             <!-- Action Buttons -->

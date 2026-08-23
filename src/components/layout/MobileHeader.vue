@@ -8,8 +8,8 @@
 
         <div class="flex items-center gap-2">
             <img src="/images/dan.png" alt="Đần" class="w-6 h-6 rounded-full" />
-            <span class="font-bold text-white text-sm">Đần AI</span>
-            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-700/80 text-indigo-300 font-semibold">Vue 3</span>
+            <span class="font-bold text-white text-sm">Đần Learning</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-gray-700/80 text-indigo-300 font-semibold">v2.0.0</span>
         </div>
 
         <div class="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-sm">

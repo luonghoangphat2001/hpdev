@@ -8,7 +8,7 @@
                 </div>
                 <div class="flex items-center justify-center gap-2">
                     <h1 class="text-2xl sm:text-3xl font-bold text-white">Xin chào! Tôi là Đần</h1>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-900/60 border border-indigo-700/60 text-indigo-300 font-semibold">v2.1.0</span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-900/60 border border-indigo-700/60 text-indigo-300 font-semibold">v2.0.0</span>
                 </div>
                 <p class="text-gray-400 text-xs sm:text-sm mt-2 leading-relaxed max-w-xs mx-auto">Một AI agent được tạo bởi <span class="text-indigo-400 font-medium">Phát</span>, tổng hợp nhiều model — <span class="text-yellow-400">Gemini</span>, <span class="text-purple-400">Claude</span>, <span class="text-green-400">GPT</span> — để tương tác cá nhân.</p>
             </div>
