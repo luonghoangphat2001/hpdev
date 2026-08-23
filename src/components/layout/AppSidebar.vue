@@ -18,7 +18,7 @@
         </div>
 
         <nav class="flex-1 px-2 py-3 space-y-1 overflow-y-auto overscroll-contain">
-            <div v-if="!collapsed" class="px-3 pb-1 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Learning</div>
+            <div v-if="!collapsed" class="px-3 pb-1 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Learning Hub</div>
 
             <router-link v-for="item in learningMenu" :key="item.to" :to="item.to" class="nav-item w-full px-3 py-2.5 rounded-lg text-sm font-medium transition flex items-center gap-2.5" :class="$route.path === item.to ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20' : 'text-gray-300 hover:bg-gray-700 hover:text-white'">
                 <span class="sidebar-icon text-base">{{ item.icon }}</span>
@@ -49,10 +49,10 @@ const mobileOpen = ref(false)
 
 const learningMenu = [
     { to: "/tech", icon: "💻", label: "Lập trình & Tech" },
-    { to: "/vocab", icon: "📖", label: "Từ vựng IELTS" },
-    { to: "/quiz", icon: "⚡", label: "Trắc nghiệm Quiz" },
+    { to: "/vocab", icon: "📖", label: "Vocabulary (50 Topics)" },
+    { to: "/quiz", icon: "🧩", label: "Quiz & Practice" },
     { to: "/writing", icon: "✍️", label: "Writing Studio" },
-    { to: "/speaking", icon: "🎙️", label: "Speaking Coach" },
+    { to: "/speaking", icon: "🗣️", label: "Speaking Coach" },
 ]
 
 const toggleCollapse = () => {

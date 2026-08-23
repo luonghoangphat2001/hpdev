@@ -43,9 +43,11 @@ export const useLearningStore = defineStore('learning', {
         });
         if (res && res.items) {
           this.techQuestions = res.items;
-          if (this.techQuestions.length > 0 && !this.activeQuestion) {
-            this.activeQuestion = this.techQuestions[0];
-          }
+          const activeId = this.activeQuestion?.id;
+          this.activeQuestion = this.techQuestions.find((question) => question.id === activeId)
+            || this.techQuestions[0]
+            || null;
+          this.flashcardIndex = Math.max(0, this.techQuestions.findIndex((question) => question.id === this.activeQuestion?.id));
         }
       } catch (err) {
         console.error('Failed to load questions:', err);
