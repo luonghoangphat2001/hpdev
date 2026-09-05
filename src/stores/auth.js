@@ -8,15 +8,20 @@ export const useAuthStore = defineStore('auth', {
     initialized: false,
   }),
   getters: {
-    isAuthenticated: (state) => !!state.user,
-    isAdmin: (state) => state.user?.role === 'admin',
-    username: (state) => state.user?.username || '',
-    userInitial: (state) => (state.user?.username ? state.user.username.charAt(0).toUpperCase() : '?'),
+    isAuthenticated: (state) => Boolean(state.user),
+    isAdmin: (state) => Boolean(state.user && state.user.role === 'admin'),
+    username: (state) => (state.user && state.user.username ? state.user.username : ''),
+    userInitial: (state) => (state.user && state.user.username ? state.user.username.charAt(0).toUpperCase() : '?'),
   },
   actions: {
     async fetchUser() {
       this.loading = true;
       try {
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          this.user = null;
+          return null;
+        }
         const res = await getMe();
         if (res && res.username) {
           this.user = res;
@@ -33,6 +38,9 @@ export const useAuthStore = defineStore('auth', {
     },
     async login(username, password) {
       const res = await apiLogin(username, password);
+      if (res && res.token) {
+        localStorage.setItem('auth_token', res.token);
+      }
       if (res && res.username) {
         this.user = res;
       } else {
@@ -44,6 +52,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         await apiLogout();
       } catch (_) {}
+      localStorage.removeItem('auth_token');
       this.user = null;
       window.location.href = '/login';
     },
