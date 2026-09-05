@@ -1,7 +1,7 @@
 'use strict';
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const AIProvider = require('./AIProvider');
+const AIProvider = require('@services/ai/AIProvider');
 
 /**
  * Gemini AI provider with automatic 429-quota fallback.
@@ -60,7 +60,7 @@ class GeminiProvider extends AIProvider {
    * @param {string} systemPrompt
    */
   async #callGeminiWithTools(modelName, agentMessages, systemPrompt, options = {}) {
-    const ToolRegistry = require('../ToolRegistry');
+    const ToolRegistry = require('@services/ToolRegistry');
     const allowed = options.allowedToolNames;
     const restricted = Array.isArray(allowed);
     const toolDefs = ToolRegistry.forGemini().filter((tool) => !restricted || allowed.includes(tool.name));

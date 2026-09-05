@@ -5,42 +5,58 @@
  * Managed by pm2. The web dashboard runs separately via app.js (Phusion Passenger).
  */
 
+require('module-alias/register');
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
-require('./src/utils/Logger').init();
+require('@utils/Logger').init();
 
-const Database               = require('./src/models/Database');
-const ConfigRepository       = require('./src/models/ConfigRepository');
-const ConversationRepository = require('./src/models/ConversationRepository');
-const UserRepository         = require('./src/models/UserRepository');
-const ScheduleRepository     = require('./src/models/ScheduleRepository');
-const VocabularyRepository   = require('./src/models/VocabularyRepository');
-const AIService              = require('./src/services/ai/AIService');
-const SchedulerService       = require('./src/services/scheduler/SchedulerService');
-const VocabularyService      = require('./src/services/learning/VocabularyService');
-const DiscordBot             = require('./src/bots/DiscordBot');
-const TelegramBot            = require('./src/bots/TelegramBot');
-const OpenClawService        = require('./src/services/openclaw/OpenClawService');
-const OpenClawRepository     = require('./src/models/OpenClawRepository');
-const DiscordNotificationRepository = require('./src/models/DiscordNotificationRepository');
-const DiscordNotificationService = require('./src/services/notification/DiscordNotificationService');
+const Database = require('@models/Database');
+const ConfigRepository = require('@models/ConfigRepository');
+const ConversationRepository = require('@models/ConversationRepository');
+const UserRepository = require('@models/UserRepository');
+const ScheduleRepository = require('@models/ScheduleRepository');
+const VocabularyRepository = require('@models/VocabularyRepository');
+const AIService = require('@services/ai/AIService');
+const SchedulerService = require('@services/scheduler/SchedulerService');
+const VocabularyService = require('@services/learning/VocabularyService');
+const DiscordBot = require('@bots/DiscordBot');
+const TelegramBot = require('@bots/TelegramBot');
+const OpenClawService = require('@services/openclaw/OpenClawService');
+const OpenClawRepository = require('@models/OpenClawRepository');
+const DiscordNotificationRepository = require('@models/DiscordNotificationRepository');
+const DiscordNotificationService = require('@services/notification/DiscordNotificationService');
 
 async function bootstrap() {
   const db = Database.getInstance();
   await db.init();
 
-  const configRepo       = new ConfigRepository(db);
+  const configRepo = new ConfigRepository(db);
   await configRepo.init();
 
   const conversationRepo = new ConversationRepository(db);
-  const userRepo         = new UserRepository(db);    // needed for future bot-side auth
+  const userRepo = new UserRepository(db); // needed for future bot-side auth
   void userRepo;
 
-  const aiService        = new AIService(configRepo, conversationRepo);
-  const openClawUrl      = process.env.OPENCLAW_URL || process.env.OPENCLAW_BASE_URL || configRepo.get('openclaw_url') || '';
-  const openClaw         = new OpenClawService(
+  const aiService = new AIService(configRepo, conversationRepo);
+  const openClawUrl = process.env.OPENCLAW_API_URL;
+  if (!openClawUrl) {
+    throw new Error('[bot] OPENCLAW_API_URL is required in environment');
+  }
+  const openClawSecret = process.env.OPENCLAW_API_SECRET;
+  if (!openClawSecret) {
+    throw new Error('[bot] OPENCLAW_API_SECRET is required in environment');
+  }
+  const openClawTimeoutRaw = process.env.OPENCLAW_TIMEOUT_MS;
+  if (!openClawTimeoutRaw) {
+    throw new Error('[bot] OPENCLAW_TIMEOUT_MS is required in environment');
+  }
+  const openClawTimeout = parseInt(openClawTimeoutRaw, 10);
+  if (isNaN(openClawTimeout)) {
+    throw new Error('[bot] OPENCLAW_TIMEOUT_MS must be a valid integer');
+  }
+  const openClaw = new OpenClawService(
     openClawUrl,
-    process.env.OPENCLAW_SECRET  || '',
-    parseInt(process.env.OPENCLAW_TIMEOUT_MS || '30000', 10)
+    openClawSecret,
+    openClawTimeout
   );
   const scheduleRepo     = new ScheduleRepository(db);
   const vocabRepo        = new VocabularyRepository(db);

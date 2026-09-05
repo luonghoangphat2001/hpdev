@@ -1,23 +1,23 @@
 'use strict';
 
-const AuthController = require('../../controllers/AuthController');
-const ChatController = require('../../controllers/ChatController');
-const ConfigController = require('../../controllers/ConfigController');
-const HistoryController = require('../../controllers/HistoryController');
-const LogController = require('../../controllers/LogController');
-const ModelsController = require('../../controllers/ModelsController');
-const OpenClawController = require('../../controllers/OpenClawController');
-const StatsController = require('../../controllers/StatsController');
-const StudyScheduleController = require('../../controllers/StudyScheduleController');
-const TaskController = require('../../controllers/TaskController');
-const UserController = require('../../controllers/UserController');
-const LearningController = require('../../controllers/LearningController');
-const VocabularyController = require('../../controllers/VocabularyController');
-const QuizController = require('../../controllers/QuizController');
-const TechController = require('../../controllers/TechController');
-const DiscordNotificationController = require('../../controllers/DiscordNotificationController');
-const OpenClawMonitorService = require('../../services/openclaw/OpenClawMonitorService');
-const TokenService = require('../../services/auth/TokenService');
+const AuthController = require('@controllers/AuthController');
+const ChatController = require('@controllers/ChatController');
+const ConfigController = require('@controllers/ConfigController');
+const HistoryController = require('@controllers/HistoryController');
+const LogController = require('@controllers/LogController');
+const ModelsController = require('@controllers/ModelsController');
+const OpenClawController = require('@controllers/OpenClawController');
+const StatsController = require('@controllers/StatsController');
+const StudyScheduleController = require('@controllers/StudyScheduleController');
+const TaskController = require('@controllers/TaskController');
+const UserController = require('@controllers/UserController');
+const LearningController = require('@controllers/LearningController');
+const VocabularyController = require('@controllers/VocabularyController');
+const QuizController = require('@controllers/QuizController');
+const TechController = require('@controllers/TechController');
+const DiscordNotificationController = require('@controllers/DiscordNotificationController');
+const OpenClawMonitorService = require('@services/openclaw/OpenClawMonitorService');
+const TokenService = require('@services/auth/TokenService');
 
 function buildControllers(dependencies) {
   const {

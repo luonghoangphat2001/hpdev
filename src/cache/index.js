@@ -1,7 +1,7 @@
 'use strict';
 
-const CacheConfig = require('./CacheConfig');
-const memoryCache = require('./MemoryCache');
+const CacheConfig = require('@cache/CacheConfig');
+const memoryCache = require('@cache/MemoryCache');
 const { MemoryCache } = memoryCache;
 
 module.exports = {

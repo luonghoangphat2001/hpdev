@@ -1,17 +1,19 @@
 'use strict';
 
-const TokenService = require('../services/auth/TokenService');
+const TokenService = require('@services/auth/TokenService');
+const ApiResponse = require('@utils/ApiResponse');
 
 /**
- * Authentication and authorization middleware.
+ * Authentication and authorization middleware for Dan AI API.
  * Adheres to SRP: responsible exclusively for request credential resolution and access policy enforcement.
  * Follows DRY by centralizing role validation and credential resolution logic.
+ * Uses unified ApiResponse for consistent JSON errors across endpoints.
  */
 class AuthMiddleware {
   /**
    * Resolves authentication credentials from Bearer token or session.
    * @param {import('express').Request} req
-   * @returns {{ authenticated: boolean, user?: object, status: number, error: string }}
+   * @returns {{ user?: object, error?: string, code?: string, status?: number }}
    */
   static #resolveAuth(req) {
     const authHeader = req.headers.authorization;
@@ -28,43 +30,51 @@ class AuthMiddleware {
             req.session.userId = result.payload.userId;
             req.session.username = result.payload.username;
             req.session.role = result.payload.role;
-            req.user = result.payload;
-            return { authenticated: true, user: result.payload, status: 200, error: '' };
+            return { user: result.payload };
           }
           if (result.expired) {
-            return { authenticated: false, status: 401, error: 'Token đã hết hạn. Vui lòng đăng nhập lại.' };
+            return {
+              error: 'Token đã hết hạn. Vui lòng đăng nhập lại.',
+              code: 'TOKEN_EXPIRED',
+              status: 401,
+            };
           }
         }
-        return { authenticated: false, status: 401, error: 'Token không hợp lệ.' };
+        return {
+          error: 'Token không hợp lệ.',
+          code: 'INVALID_TOKEN',
+          status: 401,
+        };
       }
     }
 
     if (req.session) {
       if (req.session.loggedIn) {
         return {
-          authenticated: true,
           user: {
             userId: req.session.userId,
             username: req.session.username,
             role: req.session.role,
           },
-          status: 200,
-          error: '',
         };
       }
     }
 
-    return { authenticated: false, status: 401, error: 'Unauthorized' };
+    return {
+      error: 'Unauthorized',
+      code: 'UNAUTHORIZED',
+      status: 401,
+    };
   }
 
   /**
    * Evaluates if authenticated identity possesses administrative privileges.
-   * @param {{ user?: { role?: string } }} auth
+   * @param {{ role?: string }} user
    * @param {import('express').Request} req
    * @returns {boolean}
    */
-  static #hasAdminRole(auth, req) {
-    if (auth.user && auth.user.role === 'admin') {
+  static #hasAdminRole(user, req) {
+    if (user && user.role === 'admin') {
       return true;
     }
     if (req.session && req.session.role === 'admin') {
@@ -82,14 +92,13 @@ class AuthMiddleware {
    */
   static user(req, res, next) {
     const auth = AuthMiddleware.#resolveAuth(req);
-    if (auth.authenticated) {
+    if (auth.user) {
+      req.user = auth.user;
       return next();
     }
 
     if (req.originalUrl.startsWith('/api')) {
-      return res.status(auth.status).json({
-        error: auth.error,
-      });
+      return ApiResponse.unauthorized(res, auth.error, auth.code);
     }
 
     return res.redirect('/');
@@ -104,19 +113,16 @@ class AuthMiddleware {
    */
   static admin(req, res, next) {
     const auth = AuthMiddleware.#resolveAuth(req);
-    if (!auth.authenticated) {
-      return res.status(auth.status).json({
-        error: auth.error,
-      });
+    if (!auth.user) {
+      return ApiResponse.unauthorized(res, auth.error, auth.code);
     }
 
-    if (AuthMiddleware.#hasAdminRole(auth, req)) {
+    if (AuthMiddleware.#hasAdminRole(auth.user, req)) {
+      req.user = auth.user;
       return next();
     }
 
-    return res.status(403).json({
-      error: 'Forbidden',
-    });
+    return ApiResponse.forbidden(res, 'Forbidden', 'FORBIDDEN');
   }
 
   /**
@@ -128,11 +134,12 @@ class AuthMiddleware {
    */
   static adminWeb(req, res, next) {
     const auth = AuthMiddleware.#resolveAuth(req);
-    if (!auth.authenticated) {
+    if (!auth.user) {
       return res.redirect('/');
     }
 
-    if (AuthMiddleware.#hasAdminRole(auth, req)) {
+    if (AuthMiddleware.#hasAdminRole(auth.user, req)) {
+      req.user = auth.user;
       return next();
     }
 

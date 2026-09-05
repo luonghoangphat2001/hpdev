@@ -1,7 +1,7 @@
 'use strict';
 
-const { buildPracticeExam } = require('../services/learning/PracticeExamBuilder');
-const { performanceMap } = require('../services/learning/AdaptiveSelector');
+const { buildPracticeExam } = require('@services/learning/PracticeExamBuilder');
+const { performanceMap } = require('@services/learning/AdaptiveSelector');
 
 /**
  * Controller for unified Learning Hub API (Tech & English).

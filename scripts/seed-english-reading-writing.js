@@ -1,11 +1,12 @@
 'use strict';
 
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+require('module-alias/register');
 
-const createRepositories = require('../src/config/application/repositories');
-const OpenAI = require('openai');
-const AIService = require('../src/services/ai/AIService');
-const LearningService = require('../src/services/learning/LearningService');
+const createRepositories = require('@bootstrap/repositories');
+const AIFactory = require('@services/ai/AIFactory');
+const AIService = require('@services/ai/AIService');
+const LearningService = require('@services/learning/LearningService');
 
 const CREATED_BY = 'seed-english-reading-writing-200';
 const LEVELS = [
@@ -173,24 +174,31 @@ async function main() {
   );
   let aiService;
   if (provider === 'nvidia') {
-    if (!process.env.NVIDIA_API_KEY) throw new Error('NVIDIA_API_KEY is required');
-    const directModel = model || process.env.NVIDIA_LEARNING_MODEL || 'meta/llama-3.1-8b-instruct';
-    const client = new OpenAI({
-      apiKey: process.env.NVIDIA_API_KEY,
-      baseURL: process.env.NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1',
+    const nvidiaKey = process.env.NVIDIA_API_KEY;
+    if (!nvidiaKey) throw new Error('[Env] NVIDIA_API_KEY is required');
+    let directModel = model;
+    if (!directModel) {
+      directModel = process.env.NVIDIA_LEARNING_MODEL;
+    }
+    if (!directModel) {
+      throw new Error('[Env] NVIDIA_LEARNING_MODEL or --model is required');
+    }
+    const nvidiaBaseUrl = process.env.NVIDIA_BASE_URL;
+    if (!nvidiaBaseUrl) {
+      throw new Error('[Env] NVIDIA_BASE_URL is required');
+    }
+    const provider = AIFactory.create('nvidia', {
+      nvidiaModel: directModel,
+      nvidiaBaseUrl,
     });
     aiService = {
       chatOnce: async (messages) => {
-        const response = await client.chat.completions.create({
-          model: directModel,
-          max_tokens: 4096,
-          temperature: 0.45,
-          messages: [
-            { role: 'system', content: 'Follow the supplied source prompt exactly. Return only the requested valid JSON array.' },
-            ...messages,
-          ],
-        });
-        return response.choices[0].message.content;
+        const result = await provider.chat(
+          messages,
+          'Follow the supplied source prompt exactly. Return only the requested valid JSON array.',
+          { temperature: 0.45, max_tokens: 4096 }
+        );
+        return result.text;
       },
     };
   } else {

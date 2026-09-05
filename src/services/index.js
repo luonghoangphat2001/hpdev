@@ -2,33 +2,33 @@
 
 module.exports = {
   // AI Domain
-  AIService: require('./ai/AIService'),
-  AgentLoop: require('./ai/AgentLoop'),
-  ToolRegistry: require('./ai/ToolRegistry'),
-  AIFactory: require('./ai/AIFactory'),
-  AIProvider: require('./ai/AIProvider'),
-  ProviderCatalog: require('./ai/ProviderCatalog'),
+  AIService: require('@services/ai/AIService'),
+  AgentLoop: require('@services/ai/AgentLoop'),
+  ToolRegistry: require('@services/ai/ToolRegistry'),
+  AIFactory: require('@services/ai/AIFactory'),
+  AIProvider: require('@services/ai/AIProvider'),
+  ProviderCatalog: require('@services/ai/ProviderCatalog'),
 
   // Learning Hub Domain
-  LearningService: require('./learning/LearningService'),
-  TechService: require('./learning/TechService'),
-  VocabularyService: require('./learning/VocabularyService'),
-  QuizEngine: require('./learning/QuizEngine'),
-  ContentNormalizer: require('./learning/ContentNormalizer'),
+  LearningService: require('@services/learning/LearningService'),
+  TechService: require('@services/learning/TechService'),
+  VocabularyService: require('@services/learning/VocabularyService'),
+  QuizEngine: require('@services/learning/QuizEngine'),
+  ContentNormalizer: require('@services/learning/ContentNormalizer'),
 
   // OpenClaw Domain
-  OpenClawService: require('./openclaw/OpenClawService'),
-  OpenClawMonitorService: require('./openclaw/OpenClawMonitorService'),
-  CeoCommandService: require('./openclaw/CeoCommandService'),
-  ApprovalCommandService: require('./openclaw/ApprovalCommandService'),
+  OpenClawService: require('@services/openclaw/OpenClawService'),
+  OpenClawMonitorService: require('@services/openclaw/OpenClawMonitorService'),
+  CeoCommandService: require('@services/openclaw/CeoCommandService'),
+  ApprovalCommandService: require('@services/openclaw/ApprovalCommandService'),
 
   // Notification Domain
-  DiscordNotificationService: require('./notification/DiscordNotificationService'),
+  DiscordNotificationService: require('@services/notification/DiscordNotificationService'),
 
   // Scheduler Domain
-  SchedulerService: require('./scheduler/SchedulerService'),
-  TaskService: require('./scheduler/TaskService'),
+  SchedulerService: require('@services/scheduler/SchedulerService'),
+  TaskService: require('@services/scheduler/TaskService'),
 
   // Config Domain
-  ConfigService: require('./ConfigService'),
+  ConfigService: require('@services/ConfigService'),
 };

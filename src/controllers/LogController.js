@@ -1,6 +1,6 @@
 'use strict';
 
-const Logger = require('../utils/Logger');
+const Logger = require('@utils/Logger');
 
 /**
  * Admin-only endpoints for viewing and downloading daily log files.

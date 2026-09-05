@@ -1,6 +1,6 @@
 'use strict';
 
-const { weightedShuffle } = require('./AdaptiveSelector');
+const { weightedShuffle } = require('@services/learning/AdaptiveSelector');
 
 const DIFFICULTY_ORDER = ['hard', 'medium', 'easy'];
 

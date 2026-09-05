@@ -1,11 +1,11 @@
 'use strict';
 
 const { Client, GatewayIntentBits, Options, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const BaseBot = require('./BaseBot');
-const TaskService = require('../services/scheduler/TaskService');
-const TimeUtils = require('../utils/TimeUtils');
-const ApprovalCommandService = require('../services/openclaw/ApprovalCommandService');
-const CeoCommandService = require('../services/openclaw/CeoCommandService');
+const BaseBot = require('@bots/BaseBot');
+const TaskService = require('@services/scheduler/TaskService');
+const TimeUtils = require('@utils/TimeUtils');
+const ApprovalCommandService = require('@services/openclaw/ApprovalCommandService');
+const CeoCommandService = require('@services/openclaw/CeoCommandService');
 
 /**
  * Discord bot.

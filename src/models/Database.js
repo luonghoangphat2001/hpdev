@@ -1,7 +1,8 @@
 'use strict';
 
 const mysql = require('mysql2/promise');
-const initializeDatabase = require('../database');
+const initializeDatabase = require('@database');
+const config = require('@config');
 
 /**
  * Singleton database connection pool.
@@ -24,10 +25,11 @@ class Database {
 
   async init() {
     this.#pool = mysql.createPool({
-      host: process.env.DB_HOST || 'localhost',
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      host: config.database.host,
+      port: config.database.port,
+      user: config.database.user,
+      password: config.database.password,
+      database: config.database.database,
       waitForConnections: true,
       connectionLimit: 5,
       dateStrings: true,   // return DATE/DATETIME as "YYYY-MM-DD HH:MM:SS" strings, not Date objects

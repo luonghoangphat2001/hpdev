@@ -1,7 +1,7 @@
 'use strict';
 
 const OpenAI = require('openai');
-const AIProvider = require('./AIProvider');
+const AIProvider = require('@services/ai/AIProvider');
 
 /**
  * OpenAI-compatible provider wrapper.
@@ -51,7 +51,7 @@ class OpenAICompatibleProvider extends AIProvider {
    * @param {string} systemPrompt
    */
   async chatWithTools(agentMessages, systemPrompt, options = {}) {
-    const ToolRegistry = require('../ToolRegistry');
+    const ToolRegistry = require('@services/ToolRegistry');
     const allowed = options.allowedToolNames;
     const restricted = Array.isArray(allowed);
     const openaiTools  = ToolRegistry.forChatGPT().filter((tool) => !restricted || allowed.includes(tool.function.name));

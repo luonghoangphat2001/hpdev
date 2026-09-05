@@ -1,21 +1,22 @@
 'use strict';
 
 const { execFileSync } = require('child_process');
-const pkg = require('../../../package.json');
 
 function resolveVersion() {
   if (process.env.APP_VERSION) return process.env.APP_VERSION;
   if (process.env.GIT_COMMIT) return process.env.GIT_COMMIT;
 
   try {
-    return execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
+    const gitVersion = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
       cwd: process.cwd(),
       stdio: ['ignore', 'pipe', 'ignore'],
       encoding: 'utf8',
-    }).trim() || pkg.version || '2.0.0';
+    }).trim();
+    if (gitVersion) return gitVersion;
   } catch (_) {
-    return pkg.version || '2.0.0';
+    // git not available in some container environments
   }
+  return '2.0.0';
 }
 
 module.exports = resolveVersion();

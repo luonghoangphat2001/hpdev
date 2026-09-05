@@ -1,7 +1,8 @@
 'use strict';
 
 const express = require('express');
-const { buildControllers, configureExpress } = require('./config/config');
+const buildControllers = require('@controllers/container');
+const configureExpress = require('@bootstrap/express');
 
 /**
  * Express application wrapper.

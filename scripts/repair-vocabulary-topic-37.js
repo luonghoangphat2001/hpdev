@@ -1,7 +1,7 @@
 'use strict';
-
+require('module-alias/register');
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
-const createRepositories = require('../src/config/application/repositories');
+const createRepositories = require('@bootstrap/repositories');
 
 const words = [
   ['gerontology', 'lão khoa; ngành nghiên cứu sự lão hóa', '/ˌdʒer.ənˈtɒl.ə.dʒi/', 'Gerontology examines how biological and social factors shape people\'s experiences of later life.', 'Lão khoa nghiên cứu cách các yếu tố sinh học và xã hội định hình trải nghiệm của con người khi về già.'],

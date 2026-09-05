@@ -2,10 +2,10 @@
 
 const { Router } = require('express');
 const multer = require('multer');
-const AuthMiddleware = require('../middleware/AuthMiddleware');
-const ServiceAuthMiddleware = require('../middleware/ServiceAuthMiddleware');
-const APP_VERSION = require('../config/express/version');
-const { getSwaggerHtml, getOpenApiSpec } = require('../docs/swaggerUi');
+const AuthMiddleware = require('@middleware/AuthMiddleware');
+const ServiceAuthMiddleware = require('@middleware/ServiceAuthMiddleware');
+const APP_VERSION = require('@bootstrap/express/version');
+const { getSwaggerHtml, getOpenApiSpec } = require('@docs/swaggerUi');
 
 const importUpload = multer({
   storage: multer.memoryStorage(),

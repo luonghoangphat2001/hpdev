@@ -3,6 +3,7 @@
 const helmet = require('helmet');
 const cors = require('cors');
 const compression = require('compression');
+const config = require('@config');
 
 function configureSecurity(app) {
   app.use(helmet({
@@ -11,29 +12,15 @@ function configureSecurity(app) {
   }));
   app.use(compression());
 
-  const defaultOrigins = [
-    'https://ai.hpdev.name.vn',
-    'https://openclaw.hpdev.name.vn',
-    'https://api.hpdev.name.vn',
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:3000',
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:5174',
-  ];
-
-  const allowedOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
-    : defaultOrigins;
+  const allowedOrigins = config.cors.origins;
 
   app.use(cors({
     origin: (origin, callback) => {
-      // Cho phép requests không có origin (như curl, mobile apps, bot server-to-server)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
         return callback(null, true);
       }
-      return callback(null, true); // Dev/fallback permissive
+      return callback(null, true);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -42,4 +29,3 @@ function configureSecurity(app) {
 }
 
 module.exports = configureSecurity;
-

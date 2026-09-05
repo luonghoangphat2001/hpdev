@@ -1,7 +1,7 @@
 'use strict';
 
-const Database = require('../../models/Database');
-const TaskRepository = require('../../models/TaskRepository');
+const Database = require('@models/Database');
+const TaskRepository = require('@models/TaskRepository');
 
 class TaskService {
   /** @type {import('../../models/TaskRepository')|null} */

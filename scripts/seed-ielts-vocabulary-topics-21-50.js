@@ -1,11 +1,11 @@
 'use strict';
 
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+require('module-alias/register');
 
-const OpenAI = require('openai');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const createRepositories = require('../src/config/application/repositories');
-const { parseJson } = require('../src/services/learning/ContentNormalizer');
+const createRepositories = require('@bootstrap/repositories');
+const AIFactory = require('@services/ai/AIFactory');
+const { parseJson } = require('@services/learning/ContentNormalizer');
 
 const TOPICS = [
   [21, 'Government & Politics'],
@@ -70,7 +70,7 @@ function validWord(item) {
   return { word, meaning, pronunciation, example, note, isActive: 1 };
 }
 
-async function generateBatch(client, { provider, model, topicName, count, existingWords }) {
+async function generateBatch(aiProvider, { topicName, count, existingWords }) {
   const prompt = `Create exactly ${count} unique IELTS vocabulary entries for the topic "${topicName}".
 
 Audience: Vietnamese IELTS learners targeting Band 7.0-9.0. Use genuinely useful B2-C2 academic vocabulary and natural topic-specific collocations. Mix nouns, verbs, adjectives and collocations. Avoid elementary, vague or conversational filler words. Do not repeat any of these entries: ${existingWords.join(', ') || '(none)'}.
@@ -86,50 +86,13 @@ Return JSON only, using exactly this shape:
 {"items":[{"word":"...","meaning":"...","pronunciation":"/.../","example":"...","note":"..."}]}`;
 
   const system = 'You are a Cambridge IELTS vocabulary editor and Vietnamese-English lexicographer. Accuracy and natural usage are mandatory.';
-  let text;
-  if (provider === 'gemini') {
-    const generator = client.getGenerativeModel({
-      model,
-      systemInstruction: system,
-      generationConfig: {
-        temperature: 0.45,
-        maxOutputTokens: 8192,
-        responseMimeType: 'application/json',
-      },
-    });
-    const response = await generator.generateContent(prompt);
-    text = response.response.text();
-  } else if (provider === 'cloudflare') {
-    const response = await fetch(`${client.baseUrl}/ai/run/${model}`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${client.apiToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }],
-        max_tokens: 4096,
-        temperature: 0.45,
-      }),
-    });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok || body.success === false) {
-      const detail = body.errors?.map((error) => error.message || error.code).filter(Boolean).join('; ');
-      throw new Error(`Cloudflare ${response.status}: ${detail || response.statusText}`);
-    }
-    text = body.result?.response || body.result?.choices?.[0]?.message?.content || '';
-  } else {
-    const response = await client.chat.completions.create({
-      model,
-      max_tokens: 5000,
-      temperature: 0.45,
-      ...(provider === 'openai' ? { response_format: { type: 'json_object' } } : {}),
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: prompt },
-      ],
-    });
-    text = response.choices[0].message.content;
-  }
+  const result = await aiProvider.chat(
+    [{ role: 'user', content: prompt }],
+    system,
+    { temperature: 0.45, max_tokens: 4096 }
+  );
 
-  const parsed = parseJson(text);
+  const parsed = parseJson(result.text);
   if (!parsed || typeof parsed !== 'object') throw new Error('Provider returned invalid JSON');
   return (Array.isArray(parsed.items) ? parsed.items : []).map(validWord).filter(Boolean);
 }
@@ -140,13 +103,27 @@ async function main() {
   const batchSize = Math.max(1, Math.min(Number(option('batch', '10')), 15));
   const provider = option('provider', 'cloudflare');
   if (!['gemini', 'openai', 'nvidia', 'cloudflare'].includes(provider)) throw new Error('--provider must be gemini, openai, nvidia or cloudflare');
-  const defaultModel = provider === 'gemini'
-    ? (process.env.GEMINI_VOCAB_MODEL || 'gemini-flash-latest')
-    : provider === 'cloudflare'
-      ? (process.env.CLOUDFLARE_VOCAB_MODEL || '@cf/meta/llama-3.3-70b-instruct-fp8-fast')
-    : provider === 'nvidia'
-      ? (process.env.NVIDIA_VOCAB_MODEL || 'meta/llama-3.3-70b-instruct')
-      : (process.env.OPENAI_VOCAB_MODEL || 'gpt-4.1-mini');
+  const requireEnv = (key) => {
+    const v = process.env[key];
+    if (!v || String(v).trim().length === 0) throw new Error(`[Env] Missing required environment variable: ${key}`);
+    return String(v).trim();
+  };
+  const getEnv = (key) => {
+    const v = process.env[key];
+    if (v === undefined || v === null) return '';
+    return String(v).trim();
+  };
+
+  let defaultModel = '';
+  if (provider === 'gemini') {
+    defaultModel = requireEnv('GEMINI_VOCAB_MODEL');
+  } else if (provider === 'cloudflare') {
+    defaultModel = requireEnv('CLOUDFLARE_VOCAB_MODEL');
+  } else if (provider === 'nvidia') {
+    defaultModel = requireEnv('NVIDIA_VOCAB_MODEL');
+  } else {
+    defaultModel = requireEnv('OPENAI_VOCAB_MODEL');
+  }
   const model = option('model', defaultModel);
   const topics = selectedTopics();
 
@@ -154,21 +131,15 @@ async function main() {
     console.log(JSON.stringify({ dryRun: true, target, batchSize, provider, model, topics }, null, 2));
     return;
   }
-  if (provider === 'gemini' && !process.env.GEMINI_KEY) throw new Error('GEMINI_KEY is required');
-  if (provider === 'openai' && !process.env.OPENAI_KEY) throw new Error('OPENAI_KEY is required');
-  if (provider === 'nvidia' && !process.env.NVIDIA_API_KEY) throw new Error('NVIDIA_API_KEY is required');
-  if (provider === 'cloudflare' && (!process.env.CLOUDFLARE_API_TOKEN || !process.env.CLOUDFLARE_ACCOUNT_ID)) throw new Error('Cloudflare credentials are required');
-
-  const client = provider === 'gemini'
-    ? new GoogleGenerativeAI(process.env.GEMINI_KEY)
-    : provider === 'cloudflare'
-      ? {
-          apiToken: process.env.CLOUDFLARE_API_TOKEN,
-          baseUrl: (process.env.CLOUDFLARE_BASE_URL || `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}`).replace(/\/$/, ''),
-        }
-    : provider === 'nvidia'
-      ? new OpenAI({ apiKey: process.env.NVIDIA_API_KEY, baseURL: process.env.NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1' })
-      : new OpenAI({ apiKey: process.env.OPENAI_KEY, baseURL: process.env.OPENAI_BASE_URL || undefined });
+  const aiProvider = AIFactory.create(provider === 'openai' ? 'chatgpt' : provider, {
+    geminiModel: model,
+    cloudflareModel: model,
+    cloudflareBaseUrl: process.env.CLOUDFLARE_BASE_URL,
+    nvidiaModel: model,
+    nvidiaBaseUrl: process.env.NVIDIA_BASE_URL,
+    chatgptModel: model,
+    openaiBaseUrl: process.env.OPENAI_BASE_URL,
+  });
   const { vocabRepo } = await createRepositories();
   const summary = [];
 
@@ -185,7 +156,7 @@ async function main() {
 
       let generated;
       try {
-        generated = await generateBatch(client, { provider, model, topicName, count: needed, existingWords });
+        generated = await generateBatch(aiProvider, { topicName, count: needed, existingWords });
       } catch (error) {
         console.error(`[IELTS vocab] Topic ${topicNo}, attempt ${attempts} failed: ${error.message}`);
         await new Promise((resolve) => setTimeout(resolve, Math.min(attempts * 2000, 10000)));

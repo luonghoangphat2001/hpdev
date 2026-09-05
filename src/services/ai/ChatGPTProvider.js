@@ -1,6 +1,6 @@
 'use strict';
 
-const OpenAICompatibleProvider = require('./OpenAICompatibleProvider');
+const OpenAICompatibleProvider = require('@services/ai/OpenAICompatibleProvider');
 
 /**
  * OpenAI ChatGPT provider.

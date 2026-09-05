@@ -1,7 +1,7 @@
 'use strict';
 
-const ConfigService = require('../services/ConfigService');
-const { memoryCache, CacheConfig } = require('../cache');
+const ConfigService = require('@services/ConfigService');
+const { memoryCache, CacheConfig } = require('@cache');
 
 /**
  * Handles reading and updating the bot configuration (admin only).

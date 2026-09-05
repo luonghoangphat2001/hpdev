@@ -1,6 +1,6 @@
 'use strict';
 
-const { performanceMap, weightedShuffle } = require('./AdaptiveSelector');
+const { performanceMap, weightedShuffle } = require('@services/learning/AdaptiveSelector');
 
 /**
  * QuizEngine: Generates questions for all 5 quiz modes (Multiple Choice, IPA Match, Fill in Blank, Spelling, Flashcards)

@@ -268,7 +268,11 @@ class AgentLoop {
   async #fallbackWebSearch(query) {
     try {
       const clean = String(query || '').trim();
-      const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(clean)}&format=json&no_html=1`;
+      const searchUrl = process.env.DUCKDUCKGO_SEARCH_API_URL;
+      if (!searchUrl) {
+        throw new Error('[AgentLoop] DUCKDUCKGO_SEARCH_API_URL is required in environment');
+      }
+      const url = `${searchUrl.replace(/\/$/, '')}/?q=${encodeURIComponent(clean)}&format=json&no_html=1`;
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();

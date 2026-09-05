@@ -1,38 +1,29 @@
 'use strict';
 
-const GeminiProvider = require('./GeminiProvider');
-const ClaudeProvider = require('./ClaudeProvider');
-const ChatGPTProvider = require('./ChatGPTProvider');
-const OpenAICompatibleProvider = require('./OpenAICompatibleProvider');
-const CloudflareProvider = require('./CloudflareProvider');
+const GeminiProvider = require('@services/ai/GeminiProvider');
+const ClaudeProvider = require('@services/ai/ClaudeProvider');
+const ChatGPTProvider = require('@services/ai/ChatGPTProvider');
+const OpenAICompatibleProvider = require('@services/ai/OpenAICompatibleProvider');
+const CloudflareProvider = require('@services/ai/CloudflareProvider');
 
 /**
  * Factory for AI providers (Factory Pattern).
  * Centralises provider instantiation so callers never import SDK classes directly.
+ * Zero || operators.
  */
 class AIFactory {
+  static #resolveParam(...candidates) {
+    for (const val of candidates) {
+      if (val !== undefined && val !== null && String(val).trim().length > 0) {
+        return String(val).trim();
+      }
+    }
+    return '';
+  }
+
   /**
    * @param {'gemini'|'claude'|'chatgpt'|'kimi'|'deepseek'|'vllm'|'ollama'|'nvidia'|'cloudflare'} providerName
-   * @param {{
-   *   geminiModel?: string,
-   *   claudeModel?: string,
-   *   claudeBaseUrl?: string,
-   *   chatgptModel?: string,
-   *   openaiBaseUrl?: string,
-   *   kimiModel?: string,
-   *   kimiBaseUrl?: string,
-   *   kimiApiKey?: string,
-   *   deepseekModel?: string,
-   *   deepseekBaseUrl?: string,
-   *   vllmModel?: string,
-   *   vllmBaseUrl?: string,
-   *   ollamaModel?: string,
-   *   ollamaBaseUrl?: string,
-   *   nvidiaModel?: string,
-   *   nvidiaBaseUrl?: string,
-   *   cloudflareModel?: string,
-   *   cloudflareBaseUrl?: string,
-   * }} config
+   * @param {Record<string, any>} [config={}]
    * @returns {import('./AIProvider')}
    */
   static create(providerName, {
@@ -56,59 +47,64 @@ class AIFactory {
     cloudflareBaseUrl,
   } = {}) {
     switch (providerName) {
-      case 'claude':
-        return new ClaudeProvider(
-          process.env.CLAUDE_KEY,
-          claudeModel,
-          process.env.CLAUDE_API_BASE_URL ||
-          process.env.CLAUDE_BASE_URL ||
+      case 'claude': {
+        const apiKey = this.#resolveParam(process.env.CLAUDE_KEY);
+        const model = this.#resolveParam(claudeModel, process.env.CLAUDE_MODEL);
+        const baseUrl = this.#resolveParam(
+          process.env.CLAUDE_API_BASE_URL,
+          process.env.CLAUDE_BASE_URL,
           claudeBaseUrl
         );
-      case 'chatgpt':
-        return new ChatGPTProvider(
-          process.env.OPENAI_KEY,
-          chatgptModel,
-          process.env.OPENAI_BASE_URL || openaiBaseUrl
-        );
+        return new ClaudeProvider(apiKey, model, baseUrl);
+      }
+      case 'chatgpt': {
+        const apiKey = this.#resolveParam(process.env.OPENAI_KEY);
+        const model = this.#resolveParam(chatgptModel, process.env.CHATGPT_MODEL);
+        const baseUrl = this.#resolveParam(process.env.OPENAI_BASE_URL, openaiBaseUrl);
+        return new ChatGPTProvider(apiKey, model, baseUrl);
+      }
       case 'kimi': {
-        const baseURL = process.env.KIMI_BASE_URL || kimiBaseUrl || 'https://api.moonshot.ai/v1';
-        const model = kimiModel || process.env.KIMI_MODEL || 'kimi-k2.6';
-        const apiKey = process.env.KIMI_API_KEY || kimiApiKey;
-        return new OpenAICompatibleProvider(apiKey, model, baseURL, 'Kimi');
+        const apiKey = this.#resolveParam(process.env.KIMI_API_KEY, kimiApiKey);
+        const model = this.#resolveParam(kimiModel, process.env.KIMI_MODEL);
+        const baseUrl = this.#resolveParam(process.env.KIMI_BASE_URL, kimiBaseUrl);
+        return new OpenAICompatibleProvider(apiKey, model, baseUrl, 'Kimi');
       }
       case 'deepseek': {
-        const baseURL = process.env.DEEPSEEK_BASE_URL || deepseekBaseUrl || 'https://api.deepseek.com';
-        const model = deepseekModel || process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash';
-        const apiKey = process.env.DEEPSEEK_API_KEY;
-        return new OpenAICompatibleProvider(apiKey, model, baseURL, 'DeepSeek');
+        const apiKey = this.#resolveParam(process.env.DEEPSEEK_API_KEY);
+        const model = this.#resolveParam(deepseekModel, process.env.DEEPSEEK_MODEL);
+        const baseUrl = this.#resolveParam(process.env.DEEPSEEK_BASE_URL, deepseekBaseUrl);
+        return new OpenAICompatibleProvider(apiKey, model, baseUrl, 'DeepSeek');
       }
       case 'vllm': {
-        const baseURL = process.env.VLLM_BASE_URL || vllmBaseUrl || 'http://127.0.0.1:8000/v1';
-        const model = vllmModel || process.env.VLLM_MODEL || 'llama3.1';
-        const apiKey = process.env.VLLM_API_KEY || 'vllm';
-        return new OpenAICompatibleProvider(apiKey, model, baseURL, 'vLLM');
+        const apiKey = this.#resolveParam(process.env.VLLM_API_KEY);
+        const model = this.#resolveParam(vllmModel, process.env.VLLM_MODEL);
+        const baseUrl = this.#resolveParam(process.env.VLLM_BASE_URL, vllmBaseUrl);
+        return new OpenAICompatibleProvider(apiKey, model, baseUrl, 'vLLM');
       }
       case 'ollama': {
-        const baseURL = process.env.OLLAMA_BASE_URL || ollamaBaseUrl || 'http://127.0.0.1:11434/v1';
-        const model = ollamaModel || process.env.OLLAMA_MODEL || 'llama3.1';
-        const apiKey = process.env.OLLAMA_API_KEY || 'ollama';
-        return new OpenAICompatibleProvider(apiKey, model, baseURL, 'Ollama');
+        const apiKey = this.#resolveParam(process.env.OLLAMA_API_KEY);
+        const model = this.#resolveParam(ollamaModel, process.env.OLLAMA_MODEL);
+        const baseUrl = this.#resolveParam(process.env.OLLAMA_BASE_URL, ollamaBaseUrl);
+        return new OpenAICompatibleProvider(apiKey, model, baseUrl, 'Ollama');
       }
       case 'nvidia': {
-        const baseURL = process.env.NVIDIA_BASE_URL || nvidiaBaseUrl || 'https://integrate.api.nvidia.com/v1';
-        const model = nvidiaModel || process.env.NVIDIA_MODEL || 'meta/llama-3.1-8b-instruct';
-        const apiKey = process.env.NVIDIA_API_KEY;
-        return new OpenAICompatibleProvider(apiKey, model, baseURL, 'NVIDIA NIM');
+        const apiKey = this.#resolveParam(process.env.NVIDIA_API_KEY);
+        const model = this.#resolveParam(nvidiaModel, process.env.NVIDIA_MODEL);
+        const baseUrl = this.#resolveParam(process.env.NVIDIA_BASE_URL, nvidiaBaseUrl);
+        return new OpenAICompatibleProvider(apiKey, model, baseUrl, 'NVIDIA NIM');
       }
       case 'cloudflare': {
-        const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-        const baseURL = process.env.CLOUDFLARE_BASE_URL || cloudflareBaseUrl;
-        const model = cloudflareModel || process.env.CLOUDFLARE_MODEL || '@cf/meta/llama-3.1-8b-instruct';
-        const apiKey = process.env.CLOUDFLARE_API_TOKEN;
-        return new CloudflareProvider(apiKey, accountId, model, baseURL);
+        const accountId = this.#resolveParam(process.env.CLOUDFLARE_ACCOUNT_ID);
+        const apiKey = this.#resolveParam(process.env.CLOUDFLARE_API_TOKEN);
+        const model = this.#resolveParam(cloudflareModel, process.env.CLOUDFLARE_MODEL);
+        const baseUrl = this.#resolveParam(process.env.CLOUDFLARE_BASE_URL, cloudflareBaseUrl);
+        return new CloudflareProvider(apiKey, accountId, model, baseUrl);
       }
-      default:
-        return new GeminiProvider(process.env.GEMINI_KEY, geminiModel);
+      default: {
+        const apiKey = this.#resolveParam(process.env.GEMINI_KEY);
+        const model = this.#resolveParam(geminiModel, process.env.GEMINI_MODEL);
+        return new GeminiProvider(apiKey, model);
+      }
     }
   }
 }

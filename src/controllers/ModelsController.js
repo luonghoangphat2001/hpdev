@@ -1,7 +1,7 @@
 'use strict';
 
 const OpenAI = require('openai');
-const { memoryCache, CacheConfig } = require('../cache');
+const { memoryCache, CacheConfig } = require('@cache');
 
 /**
  * Returns available model IDs for a given AI provider.
@@ -31,7 +31,7 @@ class ModelsController {
           case 'kimi': result = await this.#openAICompatibleModels('KIMI_API_KEY', 'KIMI_BASE_URL', /kimi/i); break;
           case 'vllm': result = await this.#openAICompatibleModels('VLLM_API_KEY', 'VLLM_BASE_URL'); break;
           case 'ollama': result = await this.#openAICompatibleModels('OLLAMA_API_KEY', 'OLLAMA_BASE_URL'); break;
-          case 'nvidia': result = await this.#openAICompatibleModels('NVIDIA_API_KEY', 'NVIDIA_BASE_URL', null, 'https://integrate.api.nvidia.com/v1'); break;
+          case 'nvidia': result = await this.#openAICompatibleModels('NVIDIA_API_KEY', 'NVIDIA_BASE_URL'); break;
           case 'cloudflare': result = await this.#cloudflareModels(); break;
           default: return null;
         }
@@ -66,30 +66,36 @@ class ModelsController {
   // ── Gemini ────────────────────────────────────────────────────────────────
   async #geminiModels() {
     const key = process.env.GEMINI_KEY;
-    const baseUrl = process.env.GEMINI_API_BASE_URL;
-    if (!key || !baseUrl) throw new Error('GEMINI_KEY or GEMINI_API_BASE_URL not configured');
+    if (!key) throw new Error('GEMINI_KEY not configured in environment');
+    const baseUrl = process.env.GEMINI_BASE_URL
+      ? process.env.GEMINI_BASE_URL
+      : process.env.GEMINI_API_BASE_URL;
+    if (!baseUrl) throw new Error('GEMINI_BASE_URL not configured in environment');
 
     // The JS SDK does not expose listModels() — use the REST endpoint directly.
     const url = `${baseUrl.replace(/\/$/, '')}/v1beta/models?pageSize=100&key=${encodeURIComponent(key)}`;
-    const res  = await fetch(url);
+    const res = await fetch(url);
     if (!res.ok) throw new Error(`Gemini API ${res.status}`);
     const data = await res.json();
 
     return (data.models || [])
-      .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
-      .map(m => ({ id: m.name, label: m.displayName || m.name }))
+      .filter((m) => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
+      .map((m) => ({ id: m.name, label: m.displayName ? m.displayName : m.name }))
       .sort((a, b) => b.id.localeCompare(a.id)); // newest first
   }
 
   // ── Claude ────────────────────────────────────────────────────────────────
   async #claudeModels() {
     const apiKey = process.env.CLAUDE_KEY;
-    const base = process.env.CLAUDE_API_BASE_URL || process.env.CLAUDE_BASE_URL || this.#configRepo.get('claude_base_url');
-    if (!apiKey || !base) throw new Error('CLAUDE_KEY or CLAUDE_API_BASE_URL not configured');
+    if (!apiKey) throw new Error('CLAUDE_KEY not configured in environment');
+    const base = process.env.CLAUDE_BASE_URL
+      ? process.env.CLAUDE_BASE_URL
+      : process.env.CLAUDE_API_BASE_URL;
+    if (!base) throw new Error('CLAUDE_BASE_URL not configured in environment');
 
-    const res  = await fetch(`${base.replace(/\/$/, '')}/v1/models?limit=100`, {
+    const res = await fetch(`${base.replace(/\/$/, '')}/v1/models?limit=100`, {
       headers: {
-        'x-api-key':         apiKey,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
     });
@@ -97,32 +103,35 @@ class ModelsController {
     const data = await res.json();
 
     return (data.data || [])
-      .map(m => ({ id: m.id, label: m.display_name || m.id }))
+      .map((m) => ({ id: m.id, label: m.display_name ? m.display_name : m.id }))
       .sort((a, b) => b.id.localeCompare(a.id)); // newest first
   }
 
   // ── ChatGPT / OpenAI ──────────────────────────────────────────────────────
   async #chatgptModels() {
     const apiKey = process.env.OPENAI_KEY;
-    if (!apiKey) throw new Error('OPENAI_KEY not configured');
+    if (!apiKey) throw new Error('OPENAI_KEY not configured in environment');
+    const baseUrl = process.env.OPENAI_BASE_URL;
+    if (!baseUrl) throw new Error('OPENAI_BASE_URL not configured in environment');
 
     const client = new OpenAI({
       apiKey,
-      baseURL: process.env.OPENAI_BASE_URL || undefined,
+      baseURL: baseUrl,
     });
-    const res    = await client.models.list();
+    const res = await client.models.list();
 
     return res.data
-      .filter(m => /^(gpt-|o1|o3)/.test(m.id))
-      .map(m => ({ id: m.id, label: m.id }))
+      .filter((m) => /^(gpt-|o1|o3)/.test(m.id))
+      .map((m) => ({ id: m.id, label: m.id }))
       .sort((a, b) => b.id.localeCompare(a.id)); // newest first
   }
 
-  async #openAICompatibleModels(keyName, baseUrlName, filter = null, defaultBaseUrl = '') {
+  async #openAICompatibleModels(keyName, baseUrlName, filter = null) {
     const apiKey = process.env[keyName];
-    const baseUrl = process.env[baseUrlName] || defaultBaseUrl;
-    if (!apiKey || !baseUrl) throw new Error(`${keyName} or ${baseUrlName} not configured`);
-    const client = new OpenAI({ apiKey, baseUrl });
+    if (!apiKey) throw new Error(`${keyName} not configured in environment`);
+    const baseUrl = process.env[baseUrlName];
+    if (!baseUrl) throw new Error(`${baseUrlName} not configured in environment`);
+    const client = new OpenAI({ apiKey, baseURL: baseUrl });
     const response = await client.models.list();
     return response.data
       .map((model) => model.id)
@@ -133,15 +142,21 @@ class ModelsController {
 
   async #cloudflareModels() {
     const token = process.env.CLOUDFLARE_API_TOKEN;
-    const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-    if (!token || !accountId) throw new Error('CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID not configured');
-    const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/models/search`;
+    if (!token) throw new Error('CLOUDFLARE_API_TOKEN not configured in environment');
+    const baseUrl = process.env.CLOUDFLARE_BASE_URL;
+    if (!baseUrl) throw new Error('CLOUDFLARE_BASE_URL not configured in environment');
+    const url = `${baseUrl.replace(/\/$/, '')}/ai/models/search`;
     const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error(`Cloudflare model API ${response.status}`);
     const body = await response.json();
     const rows = Array.isArray(body.result) ? body.result : [];
     return rows
-      .map((model) => model.id || model.name || model.model)
+      .map((model) => {
+        if (model.id) return model.id;
+        if (model.name) return model.name;
+        if (model.model) return model.model;
+        return null;
+      })
       .filter(Boolean)
       .map((id) => ({ id, label: id }))
       .sort((a, b) => a.id.localeCompare(b.id));

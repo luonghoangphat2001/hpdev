@@ -1,6 +1,6 @@
 'use strict';
 
-const Logger = require('../../utils/Logger');
+const Logger = require('@utils/Logger');
 
 /**
  * Schema definitions for system persona prompt and log maintenance.

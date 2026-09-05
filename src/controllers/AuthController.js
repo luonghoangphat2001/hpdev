@@ -1,11 +1,13 @@
 'use strict';
 
-const TokenService = require('../services/auth/TokenService');
+const TokenService = require('@services/auth/TokenService');
+const ApiResponse = require('@utils/ApiResponse');
 
 /**
  * Controller responsible for authentication requests (login, logout, current user).
  * Adheres to SRP by delegating token lifecycle to TokenService and user verification to UserRepository.
  * Follows DIP by accepting TokenService via constructor injection.
+ * Uses unified ApiResponse for consistent JSON structures.
  */
 class AuthController {
   /** @type {import('../models/UserRepository')} */
@@ -34,18 +36,21 @@ class AuthController {
   async login(req, res) {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
+    if (!username) {
+      return ApiResponse.badRequest(res, 'Username and password are required', 'MISSING_CREDENTIALS');
+    }
+    if (!password) {
+      return ApiResponse.badRequest(res, 'Username and password are required', 'MISSING_CREDENTIALS');
     }
 
     const user = await this.#userRepo.findByUsername(username);
     if (!user) {
-      return res.status(401).json({ error: 'Invalid username or password' });
+      return ApiResponse.unauthorized(res, 'Invalid username or password', 'INVALID_CREDENTIALS');
     }
 
     const isPasswordValid = this.#userRepo.verifyPassword(password, user.password_hash);
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid username or password' });
+      return ApiResponse.unauthorized(res, 'Invalid username or password', 'INVALID_CREDENTIALS');
     }
 
     if (!req.session) {
@@ -70,7 +75,7 @@ class AuthController {
       expiresInSeconds
     );
 
-    return res.status(200).json({
+    return ApiResponse.success(res, {
       id: user.id,
       username: user.username,
       role: user.role,
@@ -88,12 +93,12 @@ class AuthController {
     if (req.session) {
       req.session.destroy(() => {
         res.clearCookie('connect.sid');
-        return res.status(200).json({ ok: true });
+        return ApiResponse.success(res, null, 200, 'Logged out successfully');
       });
       return;
     }
     res.clearCookie('connect.sid');
-    return res.status(200).json({ ok: true });
+    return ApiResponse.success(res, null, 200, 'Logged out successfully');
   }
 
   /**
@@ -103,10 +108,10 @@ class AuthController {
    */
   getMe(req, res) {
     if (!req.session) {
-      return res.status(200).json({ user: null });
+      return ApiResponse.success(res, { user: null });
     }
     if (!req.session.loggedIn) {
-      return res.status(200).json({ user: null });
+      return ApiResponse.success(res, { user: null });
     }
 
     let userId = null;
@@ -114,7 +119,7 @@ class AuthController {
       userId = req.session.userId;
     }
 
-    return res.status(200).json({
+    return ApiResponse.success(res, {
       id: userId,
       username: req.session.username,
       role: req.session.role,

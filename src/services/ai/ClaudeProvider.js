@@ -1,7 +1,7 @@
 'use strict';
 
 const Anthropic = require('@anthropic-ai/sdk');
-const AIProvider = require('./AIProvider');
+const AIProvider = require('@services/ai/AIProvider');
 
 /**
  * Anthropic Claude provider.
@@ -20,8 +20,15 @@ class ClaudeProvider extends AIProvider {
    */
   constructor(apiKey, modelName, baseURL) {
     super();
-    this.#client = new Anthropic({ apiKey, baseURL: baseURL || undefined });
-    this.#modelName = modelName || 'claude-sonnet-4-6';
+    const clientOptions = { apiKey };
+    if (baseURL) {
+      clientOptions.baseURL = baseURL;
+    }
+    this.#client = new Anthropic(clientOptions);
+    if (!modelName) {
+      throw new Error('[ClaudeProvider] modelName is required');
+    }
+    this.#modelName = modelName;
   }
 
   async chat(messages, systemPrompt) {
@@ -44,7 +51,7 @@ class ClaudeProvider extends AIProvider {
    * @param {string} systemPrompt
    */
   async chatWithTools(agentMessages, systemPrompt, options = {}) {
-    const ToolRegistry  = require('../ToolRegistry');
+    const ToolRegistry  = require('@services/ToolRegistry');
     const allowed = options.allowedToolNames;
     const restricted = Array.isArray(allowed);
     const claudeTools   = ToolRegistry.forClaude().filter((tool) => !restricted || allowed.includes(tool.name));

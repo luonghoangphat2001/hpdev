@@ -1,6 +1,6 @@
 'use strict';
 
-const TimeUtils = require('../../utils/TimeUtils');
+const TimeUtils = require('@utils/TimeUtils');
 
 /**
  * Daily vocabulary notification workflow.
@@ -152,9 +152,12 @@ class VocabularyService {
     const cleanWord = String(word || '').trim();
     if (!cleanWord) return null;
 
-    const baseUrl = this.#configRepo.get('vocab_dictionary_api_url')
-      || process.env.DICTIONARY_API_URL
-      || 'https://api.dictionaryapi.dev/api/v2/entries/en';
+    const baseUrl = process.env.VOCAB_DICTIONARY_API_URL
+      ? process.env.VOCAB_DICTIONARY_API_URL
+      : (process.env.DICTIONARY_API_URL ? process.env.DICTIONARY_API_URL : this.#configRepo.get('vocab_dictionary_api_url'));
+    if (!baseUrl) {
+      throw new Error('[VocabularyService] DICTIONARY_API_URL is required in environment');
+    }
 
     try {
       const url = `${baseUrl.replace(/\/$/, '')}/${encodeURIComponent(cleanWord)}`;
@@ -245,12 +248,17 @@ class VocabularyService {
     }
 
     if (!sent) {
-      const token = process.env.DISCORD_TOKEN || this.#configRepo.get('discord_token');
+      const token = process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN : this.#configRepo.get('discord_token');
       if (!token) {
         throw new Error('Chưa cấu hình DISCORD_TOKEN trong file .env');
       }
 
-      const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+      const discordApiUrl = process.env.DISCORD_API_BASE_URL;
+      if (!discordApiUrl) {
+        throw new Error('[VocabularyService] DISCORD_API_BASE_URL is required in environment');
+      }
+
+      const res = await fetch(`${discordApiUrl.replace(/\/$/, '')}/channels/${channelId}/messages`, {
         method: 'POST',
         headers: {
           'Authorization': `Bot ${token}`,

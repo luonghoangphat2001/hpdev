@@ -1,6 +1,6 @@
 'use strict';
 
-const { unpackItems } = require('../services/learning/ContentNormalizer');
+const { unpackItems } = require('@services/learning/ContentNormalizer');
 
 /**
  * Unified repository managing the 4-table Learning Hub architecture:

@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = require('./version');
+const APP_VERSION = require('@bootstrap/express/version');
 
 function configureRequestMetadata(app, userRepo) {
   app.use((_req, res, next) => {

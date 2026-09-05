@@ -28,6 +28,7 @@
     "express-rate-limit": "^8.6.2",
     "express-session": "^1.17.0",
     "helmet": "^8.3.0",
+    "module-alias": "^2.3.4",
     "multer": "^2.0.2",
     "mysql2": "^3.9.0",
     "openai": "^4.67.0",
@@ -36,5 +37,52 @@
   },
   "devDependencies": {
     "jest": "^29.7.0"
+  },
+  "_moduleAliases": {
+    "@config": "src/config",
+    "@bootstrap": "src/bootstrap",
+    "@utils": "src/utils",
+    "@services": "src/services",
+    "@controllers": "src/controllers",
+    "@middleware": "src/middleware",
+    "@models": "src/models",
+    "@routes": "src/routes",
+    "@schemas": "src/config/schemas",
+    "@cache": "src/cache",
+    "@database": "src/database",
+    "@bots": "src/bots",
+    "@docs": "src/docs",
+    "@server": "src/server.js"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^@config$": "<rootDir>/src/config/index.js",
+      "^@config/(.*)$": "<rootDir>/src/config/$1",
+      "^@bootstrap$": "<rootDir>/src/bootstrap",
+      "^@bootstrap/(.*)$": "<rootDir>/src/bootstrap/$1",
+      "^@utils$": "<rootDir>/src/utils",
+      "^@utils/(.*)$": "<rootDir>/src/utils/$1",
+      "^@services$": "<rootDir>/src/services",
+      "^@services/(.*)$": "<rootDir>/src/services/$1",
+      "^@controllers$": "<rootDir>/src/controllers",
+      "^@controllers/(.*)$": "<rootDir>/src/controllers/$1",
+      "^@middleware$": "<rootDir>/src/middleware",
+      "^@middleware/(.*)$": "<rootDir>/src/middleware/$1",
+      "^@models$": "<rootDir>/src/models",
+      "^@models/(.*)$": "<rootDir>/src/models/$1",
+      "^@routes$": "<rootDir>/src/routes",
+      "^@routes/(.*)$": "<rootDir>/src/routes/$1",
+      "^@schemas$": "<rootDir>/src/config/schemas",
+      "^@schemas/(.*)$": "<rootDir>/src/config/schemas/$1",
+      "^@cache$": "<rootDir>/src/cache",
+      "^@cache/(.*)$": "<rootDir>/src/cache/$1",
+      "^@database$": "<rootDir>/src/database",
+      "^@database/(.*)$": "<rootDir>/src/database/$1",
+      "^@bots$": "<rootDir>/src/bots",
+      "^@bots/(.*)$": "<rootDir>/src/bots/$1",
+      "^@docs$": "<rootDir>/src/docs",
+      "^@docs/(.*)$": "<rootDir>/src/docs/$1",
+      "^@server$": "<rootDir>/src/server.js"
+    }
   }
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-const { memoryCache, CacheConfig } = require('../cache');
+const { memoryCache, CacheConfig } = require('@cache');
 
 /**
  * Returns aggregate usage statistics (admin only) with server-side caching.

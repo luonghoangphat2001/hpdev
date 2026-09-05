@@ -1,6 +1,6 @@
 'use strict';
 
-const { shouldSkipApiRateLimit } = require('../../src/config/express/request');
+const { shouldSkipApiRateLimit } = require('@bootstrap/express/request');
 
 describe('API rate-limit exemptions', () => {
   test.each(['/me', '/health'])('keeps bootstrap endpoint %s reachable', (path) => {

@@ -1,34 +1,50 @@
 'use strict';
 
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+require('module-alias/register');
 
-const createRepositories = require('../src/config/application/repositories');
-const { parseJson } = require('../src/services/learning/ContentNormalizer');
-const OpenAI = require('openai');
+const createRepositories = require('@bootstrap/repositories');
+const { parseJson } = require('@services/learning/ContentNormalizer');
+const AIFactory = require('@services/ai/AIFactory');
 
-const DICTIONARY_URL = process.env.VOCAB_DICTIONARY_API_URL
-  || 'https://api.dictionaryapi.dev/api/v2/entries/en';
-const CLOUDFLARE_BASE_URL = (process.env.CLOUDFLARE_BASE_URL
-  || `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}`).replace(/\/$/, '');
-const CLOUDFLARE_MODEL = process.env.CLOUDFLARE_VOCAB_MODEL
-  || '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+function requireEnv(key) {
+  const val = process.env[key];
+  if (!val || String(val).trim().length === 0) {
+    throw new Error(`[Env] Missing required environment variable: ${key}`);
+  }
+  return String(val).trim();
+}
 
 function normalizeIpa(value) {
-  const ipa = String(value || '').replace(/\s+/g, ' ').trim();
-  if (!ipa || ipa.length > 160) return '';
-  return ipa.startsWith('/') && ipa.endsWith('/') ? ipa : `/${ipa.replace(/^\/+|\/+$/g, '')}/`;
+  if (!value) return '';
+  const ipa = String(value).replace(/\s+/g, ' ').trim();
+  if (ipa.length === 0 || ipa.length > 160) return '';
+  if (ipa.startsWith('/') && ipa.endsWith('/')) {
+    return ipa;
+  }
+  return `/${ipa.replace(/^\/+|\/+$/g, '')}/`;
 }
 
 async function dictionaryIpa(word) {
+  const dictionaryUrl = requireEnv('VOCAB_DICTIONARY_API_URL');
   try {
-    const response = await fetch(`${DICTIONARY_URL}/${encodeURIComponent(word)}`, { signal: AbortSignal.timeout(8000) });
+    const response = await fetch(`${dictionaryUrl}/${encodeURIComponent(word)}`, {
+      signal: AbortSignal.timeout(8000),
+    });
     if (!response.ok) return '';
     const entries = await response.json();
-    for (const entry of Array.isArray(entries) ? entries : []) {
-      const phonetic = entry.phonetic || entry.phonetics?.find((item) => item.text)?.text;
+    const list = Array.isArray(entries) ? entries : [];
+    for (const entry of list) {
+      let phonetic = entry.phonetic;
+      if (!phonetic && entry.phonetics) {
+        const found = entry.phonetics.find((item) => item.text);
+        if (found) phonetic = found.text;
+      }
       if (phonetic) return normalizeIpa(phonetic);
     }
-  } catch (_) {}
+  } catch (err) {
+    console.error(`[DictionaryAPI] Failed for word ${word}:`, err.message);
+  }
   return '';
 }
 
@@ -45,40 +61,42 @@ async function mapLimit(rows, limit, worker) {
   return results;
 }
 
-async function generateIpaBatch(rows) {
+function resolveAiProvider() {
+  const nvidiaKey = process.env.NVIDIA_API_KEY;
+  if (nvidiaKey && nvidiaKey.trim().length > 0) {
+    return AIFactory.create('nvidia', {
+      nvidiaModel: requireEnv('NVIDIA_IPA_MODEL'),
+      nvidiaBaseUrl: requireEnv('NVIDIA_BASE_URL'),
+    });
+  }
+
+  const cloudflareToken = process.env.CLOUDFLARE_API_TOKEN;
+  const cloudflareAccount = process.env.CLOUDFLARE_ACCOUNT_ID;
+  if (cloudflareToken && cloudflareAccount) {
+    return AIFactory.create('cloudflare', {
+      cloudflareModel: requireEnv('CLOUDFLARE_VOCAB_MODEL'),
+      cloudflareBaseUrl: requireEnv('CLOUDFLARE_BASE_URL'),
+    });
+  }
+
+  return AIFactory.create('gemini');
+}
+
+async function generateIpaBatch(rows, aiProvider) {
   const input = rows.map((row) => ({ id: row.id, word: row.word }));
-  const messages = [
-    { role: 'system', content: 'You are an expert English phonetician. Return accurate standard British IPA and valid JSON only.' },
-    { role: 'user', content: `Add pronunciation for every item. Preserve each id. For multiword expressions, transcribe the complete phrase. Return {"items":[{"id":1,"pronunciation":"/.../"}]}. Input: ${JSON.stringify(input)}` },
-  ];
-  let text = '';
-  if (process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ACCOUNT_ID) {
-    const response = await fetch(`${CLOUDFLARE_BASE_URL}/ai/run/${CLOUDFLARE_MODEL}`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages, max_tokens: 4096, temperature: 0.1 }),
-    });
-    const body = await response.json().catch(() => ({}));
-    if (response.ok && body.success !== false) {
-      text = body.result?.response || body.result?.choices?.[0]?.message?.content || '';
-    }
-  }
-  if (!text) {
-    if (!process.env.NVIDIA_API_KEY) throw new Error('NVIDIA_API_KEY is required for IPA fallback');
-    const client = new OpenAI({
-      apiKey: process.env.NVIDIA_API_KEY,
-      baseURL: process.env.NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1',
-    });
-    const response = await client.chat.completions.create({
-      model: process.env.NVIDIA_IPA_MODEL || 'meta/llama-3.1-8b-instruct',
-      max_tokens: 4096,
-      temperature: 0.1,
-      messages,
-    });
-    text = response.choices[0].message.content || '';
-  }
-  const parsed = parseJson(text);
-  return (parsed?.items || []).map((item) => ({ id: Number(item.id), pronunciation: normalizeIpa(item.pronunciation) }))
+  const systemPrompt = 'You are an expert English phonetician. Return accurate standard British IPA and valid JSON only.';
+  const userPrompt = `Add pronunciation for every item. Preserve each id. For multiword expressions, transcribe the complete phrase. Return {"items":[{"id":1,"pronunciation":"/.../"}]}. Input: ${JSON.stringify(input)}`;
+
+  const response = await aiProvider.chat(
+    [{ role: 'user', content: userPrompt }],
+    systemPrompt,
+    { max_tokens: 4096, temperature: 0.1 }
+  );
+
+  const parsed = parseJson(response.text);
+  const items = parsed?.items ? parsed.items : [];
+  return items
+    .map((item) => ({ id: Number(item.id), pronunciation: normalizeIpa(item.pronunciation) }))
     .filter((item) => item.id && item.pronunciation);
 }
 
@@ -96,14 +114,15 @@ async function main() {
   console.log(`[IPA] Dictionary filled: ${dictionaryUpdates.length}`);
 
   missing = await vocabRepo.findMissingPronunciationWords();
-  if (missing.length && !process.env.NVIDIA_API_KEY
-    && (!process.env.CLOUDFLARE_API_TOKEN || !process.env.CLOUDFLARE_ACCOUNT_ID)) {
-    throw new Error(`An AI provider is required for ${missing.length} remaining phrases`);
+  if (missing.length === 0) {
+    console.log(JSON.stringify({ ok: true, dictionary: dictionaryUpdates.length, generated: 0, remaining: 0 }));
+    process.exit(0);
   }
 
+  const aiProvider = resolveAiProvider();
   let generated = 0;
   for (let index = 0; index < missing.length; index += 30) {
-    const updates = await generateIpaBatch(missing.slice(index, index + 30));
+    const updates = await generateIpaBatch(missing.slice(index, index + 30), aiProvider);
     await vocabRepo.updatePronunciationsBatch(updates);
     generated += updates.length;
     console.log(`[IPA] Generated: ${generated}/${missing.length}`);
@@ -115,6 +134,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error.stack || error.message);
+  console.error(error.stack ? error.stack : error.message);
   process.exit(1);
 });

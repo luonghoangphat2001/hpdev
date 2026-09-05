@@ -1,6 +1,6 @@
 'use strict';
 
-const { unpackItems } = require('../../services/learning/ContentNormalizer');
+const { unpackItems } = require('@services/learning/ContentNormalizer');
 
 /**
  * Unpack accidentally serialized learning-item wrappers.

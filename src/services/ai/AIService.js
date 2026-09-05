@@ -1,14 +1,14 @@
 'use strict';
 
-const AIFactory         = require('./AIFactory');
-const AgentLoop         = require('./AgentLoop');
-const InsightRepository = require('../../models/InsightRepository');
-const Database          = require('../../models/Database');
+const AIFactory         = require('@services/ai/AIFactory');
+const AgentLoop         = require('@services/ai/AgentLoop');
+const InsightRepository = require('@models/InsightRepository');
+const Database          = require('@models/Database');
 const {
   getProviderMeta,
   getProviderOrder,
   getFallbackVersion,
-} = require('./ProviderCatalog');
+} = require('@services/ai/ProviderCatalog');
 
 /**
  * AI business-logic service.

@@ -2,6 +2,7 @@
 
 const express = require('express');
 const rateLimit = require('express-rate-limit');
+const config = require('@config');
 
 function configureRequestMiddleware(app) {
   app.use(express.json({ limit: '10mb' }));
@@ -11,8 +12,8 @@ function configureRequestMiddleware(app) {
 
 function createApiRateLimiter() {
   return rateLimit({
-    windowMs: Number(process.env.API_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000),
-    limit: Number(process.env.API_RATE_LIMIT_MAX || 300),
+    windowMs: config.rateLimit.windowMs,
+    limit: config.rateLimit.max,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     skip: shouldSkipApiRateLimit,

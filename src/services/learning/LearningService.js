@@ -1,8 +1,8 @@
 'use strict';
 
 const XLSX = require('xlsx');
-const { parseJson, unpackItems, normalizeItem } = require('./ContentNormalizer');
-const { performanceMap, weightedShuffle } = require('./AdaptiveSelector');
+const { parseJson, unpackItems, normalizeItem } = require('@services/learning/ContentNormalizer');
+const { performanceMap, weightedShuffle } = require('@services/learning/AdaptiveSelector');
 
 // ─── PROMPT GENERATOR STRATEGIES ─────────────────────────────
 const PROMPT_BUILDERS = {
@@ -996,9 +996,13 @@ class LearningService {
     }
 
     if (!sent) {
-      const token = process.env.DISCORD_TOKEN || this.#configRepo.get('discord_token');
+      const token = process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN : this.#configRepo.get('discord_token');
       if (token) {
-        const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+        const discordApiUrl = process.env.DISCORD_API_BASE_URL;
+        if (!discordApiUrl) {
+          throw new Error('[LearningService] DISCORD_API_BASE_URL is required in environment');
+        }
+        const res = await fetch(`${discordApiUrl.replace(/\/$/, '')}/channels/${channelId}/messages`, {
           method: 'POST',
           headers: {
             'Authorization': `Bot ${token}`,
@@ -1051,8 +1055,12 @@ class LearningService {
 
   async #fetchUSIpa(word) {
     try {
+      const dictionaryUrl = process.env.DICTIONARY_API_URL;
+      if (!dictionaryUrl) {
+        throw new Error('[LearningService] DICTIONARY_API_URL is required in environment');
+      }
       const cleanWord = encodeURIComponent(word.toLowerCase().trim().replace(/[^a-z-]/g, ''));
-      const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`, {
+      const res = await fetch(`${dictionaryUrl.replace(/\/$/, '')}/${cleanWord}`, {
         signal: AbortSignal.timeout(3000),
       });
       if (!res.ok) return null;

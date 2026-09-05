@@ -1,9 +1,9 @@
 'use strict';
 
-const { MODEL_CONFIG_SCHEMA } = require('./models.schema');
-const { AGENT_CONFIG_SCHEMA, MONITORED_AGENTS } = require('./agents.schema');
-const { SYSTEM_CONFIG_SCHEMA } = require('./system.schema');
-const { LEARNING_CONFIG_SCHEMA } = require('./learning.schema');
+const { MODEL_CONFIG_SCHEMA } = require('@schemas/models.schema');
+const { AGENT_CONFIG_SCHEMA, MONITORED_AGENTS } = require('@schemas/agents.schema');
+const { SYSTEM_CONFIG_SCHEMA } = require('@schemas/system.schema');
+const { LEARNING_CONFIG_SCHEMA } = require('@schemas/learning.schema');
 
 const CONFIG_SCHEMA = [
   ...MODEL_CONFIG_SCHEMA,

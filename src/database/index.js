@@ -1,31 +1,31 @@
 'use strict';
 
-const createMigrationHelpers = require('./helpers');
+const createMigrationHelpers = require('@database/helpers');
 
 const schemaMigrations = [
-  require('./migrations/config'),
-  require('./migrations/conversations'),
-  require('./migrations/users'),
-  require('./migrations/schedules'),
-  require('./migrations/insights'),
-  require('./migrations/agents'),
-  require('./migrations/notifications'),
-  require('./migrations/learning'),
-  require('./migrations/tech'),
-  require('./migrations/timestamps'),
+  require('@database/migrations/config'),
+  require('@database/migrations/conversations'),
+  require('@database/migrations/users'),
+  require('@database/migrations/schedules'),
+  require('@database/migrations/insights'),
+  require('@database/migrations/agents'),
+  require('@database/migrations/notifications'),
+  require('@database/migrations/learning'),
+  require('@database/migrations/tech'),
+  require('@database/migrations/timestamps'),
 ];
 
 const seeders = [
-  require('./seeders/learning'),
+  require('@database/seeders/learning'),
 ];
 
 const dataMigrations = [
-  require('./migrations/normalize-learning'),
-  require('./migrations/import-legacy-tech'),
+  require('@database/migrations/normalize-learning'),
+  require('@database/migrations/import-legacy-tech'),
 ];
 
 const cleanupTasks = [
-  require('./cleanup/learning-items'),
+  require('@database/cleanup/learning-items'),
 ];
 
 module.exports = async function initializeDatabase(db) {
@@ -47,4 +47,3 @@ module.exports = async function initializeDatabase(db) {
     await cleanup(db);
   }
 };
-

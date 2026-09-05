@@ -1,7 +1,7 @@
 'use strict';
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const TimeUtils = require('../../utils/TimeUtils');
+const TimeUtils = require('@utils/TimeUtils');
 
 /**
  * Scheduler service: ticks every minute to fire due reminders,
@@ -162,10 +162,14 @@ class SchedulerService {
         }
       }
       // Fallback to REST API.
-      const token = process.env.DISCORD_TOKEN || this.#configRepo.get('discord_token');
+      const token = process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN : this.#configRepo.get('discord_token');
       if (token) {
         try {
-          const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+          const discordApiUrl = process.env.DISCORD_API_BASE_URL;
+          if (!discordApiUrl) {
+            throw new Error('[SchedulerService] DISCORD_API_BASE_URL is required in environment');
+          }
+          const res = await fetch(`${discordApiUrl.replace(/\/$/, '')}/channels/${channelId}/messages`, {
             method: 'POST',
             headers: {
               'Authorization': `Bot ${token}`,

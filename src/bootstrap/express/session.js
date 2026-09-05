@@ -2,34 +2,32 @@
 
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
+const config = require('@config');
 
 function configureSession(app) {
   app.use(session(createSessionOptions()));
 }
 
 function createSessionOptions() {
-  const sessionSecret = process.env.DASHBOARD_SECRET || process.env.SESSION_SECRET || 'dan-ai-secret-key-32-chars-long';
-
   const options = {
-    secret: sessionSecret,
+    secret: config.session.secret,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.COOKIE_SECURE === 'true',
+      secure: config.session.cookieSecure,
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000,
     },
   };
 
-
-  if (process.env.DB_USER && process.env.DB_NAME) {
+  if (config.database.user && config.database.database) {
     options.store = new MySQLStore({
-      host: process.env.DB_HOST || 'localhost',
-      port: Number(process.env.DB_PORT || 3306),
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_NAME,
+      host: config.database.host,
+      port: config.database.port,
+      user: config.database.user,
+      password: config.database.password,
+      database: config.database.database,
       createDatabaseTable: true,
       schema: { tableName: 'dashboard_sessions' },
     });

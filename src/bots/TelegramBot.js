@@ -1,9 +1,9 @@
 'use strict';
 
 const { Telegraf } = require('telegraf');
-const BaseBot = require('./BaseBot');
-const TaskService = require('../services/scheduler/TaskService');
-const { getAliasMap, getProviderOrder } = require('../services/ai/ProviderCatalog');
+const BaseBot = require('@bots/BaseBot');
+const TaskService = require('@services/scheduler/TaskService');
+const { getAliasMap, getProviderOrder } = require('@services/ai/ProviderCatalog');
 
 /**
  * Telegram bot.

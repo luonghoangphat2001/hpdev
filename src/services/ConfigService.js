@@ -1,7 +1,7 @@
 'use strict';
 
-const { getProviderLabels } = require('./ai/ProviderCatalog');
-const { CONFIG_SCHEMA, MONITORED_AGENTS } = require('../config/schemas/schemas');
+const { getProviderLabels } = require('@services/ai/ProviderCatalog');
+const { CONFIG_SCHEMA, MONITORED_AGENTS } = require('@schemas/schemas');
 
 /**
  * Service responsible for configuration serialization, deserialization,

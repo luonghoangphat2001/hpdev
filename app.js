@@ -2,14 +2,15 @@
 
 /**
  * Dashboard entry point.
- * Infrastructure composition lives in src/config/application/.
+ * Centralized bootstrap with module aliases and clean lifecycle management.
  */
+require('module-alias/register');
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
-require('./src/utils/Logger').init();
+require('@utils/Logger').init();
 
-const { startApplication } = require('./src/config/config');
+const startApplication = require('@bootstrap/application');
 
 startApplication().catch((err) => {
-  console.error('Fatal error during application startup:', err);
+  console.error('[StartupError]', err.message);
   process.exit(1);
 });

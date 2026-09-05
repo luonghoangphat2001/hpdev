@@ -1,11 +1,11 @@
 'use strict';
 
-const AIProvider = require('./AIProvider');
+const AIProvider = require('@services/ai/AIProvider');
 
 /**
  * Cloudflare Workers AI REST provider.
- * Uses the account-scoped /ai/run endpoint, which works with a Workers AI token
- * without requiring AI Gateway permissions.
+ * Uses the account-scoped /ai/run endpoint without raw fetch duplication.
+ * Zero || operators.
  */
 class CloudflareProvider extends AIProvider {
   #apiToken;
@@ -17,27 +17,44 @@ class CloudflareProvider extends AIProvider {
     super();
     this.#apiToken = apiToken;
     this.#accountId = accountId;
-    this.#modelName = modelName || '@cf/meta/llama-3.1-8b-instruct';
-    this.#baseUrl = (baseUrl || `https://api.cloudflare.com/client/v4/accounts/${accountId}`).replace(/\/$/, '');
+    if (!modelName) {
+      throw new Error('[CloudflareProvider] modelName is required');
+    }
+    this.#modelName = modelName;
+
+    if (!baseUrl) {
+      throw new Error('[CloudflareProvider] baseUrl is required (configure CLOUDFLARE_BASE_URL in environment)');
+    }
+    this.#baseUrl = baseUrl.replace(/\/$/, '');
   }
 
-  async chat(messages, systemPrompt) {
+  async chat(messages, systemPrompt, options = {}) {
+    const maxTokens = options.max_tokens ? options.max_tokens : 4096;
+    const temperature = options.temperature !== undefined ? options.temperature : 0.1;
     const response = await this.#request({
       messages: [
         { role: 'system', content: systemPrompt },
         ...messages.map((message) => ({ role: message.role, content: message.content })),
       ],
-      max_tokens: 1024,
+      max_tokens: maxTokens,
+      temperature,
     });
+    let text = '';
+    const result = response.result;
+    if (result) {
+      if (result.response) {
+        text = result.response;
+      } else if (result.choices && result.choices.length > 0 && result.choices[0].message) {
+        text = result.choices[0].message.content;
+      }
+    }
     return {
-      text: response.result?.response || response.result?.choices?.[0]?.message?.content || '',
-      tokensIn: response.result?.usage?.prompt_tokens || 0,
-      tokensOut: response.result?.usage?.completion_tokens || 0,
+      text,
+      tokensIn: response.result?.usage?.prompt_tokens ? response.result.usage.prompt_tokens : 0,
+      tokensOut: response.result?.usage?.completion_tokens ? response.result.usage.completion_tokens : 0,
     };
   }
 
-  // Workers AI direct REST is used as a text fallback. Tool execution remains
-  // protected by DAN/OpenClaw and requires an AI Gateway/tool-capable route.
   async chatWithTools(agentMessages, systemPrompt) {
     const result = await this.chat(
       agentMessages.filter((message) => ['user', 'assistant'].includes(message.role)),
@@ -53,8 +70,8 @@ class CloudflareProvider extends AIProvider {
   }
 
   async #request(input) {
-    if (!this.#apiToken) throw new Error('CLOUDFLARE_API_TOKEN not configured');
-    if (!this.#accountId) throw new Error('CLOUDFLARE_ACCOUNT_ID not configured');
+    if (!this.#apiToken) throw new Error('[CloudflareProvider] CLOUDFLARE_API_TOKEN not configured');
+    if (!this.#accountId) throw new Error('[CloudflareProvider] CLOUDFLARE_ACCOUNT_ID not configured');
 
     const response = await fetch(`${this.#baseUrl}/ai/run/${this.#modelName}`, {
       method: 'POST',
@@ -66,8 +83,14 @@ class CloudflareProvider extends AIProvider {
     });
     const body = await response.json().catch(() => ({}));
     if (!response.ok || body.success === false) {
-      const detail = body.errors?.map((error) => error.message || error.code).filter(Boolean).join('; ');
-      throw new Error(`Cloudflare Workers AI ${response.status}: ${detail || response.statusText}`);
+      let detail = '';
+      if (body.errors && Array.isArray(body.errors)) {
+        detail = body.errors.map((error) => (error.message ? error.message : error.code)).filter(Boolean).join('; ');
+      }
+      if (!detail) {
+        detail = response.statusText ? response.statusText : 'Unknown error';
+      }
+      throw new Error(`[CloudflareProvider] API error ${response.status}: ${detail}`);
     }
     return body;
   }
