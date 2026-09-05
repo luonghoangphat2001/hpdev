@@ -1,15 +1,11 @@
 import axios from 'axios';
 
 function resolveApiBase() {
-  try {
-    const url = import.meta.env.VITE_API_URL;
-    if (!url || typeof url !== 'string' || url.trim().length === 0) {
-      throw new Error('VITE_API_URL is required in environment');
-    }
-    return url.trim();
-  } catch (error) {
-    throw new Error(`[dan-learning] Failed to resolve API_BASE from env: ${error.message}`);
+  const raw = import.meta.env.VITE_API_URL;
+  if (!raw || typeof raw !== 'string' || raw.trim().length === 0) {
+    throw new Error('[dan-learning] Missing required environment variable: VITE_API_URL');
   }
+  return raw.trim();
 }
 
 export const API_BASE = resolveApiBase();
