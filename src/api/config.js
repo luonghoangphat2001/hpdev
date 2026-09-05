@@ -1,4 +1,4 @@
-import { api } from './request';
+import { api } from '@/api/request';
 
 export const getConfig = () => api.get('/config');
 export const updateConfig = (data) => api.post('/config', data);

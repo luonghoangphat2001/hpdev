@@ -1,4 +1,4 @@
-import { api } from './request';
+import { api } from '@/api/request';
 
 export const getSchedules = (includeInactive = false) =>
   api.get(`/study-schedules${includeInactive ? '?include_inactive=1' : ''}`);

@@ -62,9 +62,9 @@
 
 <script setup>
 import { ref, nextTick, watch } from "vue"
-import { useAuthStore } from "../stores/auth"
-import { useChatStore } from "../stores/chat"
-import ModelSelector from "../components/common/ModelSelector.vue"
+import { useAuthStore } from "@/stores/auth"
+import { useChatStore } from "@/stores/chat"
+import ModelSelector from "@/components/common/ModelSelector.vue"
 
 const authStore = useAuthStore()
 const chatStore = useChatStore()

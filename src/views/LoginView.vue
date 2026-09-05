@@ -38,7 +38,7 @@
 <script setup>
 import { ref } from "vue"
 import { useRouter } from "vue-router"
-import { useAuthStore } from "../stores/auth"
+import { useAuthStore } from "@/stores/auth"
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -59,9 +59,15 @@ const handleLogin = async () => {
             router.push("/chat")
         }
     } catch (err) {
-        error.value = err.response?.data?.error || err.message || "Sai username hoặc password. Thử lại."
+        if (err.response?.data?.error) {
+            error.value = err.response.data.error;
+        } else if (err.message) {
+            error.value = err.message;
+        } else {
+            error.value = "Sai username hoặc password. Thử lại.";
+        }
     } finally {
-        loading.value = false
+        loading.value = false;
     }
 }
 </script>

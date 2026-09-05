@@ -1,4 +1,4 @@
-import { api } from './request';
+import { api } from '@/api/request';
 
 export const getStats = () => api.get('/stats');
 export const getHistory = (limit = 50, offset = 0) => api.get(`/history?limit=${limit}&offset=${offset}`);

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { getMe, login as apiLogin, logout as apiLogout } from '../api/session';
+import { getMe, login as apiLogin, logout as apiLogout } from '@/api/session';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({

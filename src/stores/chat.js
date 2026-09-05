@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { sendChatMessage } from '../api/chat';
+import { sendChatMessage } from '@/api/chat';
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
