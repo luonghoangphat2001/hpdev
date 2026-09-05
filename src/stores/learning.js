@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia';
 import { getLearnings, getLearningItems, toggleBookmark as apiToggleBookmark } from '@/api/learning';
 
+// Prevent two UI effects fired during the same route transition from issuing
+// the same items request concurrently.
+let pendingQuestionsKey = '';
+let pendingQuestionsRequest = null;
+
 export const useLearningStore = defineStore('learning', {
   state: () => ({
     activeCategory: 'tech', // 'tech' | 'vocab' | 'quiz' | 'reading' | 'writing' | 'speaking' | 'practice'
@@ -30,30 +35,44 @@ export const useLearningStore = defineStore('learning', {
       }
     },
     async loadQuestions() {
-      this.loading = true;
-      try {
-        const res = await getLearningItems({
-          category: 'tech',
-          learning: this.activeTechSlug,
-          search: this.searchQuery,
-          level: this.filterLevel,
-          status: this.filterStatus,
-          bookmarked: this.filterBookmark ? 1 : 0,
-          limit: 200,
-        });
-        if (res && res.items) {
-          this.techQuestions = res.items;
-          const activeId = this.activeQuestion?.id;
-          this.activeQuestion = this.techQuestions.find((question) => question.id === activeId)
-            || this.techQuestions[0]
-            || null;
-          this.flashcardIndex = Math.max(0, this.techQuestions.findIndex((question) => question.id === this.activeQuestion?.id));
-        }
-      } catch (err) {
-        console.error('Failed to load questions:', err);
-      } finally {
-        this.loading = false;
+      const params = {
+        category: 'tech',
+        learning: this.activeTechSlug,
+        search: this.searchQuery,
+        level: this.filterLevel,
+        status: this.filterStatus,
+        bookmarked: this.filterBookmark ? 1 : 0,
+        limit: 200,
+      };
+      const requestKey = JSON.stringify(params);
+
+      if (pendingQuestionsRequest && pendingQuestionsKey === requestKey) {
+        return pendingQuestionsRequest;
       }
+
+      this.loading = true;
+      pendingQuestionsKey = requestKey;
+      pendingQuestionsRequest = (async () => {
+        try {
+          const res = await getLearningItems(params);
+          if (res && res.items) {
+            this.techQuestions = res.items;
+            const activeId = this.activeQuestion?.id;
+            this.activeQuestion = this.techQuestions.find((question) => question.id === activeId)
+              || this.techQuestions[0]
+              || null;
+            this.flashcardIndex = Math.max(0, this.techQuestions.findIndex((question) => question.id === this.activeQuestion?.id));
+          }
+        } catch (err) {
+          console.error('Failed to load questions:', err);
+        } finally {
+          this.loading = false;
+          pendingQuestionsKey = '';
+          pendingQuestionsRequest = null;
+        }
+      })();
+
+      return pendingQuestionsRequest;
     },
     async toggleBookmark(question) {
       if (!question) return;
