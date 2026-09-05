@@ -5,6 +5,7 @@ const multer = require('multer');
 const AuthMiddleware = require('../middleware/AuthMiddleware');
 const ServiceAuthMiddleware = require('../middleware/ServiceAuthMiddleware');
 const APP_VERSION = require('../config/express/version');
+const { getSwaggerHtml, getOpenApiSpec } = require('../docs/swaggerUi');
 
 const importUpload = multer({
   storage: multer.memoryStorage(),
@@ -41,6 +42,7 @@ function createApiRouter(controllers) {
   // ─── Public & service-to-service ─────────────────────────────────────────
   const publicRouter = Router();
   publicRouter.get('/health', (_req, res) => res.json({ ok: true, version: APP_VERSION }));
+  publicRouter.get('/openapi.json', (_req, res) => res.json(getOpenApiSpec()));
   publicRouter.post('/login', controllers.auth.login);
   publicRouter.post('/logout', controllers.auth.logout);
   publicRouter.post(
@@ -49,6 +51,15 @@ function createApiRouter(controllers) {
     controllers.discordNotification.create
   );
   router.use('/', publicRouter);
+
+  // ─── API Documentation (Swagger UI & Spec) ────────────────────────────────
+  const docsRouter = Router();
+  docsRouter.get('/', (_req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(getSwaggerHtml());
+  });
+  docsRouter.get('/spec', (_req, res) => res.json(getOpenApiSpec()));
+  router.use('/docs', docsRouter);
 
 
   // ─── Any authenticated user ───────────────────────────────────────────────

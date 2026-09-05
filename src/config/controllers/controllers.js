@@ -17,6 +17,7 @@ const QuizController = require('../../controllers/QuizController');
 const TechController = require('../../controllers/TechController');
 const DiscordNotificationController = require('../../controllers/DiscordNotificationController');
 const OpenClawMonitorService = require('../../services/openclaw/OpenClawMonitorService');
+const TokenService = require('../../services/auth/TokenService');
 
 function buildControllers(dependencies) {
   const {
@@ -40,7 +41,7 @@ function buildControllers(dependencies) {
   } = dependencies;
 
   return {
-    auth: new AuthController(userRepo),
+    auth: new AuthController(userRepo, TokenService),
     chat: new ChatController(aiService),
     config: new ConfigController(configRepo),
     history: new HistoryController(conversationRepo),

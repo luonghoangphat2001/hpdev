@@ -13,7 +13,7 @@ services:
       MYSQL_USER: dan_ai_user
       MYSQL_PASSWORD: dan_ai_password
     ports:
-      - "3306:3306"
+      - "3309:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:

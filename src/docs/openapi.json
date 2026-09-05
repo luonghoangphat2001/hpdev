@@ -1,0 +1,357 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Đần AI Platform API",
+    "version": "2.0.0",
+    "description": "Tài liệu API chính thức cho Frontend (Student Learning App & Admin Manager). Hệ thống hỗ trợ xác thực bằng Bearer JWT Token và Cookie Session."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "https://api.hpdev.name.vn/api",
+      "description": "Production Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Gắn JWT token lấy từ /api/login vào header: Authorization: Bearer <token>"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "example": "Luonghoangphat12001@"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "example": "admin"
+          },
+          "role": {
+            "type": "string",
+            "example": "admin"
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT Bearer token dùng cho các request tiếp theo",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "expiresIn": {
+            "type": "integer",
+            "description": "Thời gian hết hạn của token tính bằng giây (604800 = 7 ngày)",
+            "example": 604800
+          }
+        }
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          },
+          "username": {
+            "type": "string",
+            "example": "admin"
+          },
+          "role": {
+            "type": "string",
+            "example": "admin"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Kiểm tra trạng thái server",
+        "tags": ["Public"],
+        "responses": {
+          "200": {
+            "description": "Server đang hoạt động bình thường",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "version": { "type": "string", "example": "2.0.0" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Đăng nhập và nhận JWT Bearer Token",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Đăng nhập thành công, trả về token có hạn dùng (timeout)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Thiếu username hoặc password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sai tài khoản hoặc mật khẩu",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "Đăng xuất",
+        "tags": ["Authentication"],
+        "responses": {
+          "200": {
+            "description": "Đăng xuất thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "summary": "Lấy thông tin người dùng đang đăng nhập",
+        "tags": ["Authentication"],
+        "security": [
+          { "BearerAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "Thông tin người dùng",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Chưa đăng nhập hoặc token đã hết hạn",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/learning/categories": {
+      "get": {
+        "summary": "Lấy danh sách các danh mục học tập (Tech, English...)",
+        "tags": ["Learning"],
+        "security": [
+          { "BearerAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "Danh sách category thành công"
+          },
+          "401": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/learning/learnings": {
+      "get": {
+        "summary": "Lấy danh sách chủ đề học (theo category)",
+        "tags": ["Learning"],
+        "security": [
+          { "BearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "example": "tech" }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "example": "tech_question" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Danh sách chủ đề học"
+          }
+        }
+      }
+    },
+    "/learning/items": {
+      "get": {
+        "summary": "Lấy danh sách câu hỏi / từ vựng / bài học",
+        "tags": ["Learning"],
+        "security": [
+          { "BearerAuth": [] }
+        ],
+        "parameters": [
+          { "name": "category", "in": "query", "schema": { "type": "string" } },
+          { "name": "learning", "in": "query", "schema": { "type": "string" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "level", "in": "query", "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "bookmarked", "in": "query", "schema": { "type": "integer" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 200 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Danh sách items"
+          }
+        }
+      }
+    },
+    "/learning/quiz/generate": {
+      "get": {
+        "summary": "Tạo đề Quiz trắc nghiệm",
+        "tags": ["Learning - Quiz"],
+        "security": [
+          { "BearerAuth": [] }
+        ],
+        "parameters": [
+          { "name": "category", "in": "query", "schema": { "type": "string", "default": "tech" } },
+          { "name": "learning", "in": "query", "schema": { "type": "string" } },
+          { "name": "count", "in": "query", "schema": { "type": "integer", "default": 10 } },
+          { "name": "mode", "in": "query", "schema": { "type": "string", "default": "multiple_choice" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Danh sách câu hỏi trắc nghiệm"
+          }
+        }
+      }
+    },
+    "/learning/quiz/submit": {
+      "post": {
+        "summary": "Nộp bài thi Quiz và lưu điểm",
+        "tags": ["Learning - Quiz"],
+        "security": [
+          { "BearerAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "score": { "type": "number", "example": 8 },
+                  "total": { "type": "number", "example": 10 },
+                  "timeSpent": { "type": "number", "example": 120 },
+                  "topic": { "type": "string", "example": "php" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kết quả nộp bài"
+          }
+        }
+      }
+    },
+    "/learning/quiz/leaderboard": {
+      "get": {
+        "summary": "Bảng xếp hạng điểm thi Quiz",
+        "tags": ["Learning - Quiz"],
+        "security": [
+          { "BearerAuth": [] }
+        ],
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top điểm cao"
+          }
+        }
+      }
+    }
+  }
+}
