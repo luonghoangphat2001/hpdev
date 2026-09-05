@@ -1,6 +1,6 @@
 'use strict';
 
-const MonitorOverviewService = require('../../../src/services/reporting/dashboard/monitor-overview.service');
+const MonitorOverviewService = require('@services/reporting/dashboard/monitor-overview.service');
 
 describe('T124: OpenClaw Monitor Overview Page Service', () => {
   test('aggregates overview metrics and health info', async () => {

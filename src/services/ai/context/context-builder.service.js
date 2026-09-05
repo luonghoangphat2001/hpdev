@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const MemoryPolicy = require('../../../policy/permissions/memory-policy');
+const MemoryPolicy = require('@policy/permissions/memory-policy');
 
 /**
  * ContextBuilderService

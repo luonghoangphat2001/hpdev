@@ -1,6 +1,6 @@
 'use strict';
 
-const SandboxFixtureService = require('../../../src/services/release/rollback/sandbox-fixture.service');
+const SandboxFixtureService = require('@services/release/rollback/sandbox-fixture.service');
 
 describe('T112: Developer Fixtures/Mocks/Sandbox Service', () => {
   test('generates deterministic test fixtures for sandbox testing', () => {

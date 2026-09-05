@@ -1,6 +1,6 @@
 'use strict';
 
-const MetricsSloService = require('../../../src/services/reporting/dashboard/metrics-slo.service');
+const MetricsSloService = require('@services/reporting/dashboard/metrics-slo.service');
 
 describe('T108: Metrics/SLO Dashboard API Service', () => {
   test('returns SLO metrics overview', async () => {

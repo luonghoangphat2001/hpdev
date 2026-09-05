@@ -1,6 +1,6 @@
 'use strict';
 
-const InsightAggregatorService = require('../../../src/services/ai/research/insight-aggregator.service');
+const InsightAggregatorService = require('@services/ai/research/insight-aggregator.service');
 
 describe('T099: Customer Insight Aggregator Service', () => {
   test('aggregates and redacts PII from reviews and tickets', () => {

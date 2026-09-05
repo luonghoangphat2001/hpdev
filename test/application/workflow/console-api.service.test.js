@@ -1,6 +1,6 @@
 'use strict';
 
-const ConsoleApiService = require('../../../src/services/workflow/state/console-api.service');
+const ConsoleApiService = require('@services/workflow/state/console-api.service');
 
 describe('T097: Manual Mode and Pending Action Console API', () => {
   test('lists and resolves pending actions', async () => {

@@ -6,7 +6,7 @@
 module.exports = Object.freeze({
   id: '012-create-ceo-command-requests',
   up: `
-    CREATE TABLE IF NOT EXISTS ceo_command_requests (
+    CREATE TABLE ceo_command_requests (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       request_id VARCHAR(128) NOT NULL,
       idempotency_key VARCHAR(160) NOT NULL,

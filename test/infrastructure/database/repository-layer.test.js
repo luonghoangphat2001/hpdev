@@ -1,9 +1,9 @@
 'use strict';
 
-const TransactionManager = require('../../../src/database/transaction-manager');
-const MysqlOperatorRepository = require('../../../src/repositories/OperatorRepository');
-const MysqlWorkflowRepository = require('../../../src/repositories/WorkflowRepository');
-const OptimisticLockError = require('../../../src/utils/errors/optimistic-lock.error');
+const TransactionManager = require('@database/transaction-manager');
+const MysqlOperatorRepository = require('@repositories/OperatorRepository');
+const MysqlWorkflowRepository = require('@repositories/WorkflowRepository');
+const OptimisticLockError = require('@utils/errors/optimistic-lock.error');
 
 describe('database repository layer', () => {
   it('commits successful work and always releases the connection', async () => {

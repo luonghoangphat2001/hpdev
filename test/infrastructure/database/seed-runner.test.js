@@ -1,7 +1,7 @@
 'use strict';
 
-const SeedRunner = require("../../../src/database/seed-runner");
-const seeds = require("../../../src/database/seeds");
+const SeedRunner = require("@database/seed-runner");
+const seeds = require("@database/seeds");
 
 describe("SeedRunner & Database Seeds", () => {
   test("validates seeds structure and unique IDs", () => {

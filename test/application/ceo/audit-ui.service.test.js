@@ -1,6 +1,6 @@
 'use strict';
 
-const AuditUiService = require('../../../src/services/ceo/exception/audit-ui.service');
+const AuditUiService = require('@services/ceo/exception/audit-ui.service');
 
 describe('T138: CEO-Only Security, Confirmation, and Audit UI Service', () => {
   test('verifies CEO session hardening and returns audit history', async () => {

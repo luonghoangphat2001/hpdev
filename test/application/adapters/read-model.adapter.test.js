@@ -1,6 +1,6 @@
 'use strict';
 
-const ReadModelAdapter = require('../../../src/services/notification/adapter/read-model.adapter');
+const ReadModelAdapter = require('@services/notification/adapter/read-model.adapter');
 
 describe('T122: OpenClaw Monitor Read-Model API Adapter Service', () => {
   test('fetches versioned overview read model', async () => {

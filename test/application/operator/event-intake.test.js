@@ -1,8 +1,8 @@
 'use strict';
 
-const IntakeService = require('../../../src/services/operator/event/intake.service');
-const OperatorController = require('../../../src/controllers/OperatorController');
-const EventIntakeValidation = require('../../../src/validations/event-intake.validation');
+const IntakeService = require('@services/operator/event/intake.service');
+const OperatorController = require('@controllers/OperatorController');
+const EventIntakeValidation = require('@validations/event-intake.validation');
 
 describe('event intake application flow', () => {
   const eventId = 'evt_123e4567-e89b-42d3-a456-426614174000';
@@ -110,9 +110,9 @@ describe('event intake application flow', () => {
 
     await controller.create({}, res);
     expect(res.status).toHaveBeenCalledWith(202);
-    expect(res.json).toHaveBeenCalledWith({
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       event_id: 'evt_123',
       status: 'accepted',
-    });
+    }));
   });
 });

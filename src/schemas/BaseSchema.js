@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const env = require("../config/env");
+const env = require("@config/config");
 
 const DTO_SCHEMA_VERSION = "1.0.0";
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const WorkflowTimelineService = require('../../../src/services/workflow/state/workflow-timeline.service');
+const WorkflowTimelineService = require('@services/workflow/state/workflow-timeline.service');
 
 describe('T128: Workflow Detail Timeline Service', () => {
   test('returns step-by-step timeline with state transitions and redacted payload', () => {

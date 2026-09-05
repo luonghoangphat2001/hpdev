@@ -3,16 +3,16 @@
  */
 'use strict';
 
-const BasePolicy = require('../BasePolicy');
+const BasePolicy = require('@policy/BasePolicy');
 
-const actionCatalog = require('../../schemas/workflow/action.catalog');
-const riskCatalog = require('../../schemas/policy/risk.catalog');
+const actionCatalog = require('@schemas/workflow/action.catalog');
+const riskCatalog = require('@schemas/policy/risk.catalog');
 const {
   APPROVAL_MODES,
   DEFAULT_THRESHOLDS,
   RISK_LEVELS,
   RISK_POLICY_VERSION,
-} = require('../../schemas/policy/risk.catalog');
+} = require('@schemas/policy/risk.catalog');
 
 /**
  * RiskEvaluator

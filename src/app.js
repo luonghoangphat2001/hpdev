@@ -3,13 +3,15 @@
  */
 'use strict';
 
+require('module-alias/register');
+
 const express = require('express');
-const createWebRouter = require('./routes/web');
-const createApiRouter = require('./routes/api');
-const { createControllers } = require('./controllers/container');
-const { errorHandler, notFoundHandler } = require('./middleware/error.middleware');
-const metricsRegistry = require('./utils/metrics-registry');
-const HttpMetricsMiddleware = require('./middleware/http-metrics.middleware');
+const createWebRouter = require('@routes/web');
+const createApiRouter = require('@routes/api');
+const { createControllers } = require('@controllers/container');
+const { errorHandler, notFoundHandler } = require('@middleware/error.middleware');
+const metricsRegistry = require('@utils/metrics-registry');
+const HttpMetricsMiddleware = require('@middleware/http-metrics.middleware');
 
 /**
  * App

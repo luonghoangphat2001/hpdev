@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BaseSchema = require('../BaseSchema');
+const BaseSchema = require('@schemas/BaseSchema');
 const COMMON_DTO_SCHEMAS = BaseSchema.COMMON_DTO_SCHEMAS;
 
 /**

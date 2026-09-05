@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BasePolicy = require('../BasePolicy');
+const BasePolicy = require('@policy/BasePolicy');
 
 const FORBIDDEN_KEYS = /^(execute|write|mutate|commit|dispatch|send|issue|refund)$/i;
 

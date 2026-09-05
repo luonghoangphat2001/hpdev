@@ -1,6 +1,6 @@
 'use strict';
 
-const KpiCollectorService = require('../../../src/services/reporting/kpi/kpi-collector.service');
+const KpiCollectorService = require('@services/reporting/kpi/kpi-collector.service');
 
 describe('T070: KPI Collector Service', () => {
   test('collects KPI metric from SSOT client idempotently', async () => {

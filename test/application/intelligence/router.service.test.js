@@ -1,8 +1,8 @@
 'use strict';
 
-const RouterService = require('../../../src/services/ai/router/router.service');
-const JsonSchemaValidator = require('../../../src/utils/json-schema.validator');
-const { buildCapabilityRegistry } = require('../../../src/services/ai/capabilities/capability-builder');
+const RouterService = require('@services/ai/router/router.service');
+const JsonSchemaValidator = require('@utils/json-schema.validator');
+const { buildCapabilityRegistry } = require('@services/ai/capabilities/capability-builder');
 
 const outputSchema = Object.freeze({
   $id: 'https://openclaw.local/schemas/model-test-output-v1.json',

@@ -1,7 +1,7 @@
 'use strict';
 
 const MysqlDashboardReadRepository =
-  require('../../../src/repositories/DashboardReadRepository');
+  require('@repositories/DashboardReadRepository');
 
 describe('T122 supplemental: MySQL Dashboard Read Repository', () => {
   test('maps aggregate database values to the dashboard contract', async () => {

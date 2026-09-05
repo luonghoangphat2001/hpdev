@@ -1,6 +1,6 @@
 'use strict';
 
-const SopEngineService = require('../../../src/services/workflow/sop/sop-engine.service');
+const SopEngineService = require('@services/workflow/sop/sop-engine.service');
 
 describe('T061: SOP Execution Engine', () => {
   test('executes SOP steps successfully', async () => {

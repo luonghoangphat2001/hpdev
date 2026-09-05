@@ -4,7 +4,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const migrations = require('./migrations');
+const migrations = require('@database/migrations');
 
 /**
  * MigrationRunner
@@ -50,6 +50,9 @@ class MigrationRunner {
       for (const migration of this.migrations) {
         const checksum = this.#checksum(migration.up);
         if (applied.has(migration.id)) {
+          if (applied.get(migration.id) !== checksum) {
+            throw new Error(`Migration checksum mismatch: ${migration.id} (applied="${applied.get(migration.id)}", calculated="${checksum}")`);
+          }
           continue;
         }
 
@@ -73,7 +76,7 @@ class MigrationRunner {
   }
 
   #checksum(sql) {
-    return crypto.createHash('sha256').update(sql.trim()).digest('hex');
+    return crypto.createHash('sha256').update(sql.replace(/\r\n/g, '\n').trim()).digest('hex');
   }
 
   #statements(sql) {

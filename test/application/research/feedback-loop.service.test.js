@@ -1,6 +1,6 @@
 'use strict';
 
-const FeedbackLoopService = require('../../../src/services/ai/research/feedback-loop.service');
+const FeedbackLoopService = require('@services/ai/research/feedback-loop.service');
 
 describe('T105: Customer Feedback Closed Loop Service', () => {
   test('traces feedback loop from root cause to verified KPI action', () => {

@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BaseController = require('./BaseController');
+const BaseController = require('@controllers/BaseController');
 
 /**
  * CeoController
@@ -30,6 +30,26 @@ class CeoController extends BaseController {
     }
   }
 
+  #resolveDispatcher() {
+    if (this.commandDispatcher) {
+      return this.commandDispatcher;
+    }
+    if (this.dispatcher) {
+      return this.dispatcher;
+    }
+    throw new Error('[CeoController] Command dispatcher not configured');
+  }
+
+  #resolveExceptionService() {
+    if (this.exceptionService) {
+      return this.exceptionService;
+    }
+    if (this.service) {
+      return this.service;
+    }
+    throw new Error('[CeoController] Exception service not configured');
+  }
+
   // --- Commands ---
   /**
    * execute - Asynchronously executes execute.
@@ -38,17 +58,17 @@ class CeoController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async execute(req, res) {
-    const dispatcher = this.commandDispatcher || this.dispatcher;
+    const dispatcher = this.#resolveDispatcher();
     const receipt = await dispatcher.dispatch({
       commandName: req.params.commandName,
       payload: req.body?.payload,
       actorId: req.body?.actorId,
       idempotencyKey: req.body?.idempotencyKey,
     });
-    return res.status(receipt.status === 'queued' ? 202 : 200).json({
-      ok: true,
-      receipt,
-    });
+    if (receipt.status === 'queued') {
+      return this.accepted(res, { receipt });
+    }
+    return this.ok(res, { receipt });
   }
 
   // --- Exceptions ---
@@ -59,8 +79,15 @@ class CeoController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async list(req, res) {
-    const service = this.exceptionService || this.service;
-    const exceptions = await service.list(Number(req.query.limit || 100));
+    const service = this.#resolveExceptionService();
+    let limit = 100;
+    if (req.query && req.query.limit !== undefined) {
+      const parsed = Number(req.query.limit);
+      if (!Number.isNaN(parsed) && parsed > 0) {
+        limit = parsed;
+      }
+    }
+    const exceptions = await service.list(limit);
     return this.ok(res, { count: exceptions.length, exceptions });
   }
 
@@ -71,9 +98,9 @@ class CeoController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async refresh(_req, res) {
-    const service = this.exceptionService || this.service;
+    const service = this.#resolveExceptionService();
     const result = await service.refresh();
-    return this.accepted(res, { ok: true, ...result });
+    return this.accepted(res, result);
   }
 
   /**
@@ -83,12 +110,12 @@ class CeoController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async acknowledge(req, res) {
-    const service = this.exceptionService || this.service;
+    const service = this.#resolveExceptionService();
     const result = await service.acknowledge(
       req.params.exceptionId,
       req.body?.actorId,
     );
-    return this.ok(res, { ok: true, ...result });
+    return this.ok(res, result);
   }
 }
 

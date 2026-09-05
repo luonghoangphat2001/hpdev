@@ -1,6 +1,6 @@
 'use strict';
 
-const PiiRedactorPolicy = require('../../../src/policy/compliance/pii-redactor.policy');
+const PiiRedactorPolicy = require('@policy/compliance/pii-redactor.policy');
 
 describe('T084: PII Redactor Service', () => {
   test('redacts phone numbers and emails', () => {

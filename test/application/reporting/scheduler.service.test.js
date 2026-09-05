@@ -1,6 +1,6 @@
 'use strict';
 
-const ReportSchedulerService = require('../../../src/services/reporting/daily/report-scheduler.service');
+const ReportSchedulerService = require('@services/reporting/daily/report-scheduler.service');
 
 describe('ReportSchedulerService', () => {
   test('sends once after configured local time and skips duplicate ticks', async () => {

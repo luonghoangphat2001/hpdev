@@ -4,8 +4,8 @@
 'use strict';
 
 const crypto = require('crypto');
-const stateMachine = require('../../workflow/state/workflow-state-machine');
-const AppError = require('../../../utils/errors/app.error');
+const stateMachine = require('@services/workflow/state/workflow-state-machine');
+const AppError = require('@utils/errors/app.error');
 
 /**
  * OperatorControlService

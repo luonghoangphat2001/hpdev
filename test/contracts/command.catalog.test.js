@@ -1,8 +1,8 @@
 'use strict';
 
-const catalog = require('../../src/schemas/ceo/command.catalog');
+const catalog = require('@schemas/ceo/command.catalog');
 const CommandDispatcherService =
-  require('../../src/services/ceo/command/command-dispatcher.service');
+  require('@services/ceo/command/command-dispatcher.service');
 
 describe('CEO command catalog', () => {
   test('contains every required CEO operation with version, permission and risk', () => {

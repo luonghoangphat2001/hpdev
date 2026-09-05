@@ -1,6 +1,6 @@
 'use strict';
 
-const ContextCacheService = require('../../../src/services/workflow/state/context-cache.service');
+const ContextCacheService = require('@services/workflow/state/context-cache.service');
 
 describe('T180: Version-Aware Context/Result Cache Service', () => {
   test('manages version-aware PII-safe cache entries and handles invalidation', () => {

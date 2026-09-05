@@ -4,7 +4,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const AppError = require('../../../utils/errors/app.error');
+const AppError = require('@utils/errors/app.error');
 
 const TRANSITIONS = Object.freeze({
   DRAFT: Object.freeze(['TESTING', 'RETIRED']),

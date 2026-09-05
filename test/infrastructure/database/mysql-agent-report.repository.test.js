@@ -1,6 +1,6 @@
 'use strict';
 
-const MysqlAgentRepository = require('../../../src/repositories/AgentRepository');
+const MysqlAgentRepository = require('@repositories/AgentRepository');
 
 describe('MysqlAgentRepository', () => {
   test('returns normalized numeric metrics scoped to one agent and period', async () => {

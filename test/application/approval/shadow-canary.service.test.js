@@ -1,6 +1,6 @@
 'use strict';
 
-const ShadowCanaryService = require('../../../src/services/approval/decisions/shadow-canary.service');
+const ShadowCanaryService = require('@services/approval/decisions/shadow-canary.service');
 
 describe('T196: Auto-Approve Shadow/Canary/Kill-Switch Service', () => {
   test('evaluates shadow "would approve" state and supports instant kill-switch disable', () => {

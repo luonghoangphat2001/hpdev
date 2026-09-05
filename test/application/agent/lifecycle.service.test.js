@@ -1,7 +1,7 @@
 'use strict';
 
 const LifecycleService =
-  require('../../../src/services/ai/lifecycle/lifecycle.service');
+  require('@services/ai/lifecycle/lifecycle.service');
 
 function harness(state = 'ACTIVE', version = 2) {
   const repository = {

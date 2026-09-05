@@ -1,6 +1,6 @@
 'use strict';
 
-const ModelRouterPolicy = require('../../../src/policy/budget/model-router.policy');
+const ModelRouterPolicy = require('@policy/budget/model-router.policy');
 
 describe('T091: Cost-Aware Model Router Service', () => {
   test('routes to low cost model under budget warning or low risk', () => {

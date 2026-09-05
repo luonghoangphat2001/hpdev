@@ -3,9 +3,9 @@
  */
 'use strict';
 
-const agentProfileSchema = require('../../../schemas/ai/profile.schema');
-const JsonSchemaValidator = require('../../../utils/json-schema.validator');
-const { AGENTS } = require('./agent-registry');
+const agentProfileSchema = require('@schemas/ai/profile.schema');
+const JsonSchemaValidator = require('@utils/json-schema.validator');
+const { AGENTS } = require('@services/ai/agents/agent-registry');
 
 /**
  * AgentProfileRegistry

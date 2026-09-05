@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const AppError = require('../utils/errors/app.error');
+const AppError = require('@utils/errors/app.error');
 
 /**
  * EventIntakeValidation

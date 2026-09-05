@@ -6,7 +6,7 @@
 module.exports = Object.freeze({
   id: '015-create-agent-autonomy-settings',
   up: `
-    CREATE TABLE IF NOT EXISTS agent_autonomy_settings (
+    CREATE TABLE agent_autonomy_settings (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       agent_id VARCHAR(128) NOT NULL,
       goal_id VARCHAR(128) NULL,

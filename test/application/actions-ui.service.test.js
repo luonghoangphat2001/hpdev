@@ -1,6 +1,6 @@
 'use strict';
 
-const ActionsUiService = require('../../src/services/operator/control/actions-ui.service');
+const ActionsUiService = require('@services/operator/control/actions-ui.service');
 
 describe('T137: Safe Control Actions UI Service', () => {
   test('executes guarded control actions like PAUSE or EMERGENCY_STOP', async () => {

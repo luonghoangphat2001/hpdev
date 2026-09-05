@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const actionCatalog = require('../workflow/action.catalog');
+const actionCatalog = require('@schemas/workflow/action.catalog');
 
 const RESILIENCE_POLICY_VERSION = '1.0.0';
 

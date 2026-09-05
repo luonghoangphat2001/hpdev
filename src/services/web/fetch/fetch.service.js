@@ -4,7 +4,7 @@
 'use strict';
 
 const axios = require('axios');
-const AppError = require('../../../utils/errors/app.error');
+const AppError = require('@utils/errors/app.error');
 
 /**
  * FetchService

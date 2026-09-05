@@ -1,6 +1,6 @@
 'use strict';
 
-const RiskGateService = require('../../../src/services/workflow/task/risk-gate.service');
+const RiskGateService = require('@services/workflow/task/risk-gate.service');
 
 describe('T172: Deterministic Risk/Complexity Decision Gate Service', () => {
   test('selects profile deterministically without calling LLM', () => {

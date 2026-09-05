@@ -1,6 +1,6 @@
 'use strict';
 
-const SsotWriteAdapter = require('../../src/services/notification/adapter/ssot-write.adapter');
+const SsotWriteAdapter = require('@services/notification/adapter/ssot-write.adapter');
 
 describe('SsotWriteAdapter', () => {
   const idempotencyKey = `idem:v1:action:${'a'.repeat(64)}`;

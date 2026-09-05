@@ -1,9 +1,9 @@
 'use strict';
 
-const registry = require('../../src/services/ai/agents/agent-profile-registry');
+const registry = require('@services/ai/agents/agent-profile-registry');
 const {
   AgentProfileRegistry,
-} = require('../../src/services/ai/agents/agent-profile-registry');
+} = require('@services/ai/agents/agent-profile-registry');
 
 describe('AgentProfileRegistry', () => {
   test('validates complete job descriptions for exactly five company agents', () => {

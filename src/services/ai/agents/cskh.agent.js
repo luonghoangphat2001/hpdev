@@ -3,8 +3,8 @@
  */
 'use strict';
 
-const BaseProposalAgent = require('./base-proposal.agent');
-const RecoveryService = require('./cskh/recovery.service');
+const BaseProposalAgent = require('@services/ai/agents/base-proposal.agent');
+const RecoveryService = require('@services/ai/agents/cskh/recovery.service');
 
 /**
  * CskhAgent

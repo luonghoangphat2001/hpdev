@@ -1,6 +1,6 @@
 'use strict';
 
-const { createLogisticsToCfoHandoff } = require('../../src/schemas/ai/handoffs/logistics-to-cfo');
+const { createLogisticsToCfoHandoff } = require('@schemas/ai/handoffs/logistics-to-cfo');
 
 describe('T064: Logistics -> CFO Handoff', () => {
   test('creates valid Logistics to CFO handoff', () => {

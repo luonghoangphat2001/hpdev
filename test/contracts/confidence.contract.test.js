@@ -1,6 +1,6 @@
 'use strict';
 
-const { createOutputConfidenceContract } = require('../../src/schemas/ai/confidence.contract');
+const { createOutputConfidenceContract } = require('@schemas/ai/confidence.contract');
 
 describe('T079: Output Confidence Contract', () => {
   test('creates valid confidence contract', () => {

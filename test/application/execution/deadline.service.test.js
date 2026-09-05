@@ -1,6 +1,6 @@
 'use strict';
 
-const DeadlineFallbackService = require('../../../src/services/workflow/action/deadline-fallback.service');
+const DeadlineFallbackService = require('@services/workflow/action/deadline-fallback.service');
 
 describe('T183: Deadline, Early-Exit, and Manual-Review Fallback Service', () => {
   test('safely early-exits, preserves partial results, and falls back to manual review on deadline breach', () => {

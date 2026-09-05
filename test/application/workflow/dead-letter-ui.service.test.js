@@ -1,6 +1,6 @@
 'use strict';
 
-const DeadLetterUiService = require('../../../src/services/workflow/state/dead-letter-ui.service');
+const DeadLetterUiService = require('@services/workflow/state/dead-letter-ui.service');
 
 describe('T132: Retry/Dead-Letter/Reconciliation UI Service', () => {
   test('lists dead letters and triggers dry run replay', async () => {

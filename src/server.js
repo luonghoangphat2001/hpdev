@@ -3,13 +3,15 @@
  */
 'use strict';
 
-const app = require('./app');
-const env = require('./config/env');
-const logger = require('./utils/logger.service');
-const mysqlPoolFactory = require('./database/mysql-pool');
-const MigrationRunner = require('./database/migration-runner');
-const { buildDailyReportScheduler } = require('./services/reporting/daily/daily-report.builder');
-const { buildCeoDailyBriefScheduler } = require('./services/ceo/daily/daily-brief.builder');
+require('module-alias/register');
+
+const app = require('@app');
+const config = require('@config');
+const logger = require('@utils/logger.service');
+const mysqlPoolFactory = require('@database/mysql-pool');
+const MigrationRunner = require('@database/migration-runner');
+const { buildDailyReportScheduler } = require('@services/reporting/daily/daily-report.builder');
+const { buildCeoDailyBriefScheduler } = require('@services/ceo/daily/daily-brief.builder');
 
 /**
  * Server
@@ -18,11 +20,11 @@ const { buildCeoDailyBriefScheduler } = require('./services/ceo/daily/daily-brie
 class Server {
   constructor(
     expressApp = app,
-    config = env,
+    appConfig = config,
     { poolFactory = mysqlPoolFactory, MigrationRunnerClass = MigrationRunner } = {}
   ) {
     this.app = expressApp;
-    this.config = config;
+    this.config = appConfig;
     this.poolFactory = poolFactory;
     this.MigrationRunnerClass = MigrationRunnerClass;
   }

@@ -1,7 +1,7 @@
 'use strict';
 
 const MysqlCeoRepository =
-  require('../../../src/repositories/CeoRepository');
+  require('@repositories/CeoRepository');
 
 describe('MysqlCeoRepository', () => {
   test('collectors use deduplicating inserts from each operational source', async () => {

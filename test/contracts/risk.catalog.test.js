@@ -1,13 +1,13 @@
 'use strict';
 
-const actionCatalog = require('../../src/schemas/workflow/action.catalog');
-const riskPolicyCatalog = require('../../src/schemas/policy/risk.catalog');
+const actionCatalog = require('@schemas/workflow/action.catalog');
+const riskPolicyCatalog = require('@schemas/policy/risk.catalog');
 const {
   RiskCatalog,
   APPROVAL_MODES,
   DEFAULT_DENY_POLICY,
   DEFAULT_THRESHOLDS,
-} = require('../../src/schemas/policy/risk.catalog');
+} = require('@schemas/policy/risk.catalog');
 
 describe('RiskCatalog', () => {
   it('covers every allowlisted Ecommerce action exactly once', () => {

@@ -3,8 +3,8 @@
  */
 'use strict';
 
-const logger = require('../utils/logger.service');
-const AppError = require('../utils/errors/app.error');
+const logger = require('@utils/logger.service');
+const AppError = require('@utils/errors/app.error');
 
 function asyncHandler(handler) {
   return (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);

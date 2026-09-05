@@ -1,6 +1,6 @@
 'use strict';
 
-const QuarantineService = require('../../../src/services/ai/lifecycle/quarantine.service');
+const QuarantineService = require('@services/ai/lifecycle/quarantine.service');
 
 describe('T145: Agent Quarantine and Investigation Mode Service', () => {
   test('quarantines agent, revokes credentials, preserves evidence, and opens investigation', () => {

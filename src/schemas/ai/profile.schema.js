@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const BaseSchema = require("../BaseSchema");
+const BaseSchema = require("@schemas/BaseSchema");
 
 module.exports = BaseSchema.create({
   path: "agent-profile.json",

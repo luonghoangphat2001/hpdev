@@ -1,6 +1,6 @@
 'use strict';
 
-const migration = require('../../../../src/database/migrations/004-create-approval-requests');
+const migration = require('@database/migrations/004-create-approval-requests');
 
 describe('004-create-approval-requests migration', () => {
   it('creates a reversible approval store linked to workflow and action', () => {

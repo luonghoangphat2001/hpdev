@@ -3,10 +3,10 @@
  */
 'use strict';
 
-const actionCatalog = require('../../../schemas/workflow/action.catalog');
-const actionSchemas = require('../../../schemas/workflow/action.schemas');
-const JsonSchemaValidator = require('../../../utils/json-schema.validator');
-const AppError = require('../../../utils/errors/app.error');
+const actionCatalog = require('@schemas/workflow/action.catalog');
+const actionSchemas = require('@schemas/workflow/action.schemas');
+const JsonSchemaValidator = require('@utils/json-schema.validator');
+const AppError = require('@utils/errors/app.error');
 
 /**
  * ActionValidatorService

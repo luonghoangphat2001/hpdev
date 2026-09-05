@@ -1,8 +1,8 @@
 'use strict';
 
 const EventEmitter = require('events');
-const { MetricsRegistry } = require('../../../src/utils/metrics-registry');
-const HttpMetricsMiddleware = require('../../../src/middleware/http-metrics.middleware');
+const { MetricsRegistry } = require('@utils/metrics-registry');
+const HttpMetricsMiddleware = require('@middleware/http-metrics.middleware');
 
 describe('baseline observability', () => {
   test('aggregates counters and latency without high-cardinality payload data', () => {

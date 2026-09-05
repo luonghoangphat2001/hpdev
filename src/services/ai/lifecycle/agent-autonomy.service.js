@@ -3,9 +3,9 @@
  */
 'use strict';
 
-const agentRegistry = require('../agents/agent-registry');
-const { LEVELS } = require('../../../policy/permissions/agent-autonomy.policy');
-const AppError = require('../../../utils/errors/app.error');
+const agentRegistry = require('@services/ai/agents/agent-registry');
+const { LEVELS } = require('@policy/permissions/agent-autonomy.policy');
+const AppError = require('@utils/errors/app.error');
 
 /**
  * AgentAutonomyService

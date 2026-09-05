@@ -1,6 +1,6 @@
 'use strict';
 
-const RndKpiService = require('../../../src/services/reporting/kpi/rnd-kpi.service');
+const RndKpiService = require('@services/reporting/kpi/rnd-kpi.service');
 
 describe('T071: R&D KPI Engine', () => {
   test('evaluates R&D KPI metrics', async () => {

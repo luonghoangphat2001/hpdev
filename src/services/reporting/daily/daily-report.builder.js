@@ -3,15 +3,15 @@
  */
 'use strict';
 
-const env = require('../../../config/env');
-const agentRegistry = require('../../ai/agents/agent-registry');
-const mysqlPoolFactory = require('../../../database/mysql-pool');
-const AgentRepository = require('../../../repositories/AgentRepository');
-const DanAiClient = require('../../notification/adapter/dan-ai.client');
-const DanAiAdapter = require('../../notification/adapter/dan-ai.adapter');
-const DailyReporterService = require('../../ai/lifecycle/daily-reporter.service');
-const ReportAggregatorService = require('./report-aggregator.service');
-const ReportSchedulerService = require('./report-scheduler.service');
+const env = require('@config/config');
+const agentRegistry = require('@services/ai/agents/agent-registry');
+const mysqlPoolFactory = require('@database/mysql-pool');
+const AgentRepository = require('@repositories/AgentRepository');
+const DanAiClient = require('@services/notification/adapter/dan-ai.client');
+const DanAiAdapter = require('@services/notification/adapter/dan-ai.adapter');
+const DailyReporterService = require('@services/ai/lifecycle/daily-reporter.service');
+const ReportAggregatorService = require('@services/reporting/daily/report-aggregator.service');
+const ReportSchedulerService = require('@services/reporting/daily/report-scheduler.service');
 
 function buildDailyReportScheduler({
   config = env,

@@ -1,6 +1,6 @@
 'use strict';
 
-const migration = require('../../../../src/database/migrations/007-create-dead-letters');
+const migration = require('@database/migrations/007-create-dead-letters');
 
 describe('007-create-dead-letters migration', () => {
   it('creates a reversible dead-letter store', () => {

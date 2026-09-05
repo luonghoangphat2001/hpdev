@@ -1,6 +1,6 @@
 'use strict';
 
-const QualityGateService = require('../../../src/services/reporting/daily/quality-gate.service');
+const QualityGateService = require('@services/reporting/daily/quality-gate.service');
 
 describe('T115: Full Unit/Contract/Integration Test Gate Service', () => {
   test('passes gate when all tests pass and coverage threshold is met', () => {

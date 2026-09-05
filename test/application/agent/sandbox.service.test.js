@@ -1,6 +1,6 @@
 'use strict';
 
-const SandboxService = require('../../../src/services/ai/lifecycle/sandbox.service');
+const SandboxService = require('@services/ai/lifecycle/sandbox.service');
 
 describe('T157: Per-Agent Sandbox Simulation Service', () => {
   test('runs synthetic event simulation without production credentials', () => {

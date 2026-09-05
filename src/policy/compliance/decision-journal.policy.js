@@ -3,12 +3,12 @@
  */
 'use strict';
 
-const BasePolicy = require('../BasePolicy');
+const BasePolicy = require('@policy/BasePolicy');
 
 const crypto = require('crypto');
-const { stableSerialize } = require('../../schemas/events/correlation');
-const MemoryPolicy = require('../permissions/memory-policy');
-const AppError = require('../../utils/errors/app.error');
+const { stableSerialize } = require('@schemas/events/correlation');
+const MemoryPolicy = require('@policy/permissions/memory-policy');
+const AppError = require('@utils/errors/app.error');
 
 /**
  * DecisionJournalPolicy

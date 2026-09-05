@@ -4,8 +4,8 @@
 'use strict';
 
 const crypto = require('crypto');
-const SafetyPolicy = require('../../../policy/permissions/safety.policy');
-const ResultAggregatorService = require('../../workflow/action/result-aggregator.service');
+const SafetyPolicy = require('@policy/permissions/safety.policy');
+const ResultAggregatorService = require('@services/workflow/action/result-aggregator.service');
 
 /**
  * ScenarioSimulatorService

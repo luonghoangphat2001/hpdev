@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const OptimisticLockError = require("../utils/errors/optimistic-lock.error");
+const OptimisticLockError = require("@utils/errors/optimistic-lock.error");
 
 /**
  * AgentRepository

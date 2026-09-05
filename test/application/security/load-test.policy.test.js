@@ -1,6 +1,6 @@
 'use strict';
 
-const LoadTestPolicy = require('../../../src/policy/permissions/load-test.policy');
+const LoadTestPolicy = require('@policy/permissions/load-test.policy');
 
 describe('T117: Performance/Load/Soak Test Service', () => {
   test('verifies SLO compliance under load', () => {

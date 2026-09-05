@@ -1,6 +1,6 @@
 'use strict';
 
-const MemoryLoopService = require('../../../src/services/ai/memory/memory-loop.service');
+const MemoryLoopService = require('@services/ai/memory/memory-loop.service');
 
 describe('T168: Memory Review/Activation/Outcome Loop Service', () => {
   test('activates memory upon CEO approval and handles expiration/rollback', () => {

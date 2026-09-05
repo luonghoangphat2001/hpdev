@@ -1,6 +1,6 @@
 'use strict';
 
-const BrowserDiffUiService = require('../../../src/services/reporting/daily/browser-diff-ui.service');
+const BrowserDiffUiService = require('@services/reporting/daily/browser-diff-ui.service');
 
 describe('T153: Source Browser and Diff API/UI Service', () => {
   test('returns sanitized source code and branch/commit diffs', async () => {

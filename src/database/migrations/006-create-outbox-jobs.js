@@ -6,7 +6,7 @@
 const migration = Object.freeze({
   id: '006-create-outbox-jobs',
   up: `
-    CREATE TABLE IF NOT EXISTS outbox_jobs (
+    CREATE TABLE outbox_jobs (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       job_id VARCHAR(128) NOT NULL,
       job_key VARCHAR(200) NOT NULL,

@@ -1,6 +1,6 @@
 'use strict';
 
-const DailyBriefService = require('../../../src/services/ceo/daily/daily-brief.service');
+const DailyBriefService = require('@services/ceo/daily/daily-brief.service');
 
 describe('DailyBriefService', () => {
   const period = {

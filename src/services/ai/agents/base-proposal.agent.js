@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const identifiers = require('../../../schemas/events/correlation');
+const identifiers = require('@schemas/events/correlation');
 
 /**
  * BaseProposalAgent

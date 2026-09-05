@@ -1,8 +1,8 @@
 'use strict';
 
-const ResilientSsotClient = require('../../../src/services/notification/adapter/resilient-ssot.client');
-const CircuitBreaker = require('../../../src/services/notification/adapter/circuit-breaker');
-const { CircuitOpenError } = require('../../../src/services/notification/adapter/circuit-breaker');
+const ResilientSsotClient = require('@services/notification/adapter/resilient-ssot.client');
+const CircuitBreaker = require('@services/notification/adapter/circuit-breaker');
+const { CircuitOpenError } = require('@services/notification/adapter/circuit-breaker');
 
 describe('ResilientSsotClient', () => {
   it('retries transient reads with configured backoff and timeout', async () => {

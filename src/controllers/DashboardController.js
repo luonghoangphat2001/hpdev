@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BaseController = require('./BaseController');
+const BaseController = require('@controllers/BaseController');
 
 /**
  * DashboardController
@@ -35,7 +35,13 @@ class DashboardController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async overview(req, res) {
-    const days = Number(req.query?.days) || 7;
+    let days = 7;
+    if (req.query && req.query.days !== undefined) {
+      const parsed = Number(req.query.days);
+      if (!Number.isNaN(parsed) && parsed > 0) {
+        days = parsed;
+      }
+    }
     const data = await this.readModelService.getOverview({ days });
     return this.ok(res, data);
   }
@@ -66,7 +72,7 @@ class DashboardController extends BaseController {
       actorId: req.body?.actorId,
       reason: req.body?.reason,
     });
-    return this.ok(res, { ok: true, ...result });
+    return this.ok(res, result);
   }
 
   /**
@@ -80,7 +86,7 @@ class DashboardController extends BaseController {
       res.setHeader('Content-Type', 'text/plain; version=0.0.4');
       return res.send(this.metricsRegistry.formatPrometheus());
     }
-    return this.ok(res, { ok: true, metrics: {} });
+    return this.ok(res, { metrics: {} });
   }
 
   /**
@@ -91,7 +97,7 @@ class DashboardController extends BaseController {
    */
   async getAgents(_req, res) {
     const agents = await this.readModelService.getAgents();
-    return this.ok(res, { ok: true, count: agents.length, agents });
+    return this.ok(res, { count: agents.length, agents });
   }
 
   /**
@@ -102,7 +108,7 @@ class DashboardController extends BaseController {
    */
   async getWorkflows(req, res) {
     const data = await this.readModelService.getWorkflows(req.query);
-    return this.ok(res, { ok: true, ...data });
+    return this.ok(res, data);
   }
 
   /**
@@ -114,9 +120,9 @@ class DashboardController extends BaseController {
   async getWorkflowDetail(req, res) {
     const data = await this.readModelService.getWorkflowDetail(req.params.workflowId);
     if (!data) {
-      return res.status(404).json({ ok: false, error: 'Workflow not found' });
+      return this.notFound(res, 'Workflow not found');
     }
-    return this.ok(res, { ok: true, ...data });
+    return this.ok(res, data);
   }
 
   /**
@@ -127,7 +133,7 @@ class DashboardController extends BaseController {
    */
   async getCompanyDashboardTodayMetrics(_req, res) {
     const data = await this.readModelService.getCompanyDashboardTodayMetrics();
-    return this.ok(res, { ok: true, data });
+    return this.ok(res, { data });
   }
 
   /**
@@ -137,8 +143,15 @@ class DashboardController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async getCompanyDashboardMetrics(req, res) {
-    const data = await this.readModelService.getCompanyDashboardMetrics(req.query?.period || 'today');
-    return this.ok(res, { ok: true, data });
+    let period = 'today';
+    if (req.query && typeof req.query.period === 'string') {
+      const trimmed = req.query.period.trim();
+      if (trimmed.length > 0) {
+        period = trimmed;
+      }
+    }
+    const data = await this.readModelService.getCompanyDashboardMetrics(period);
+    return this.ok(res, { data });
   }
 
   /**
@@ -149,7 +162,7 @@ class DashboardController extends BaseController {
    */
   async capabilities(_req, res) {
     const list = this.capabilityRegistry ? this.capabilityRegistry.list() : [];
-    return this.ok(res, { ok: true, count: list.length, capabilities: list });
+    return this.ok(res, { count: list.length, capabilities: list });
   }
 }
 

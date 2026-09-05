@@ -1,6 +1,6 @@
 'use strict';
 
-const NormalizerService = require('../../../src/services/operator/event/normalizer.service');
+const NormalizerService = require('@services/operator/event/normalizer.service');
 
 describe('NormalizerService', () => {
   const normalizer = new NormalizerService();

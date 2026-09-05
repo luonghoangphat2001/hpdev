@@ -1,6 +1,6 @@
 'use strict';
 
-const ActivityPanelService = require('../../../src/services/reporting/dashboard/activity-panel.service');
+const ActivityPanelService = require('@services/reporting/dashboard/activity-panel.service');
 
 describe('T130: Live "OpenClaw doing what" Activity Panel Service', () => {
   test('returns live step, reason, model, tool, and next step info', () => {

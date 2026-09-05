@@ -4,7 +4,7 @@
 'use strict';
 
 const axios = require('axios');
-const env = require('../../../config/env');
+const env = require('@config/config');
 
 /**
  * DanAiNotificationClientError

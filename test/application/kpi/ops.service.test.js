@@ -1,6 +1,6 @@
 'use strict';
 
-const OpsKpiService = require('../../../src/services/reporting/kpi/ops-kpi.service');
+const OpsKpiService = require('@services/reporting/kpi/ops-kpi.service');
 
 describe('T074: Ops KPI Engine', () => {
   test('evaluates Ops KPI metrics', async () => {

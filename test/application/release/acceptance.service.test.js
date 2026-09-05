@@ -1,6 +1,6 @@
 'use strict';
 
-const AcceptanceGateService = require('../../../src/services/release/deploy/acceptance-gate.service');
+const AcceptanceGateService = require('@services/release/deploy/acceptance-gate.service');
 
 describe('T189: Optimization Acceptance Gate Service', () => {
   test('evaluates optimization gate requiring SLO/cost/quality and CEO sign-off without compromising high-risk safety', () => {

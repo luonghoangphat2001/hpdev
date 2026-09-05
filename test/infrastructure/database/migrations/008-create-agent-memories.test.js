@@ -1,6 +1,6 @@
 'use strict';
 
-const migration = require('../../../../src/database/migrations/008-create-agent-memories');
+const migration = require('@database/migrations/008-create-agent-memories');
 
 describe('008-create-agent-memories migration', () => {
   test('creates scoped, expiring, uniquely keyed agent memory', () => {

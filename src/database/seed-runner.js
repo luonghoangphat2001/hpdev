@@ -4,7 +4,7 @@
  */
 'use strict';
 
-const defaultSeeds = require("./seeds");
+const defaultSeeds = require("@database/seeds");
 
 /**
  * SeedRunner

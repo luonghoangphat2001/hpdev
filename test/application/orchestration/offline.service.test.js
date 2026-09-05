@@ -1,6 +1,6 @@
 'use strict';
 
-const OfflineFallbackService = require('../../../src/services/workflow/task/offline-fallback.service');
+const OfflineFallbackService = require('@services/workflow/task/offline-fallback.service');
 
 describe('T095: Local/Offline Fallback Service', () => {
   test('executes simple rule deterministic fallback offline', () => {

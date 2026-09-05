@@ -4,9 +4,9 @@
  */
 'use strict';
 
-const seed001 = require("./001-seed-agent-runtime-states");
-const seed002 = require("./002-seed-agent-autonomy");
-const seed003 = require("./003-seed-sop-playbooks");
+const seed001 = require("@database/seeds/001-seed-agent-runtime-states");
+const seed002 = require("@database/seeds/002-seed-agent-autonomy");
+const seed003 = require("@database/seeds/003-seed-sop-playbooks");
 
 module.exports = Object.freeze([
   seed001,

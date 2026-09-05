@@ -1,6 +1,6 @@
 'use strict';
 
-const ReadinessReviewService = require('../../../src/services/reporting/daily/readiness-review.service');
+const ReadinessReviewService = require('@services/reporting/daily/readiness-review.service');
 
 describe('T119: Backend Production Readiness Review Service', () => {
   test('verifies all backend production readiness requirements', () => {

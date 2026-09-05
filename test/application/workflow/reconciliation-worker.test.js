@@ -1,6 +1,6 @@
 'use strict';
 
-const ReconciliationService = require('../../../src/services/workflow/state/reconciliation.service');
+const ReconciliationService = require('@services/workflow/state/reconciliation.service');
 
 describe('ReconciliationService', () => {
   const now = new Date('2026-07-25T00:02:00.000Z');

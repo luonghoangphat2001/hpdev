@@ -1,6 +1,6 @@
 'use strict';
 
-const LatencyUxService = require('../../../src/services/reporting/dashboard/latency-ux.service');
+const LatencyUxService = require('@services/reporting/dashboard/latency-ux.service');
 
 describe('T185: Async Progress/Latency UX in Monitor Service', () => {
   test('provides realtime progress, stage ETA, budget usage, and ACK within budget', () => {

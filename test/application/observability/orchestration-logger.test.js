@@ -1,6 +1,6 @@
 'use strict';
 
-const LoggerService = require('../../../src/services/reporting/dashboard/logger.service');
+const LoggerService = require('@services/reporting/dashboard/logger.service');
 
 describe('LoggerService', () => {
   const clock = () => new Date('2026-07-25T00:00:00.000Z');

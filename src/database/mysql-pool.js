@@ -4,7 +4,7 @@
 'use strict';
 
 const mysql = require('mysql2/promise');
-const env = require('../config/env');
+const env = require('@config/config');
 
 /**
  * MysqlPoolFactory

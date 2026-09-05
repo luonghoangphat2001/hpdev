@@ -3,8 +3,8 @@
  */
 'use strict';
 
-const logger = require('../../../utils/logger.service');
-const { REQUIRED_LOG_FIELDS } = require('../../../schemas/events/correlation');
+const logger = require('@utils/logger.service');
+const { REQUIRED_LOG_FIELDS } = require('@schemas/events/correlation');
 
 const STAGE_REQUIREMENTS = Object.freeze({
   event: Object.freeze(['event_id', 'correlation_id']),

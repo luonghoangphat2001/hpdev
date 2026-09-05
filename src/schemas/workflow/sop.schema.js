@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const BaseSchema = require("../BaseSchema");
+const BaseSchema = require("@schemas/BaseSchema");
 
 const sopDefinitionSchema = BaseSchema.create({
   path: "sop-definition.json",

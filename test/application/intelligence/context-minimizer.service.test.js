@@ -1,6 +1,6 @@
 'use strict';
 
-const ContextMinimizerService = require('../../../src/services/ai/context/context-minimizer.service');
+const ContextMinimizerService = require('@services/ai/context/context-minimizer.service');
 
 describe('T179: Context Minimizer and Targeted Retrieval Service', () => {
   test('minimizes context fields according to token ceiling and versioning', () => {

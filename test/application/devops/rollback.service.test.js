@@ -1,6 +1,6 @@
 'use strict';
 
-const RollbackRehearsalService = require('../../../src/services/release/rollback/rollback-rehearsal.service');
+const RollbackRehearsalService = require('@services/release/rollback/rollback-rehearsal.service');
 
 describe('T118: Migration/Rollback/DR Rehearsal Service', () => {
   test('executes staging migration, rollback, and replay rehearsal', async () => {

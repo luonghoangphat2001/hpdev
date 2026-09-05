@@ -1,6 +1,6 @@
 'use strict';
 
-const ClassifierService = require('../../../src/services/ai/critics/classifier.service');
+const ClassifierService = require('@services/ai/critics/classifier.service');
 
 describe('T080: Fact/Inference/Recommendation Classifier', () => {
   test('classifies fact, recommendation, and inference', () => {

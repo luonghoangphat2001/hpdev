@@ -1,6 +1,6 @@
 'use strict';
 
-const ProposalVerifierService = require('../../../src/services/reporting/daily/proposal-verifier.service');
+const ProposalVerifierService = require('@services/reporting/daily/proposal-verifier.service');
 
 function proposal(patch = {}) {
   return {

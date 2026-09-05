@@ -1,6 +1,6 @@
 'use strict';
 
-const SlaWarningService = require('../../../src/services/reporting/dashboard/sla-warning.service');
+const SlaWarningService = require('@services/reporting/dashboard/sla-warning.service');
 
 describe('T198: Realtime SLA/Budget Warning and Monitor UI Service', () => {
   test('shows warning percentage, stage bottleneck, ETA, and escalation trigger in realtime', () => {

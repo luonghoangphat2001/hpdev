@@ -1,6 +1,6 @@
 'use strict';
 
-const ReportAggregatorService = require('../../../src/services/reporting/daily/report-aggregator.service');
+const ReportAggregatorService = require('@services/reporting/daily/report-aggregator.service');
 
 function reporter(agentId, implementation) {
   return {

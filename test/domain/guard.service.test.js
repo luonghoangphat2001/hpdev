@@ -1,6 +1,6 @@
 'use strict';
 
-const DependencyGuardPolicy = require('../../src/policy/permissions/dependency-guard.policy');
+const DependencyGuardPolicy = require('@policy/permissions/dependency-guard.policy');
 
 describe('T113: Architecture/Lint Dependency Guard Service', () => {
   test('prevents reverse layer imports', () => {

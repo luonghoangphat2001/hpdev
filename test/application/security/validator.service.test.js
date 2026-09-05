@@ -1,6 +1,6 @@
 'use strict';
 
-const EvidenceValidatorPolicy = require('../../../src/policy/permissions/evidence-validator.policy');
+const EvidenceValidatorPolicy = require('@policy/permissions/evidence-validator.policy');
 
 describe('T081: Source Evidence Validator Service', () => {
   test('validates fresh evidence references', () => {

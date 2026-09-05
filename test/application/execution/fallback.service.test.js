@@ -1,6 +1,6 @@
 'use strict';
 
-const WorkflowFallbackService = require('../../../src/services/workflow/action/workflow-fallback.service');
+const WorkflowFallbackService = require('@services/workflow/action/workflow-fallback.service');
 
 describe('T199: Per-Workflow Degraded Fallback and Acceptance Tests Service', () => {
   test('activates safe fallback to manual review on timeout/budget breach without dropping safety guardrails', () => {

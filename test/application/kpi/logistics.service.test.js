@@ -1,6 +1,6 @@
 'use strict';
 
-const LogisticsKpiService = require('../../../src/services/reporting/kpi/logistics-kpi.service');
+const LogisticsKpiService = require('@services/reporting/kpi/logistics-kpi.service');
 
 describe('T072: Logistics KPI Engine', () => {
   test('evaluates Logistics KPI metrics', async () => {

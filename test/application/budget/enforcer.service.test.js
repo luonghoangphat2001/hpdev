@@ -1,6 +1,6 @@
 'use strict';
 
-const BudgetEnforcerPolicy = require('../../../src/policy/budget/budget-enforcer.policy');
+const BudgetEnforcerPolicy = require('@policy/budget/budget-enforcer.policy');
 
 describe('T181: Workflow Budget Enforcer Service', () => {
   test('enforces hard caps on LLM calls, tokens, cost, and steps', () => {

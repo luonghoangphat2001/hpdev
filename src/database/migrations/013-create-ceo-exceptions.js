@@ -6,7 +6,7 @@
 module.exports = Object.freeze({
   id: '013-create-ceo-exceptions',
   up: `
-    CREATE TABLE IF NOT EXISTS ceo_exceptions (
+    CREATE TABLE ceo_exceptions (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       exception_id VARCHAR(128) NOT NULL,
       source_type VARCHAR(32) NOT NULL,

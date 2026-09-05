@@ -1,6 +1,6 @@
 'use strict';
 
-const ExceptionUiService = require('../../../src/services/approval/decisions/exception-ui.service');
+const ExceptionUiService = require('@services/approval/decisions/exception-ui.service');
 
 describe('T131: Approval and CEO Exception Inbox UI Service', () => {
   test('renders inbox items and processes approval decision with payload hash', async () => {

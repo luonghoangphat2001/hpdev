@@ -1,6 +1,6 @@
 'use strict';
 
-const E2eRealtimeService = require('../../../src/services/reporting/dashboard/e2e-realtime.service');
+const E2eRealtimeService = require('@services/reporting/dashboard/e2e-realtime.service');
 
 describe('T139: Dashboard E2E, Accessibility, Realtime, and Failure Test Service', () => {
   test('verifies all dashboard E2E and failure test suites pass', () => {

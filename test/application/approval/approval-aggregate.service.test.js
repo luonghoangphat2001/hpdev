@@ -1,6 +1,6 @@
 'use strict';
 
-const ApprovalAggregateService = require('../../../src/services/approval/decisions/approval-aggregate.service');
+const ApprovalAggregateService = require('@services/approval/decisions/approval-aggregate.service');
 
 describe('T191: BulkApproval Aggregate/Schema/API Service', () => {
   test('creates BulkApproval batch request with item totals, actor, currency, and audit link', () => {

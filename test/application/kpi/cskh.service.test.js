@@ -1,6 +1,6 @@
 'use strict';
 
-const CskhKpiService = require('../../../src/services/reporting/kpi/cskh-kpi.service');
+const CskhKpiService = require('@services/reporting/kpi/cskh-kpi.service');
 
 describe('T075: CSKH KPI Engine', () => {
   test('evaluates CSKH KPI metrics', async () => {

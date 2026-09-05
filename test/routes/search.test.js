@@ -1,8 +1,8 @@
 'use strict';
 
 const axios = require('axios');
-const SearchService = require('../../src/services/web/search/search.service');
-const WebController = require('../../src/controllers/WebController');
+const SearchService = require('@services/web/search/search.service');
+const WebController = require('@controllers/WebController');
 
 jest.mock('axios');
 

@@ -6,7 +6,7 @@
 const migration = Object.freeze({
   id: '002-create-workflows',
   up: `
-    CREATE TABLE IF NOT EXISTS workflows (
+    CREATE TABLE workflows (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       workflow_id VARCHAR(128) NOT NULL,
       event_id VARCHAR(128) NULL,

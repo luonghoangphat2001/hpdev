@@ -1,6 +1,6 @@
 'use strict';
 
-const BusinessInvariantPolicy = require('../../src/policy/permissions/business-invariant.policy');
+const BusinessInvariantPolicy = require('@policy/permissions/business-invariant.policy');
 
 describe('T083: Deterministic Business Invariant Suite', () => {
   test('verifies refund amount positive invariant', () => {

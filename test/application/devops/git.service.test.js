@@ -1,6 +1,6 @@
 'use strict';
 
-const GitAdapterService = require('../../../src/services/release/rollback/git-adapter.service');
+const GitAdapterService = require('@services/release/rollback/git-adapter.service');
 
 describe('T152: Git/Version-Control Adapter Service', () => {
   test('returns commit details, checksum, and rollback ref', async () => {

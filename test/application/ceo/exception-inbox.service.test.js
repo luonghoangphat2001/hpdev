@@ -1,7 +1,7 @@
 'use strict';
 
 const ExceptionInboxService =
-  require('../../../src/services/ceo/exception/exception-inbox.service');
+  require('@services/ceo/exception/exception-inbox.service');
 
 describe('ExceptionInboxService', () => {
   function build() {

@@ -3,9 +3,9 @@
  */
 'use strict';
 
-const commandCatalog = require('../../../schemas/ceo/command.catalog');
-const JsonSchemaValidator = require('../../../utils/json-schema.validator');
-const AppError = require('../../../utils/errors/app.error');
+const commandCatalog = require('@schemas/ceo/command.catalog');
+const JsonSchemaValidator = require('@utils/json-schema.validator');
+const AppError = require('@utils/errors/app.error');
 const crypto = require('crypto');
 
 /**

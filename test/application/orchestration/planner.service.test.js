@@ -1,7 +1,7 @@
 'use strict';
 
-const TaskPlannerService = require('../../../src/services/workflow/task/task-planner.service');
-const { buildCapabilityRegistry } = require('../../../src/services/ai/capabilities/capability-builder');
+const TaskPlannerService = require('@services/workflow/task/task-planner.service');
+const { buildCapabilityRegistry } = require('@services/ai/capabilities/capability-builder');
 
 describe('TaskPlannerService', () => {
   function build(definitions) {

@@ -1,6 +1,6 @@
 'use strict';
 
-const PlannerFusionService = require('../../../src/services/ai/critics/planner-fusion.service');
+const PlannerFusionService = require('@services/ai/critics/planner-fusion.service');
 
 describe('T174: Planner/Decomposer Fusion Service', () => {
   test('fuses simple planner decomposition into single structured call', () => {

@@ -3,10 +3,10 @@
  */
 'use strict';
 
-const actionCatalog = require('../../../schemas/workflow/action.catalog');
-const ActionValidatorService = require('../../workflow/action/action-validator.service');
-const RiskEvaluator = require('../../../policy/permissions/risk-evaluator');
-const AppError = require('../../../utils/errors/app.error');
+const actionCatalog = require('@schemas/workflow/action.catalog');
+const ActionValidatorService = require('@services/workflow/action/action-validator.service');
+const RiskEvaluator = require('@policy/permissions/risk-evaluator');
+const AppError = require('@utils/errors/app.error');
 
 const POLICY_ONLY_FIELDS = Object.freeze(['confidence']);
 

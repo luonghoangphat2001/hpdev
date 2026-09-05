@@ -1,6 +1,6 @@
 'use strict';
 
-const GuardrailService = require('../../../src/services/workflow/task/guardrail.service');
+const GuardrailService = require('@services/workflow/task/guardrail.service');
 
 describe('T175: Deterministic Guardrail Library Service', () => {
   test('validates action schema, permission, state, amount, inventory, and idempotency in code', () => {

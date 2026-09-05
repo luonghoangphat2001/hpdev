@@ -1,6 +1,6 @@
 'use strict';
 
-const { createCfoToCeoEscalationHandoff } = require('../../src/schemas/ai/handoffs/cfo-to-ceo');
+const { createCfoToCeoEscalationHandoff } = require('@schemas/ai/handoffs/cfo-to-ceo');
 
 describe('T067: CFO -> CEO Escalation Handoff', () => {
   test('creates valid CFO to CEO escalation handoff', () => {

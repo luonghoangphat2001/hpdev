@@ -1,7 +1,7 @@
 'use strict';
 
 const migration =
-  require('../../../../src/database/migrations/015-create-agent-autonomy-settings');
+  require('@database/migrations/015-create-agent-autonomy-settings');
 
 describe('015-create-agent-autonomy-settings migration', () => {
   test('stores one versioned, pausable autonomy policy per agent', () => {

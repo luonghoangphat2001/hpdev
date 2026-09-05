@@ -1,6 +1,6 @@
 'use strict';
 
-const SecurityTestPolicy = require('../../../src/policy/permissions/security-test.policy');
+const SecurityTestPolicy = require('@policy/permissions/security-test.policy');
 
 describe('T116: Security, Abuse and Failure-Injection Test Service', () => {
   test('passes security and failure injection verification', () => {

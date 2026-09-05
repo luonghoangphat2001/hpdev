@@ -1,6 +1,6 @@
 'use strict';
 
-const TracingService = require('../../../src/services/reporting/dashboard/tracing.service');
+const TracingService = require('@services/reporting/dashboard/tracing.service');
 
 describe('T109: Distributed Tracing Service', () => {
   test('creates trace span with correlation across layers', () => {

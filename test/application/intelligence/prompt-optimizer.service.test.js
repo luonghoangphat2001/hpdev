@@ -1,6 +1,6 @@
 'use strict';
 
-const PromptOptimizerService = require('../../../src/services/ai/context/prompt-optimizer.service');
+const PromptOptimizerService = require('@services/ai/context/prompt-optimizer.service');
 
 describe('T092: Prompt/Context Budget Optimizer Service', () => {
   test('truncates text exceeding token ceiling', () => {

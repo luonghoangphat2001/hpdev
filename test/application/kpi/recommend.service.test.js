@@ -1,6 +1,6 @@
 'use strict';
 
-const KpiRecommendService = require('../../../src/services/reporting/kpi/kpi-recommend.service');
+const KpiRecommendService = require('@services/reporting/kpi/kpi-recommend.service');
 
 describe('T078: KPI-to-Action Recommendation Service', () => {
   test('generates recommendation when target is missed', () => {

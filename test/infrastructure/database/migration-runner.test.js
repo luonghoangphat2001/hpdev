@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const MigrationRunner = require('../../../src/database/migration-runner');
+const MigrationRunner = require('@database/migration-runner');
 
 function connectionWithApplied(applied = []) {
   const connection = {

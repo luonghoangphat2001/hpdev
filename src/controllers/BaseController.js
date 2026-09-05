@@ -1,90 +1,97 @@
 /**
- * @fileoverview BaseController - Provides base functionality.
+ * @fileoverview BaseController - Standardized OOP controller base for OpenClaw.
+ * Delegates to ApiResponse for uniform success and error JSON envelopes across all endpoints.
  */
 'use strict';
 
-/**
- * Base Controller providing standardized Express response helpers
- * and OOP baseline for all OpenClaw controllers.
- */
+const ApiResponse = require('@utils/api-response');
+
 class BaseController {
   /**
-   * ok - Executes ok.
-   * @param {*} res - Input parameter.
-   * @param {*} data - Input parameter.
-   * @returns {*} Result of operation.
+   * Returns a standardized 200 OK success JSON response.
+   * @param {import('express').Response} res
+   * @param {*} data
+   * @param {string} [message='']
+   * @returns {import('express').Response}
    */
-  ok(res, data) {
-    if (typeof res.status === 'function') {
-      return res.status(200).json(data);
-    }
-    return res.json(data);
+  ok(res, data, message = '') {
+    return ApiResponse.success(res, data, 200, message);
   }
 
   /**
-   * created - Executes created.
-   * @param {*} res - Input parameter.
-   * @param {*} data - Input parameter.
-   * @returns {*} Result of operation.
+   * Returns a standardized 201 Created success JSON response.
+   * @param {import('express').Response} res
+   * @param {*} data
+   * @param {string} [message='']
+   * @returns {import('express').Response}
    */
-  created(res, data) {
-    if (typeof res.status === 'function') {
-      return res.status(201).json(data);
-    }
-    return res.json(data);
+  created(res, data, message = '') {
+    return ApiResponse.created(res, data, message);
   }
 
   /**
-   * accepted - Executes accepted.
-   * @param {*} res - Input parameter.
-   * @param {*} data - Input parameter.
-   * @returns {*} Result of operation.
+   * Returns a standardized 202 Accepted success JSON response.
+   * @param {import('express').Response} res
+   * @param {*} data
+   * @param {string} [message='']
+   * @returns {import('express').Response}
    */
-  accepted(res, data) {
-    if (typeof res.status === 'function') {
-      return res.status(202).json(data);
-    }
-    return res.json(data);
+  accepted(res, data, message = '') {
+    return ApiResponse.accepted(res, data, message);
   }
 
   /**
-   * noContent - Executes no content.
-   * @param {*} res - Input parameter.
-   * @returns {*} Result of operation.
+   * Returns a standardized 204 No Content response.
+   * @param {import('express').Response} res
+   * @returns {import('express').Response}
    */
   noContent(res) {
-    return res.status(204).send();
+    return ApiResponse.noContent(res);
   }
 
   /**
-   * badRequest - Executes bad request.
-   * @param {*} res - Input parameter.
-   * @param {*} message - Input parameter.
-   * @returns {*} Result of operation.
+   * Returns a standardized 400 Bad Request error JSON response.
+   * @param {import('express').Response} res
+   * @param {string} [message='Bad request']
+   * @param {string} [code='']
+   * @returns {import('express').Response}
    */
-  badRequest(res, message = 'Bad request') {
-    return res.status(400).json({ ok: false, error: message });
+  badRequest(res, message = 'Bad request', code = '') {
+    return ApiResponse.badRequest(res, message, code);
   }
 
   /**
-   * notFound - Executes not found.
-   * @param {*} res - Input parameter.
-   * @param {*} message - Input parameter.
-   * @returns {*} Result of operation.
+   * Returns a standardized 401 Unauthorized error JSON response.
+   * @param {import('express').Response} res
+   * @param {string} [message='Unauthorized']
+   * @param {string} [code='']
+   * @returns {import('express').Response}
    */
-  notFound(res, message = 'Resource not found') {
-    return res.status(404).json({ ok: false, error: message });
+  unauthorized(res, message = 'Unauthorized', code = '') {
+    return ApiResponse.unauthorized(res, message, code);
   }
 
   /**
-   * error - Executes error.
-   * @param {*} res - Input parameter.
-   * @param {*} message - Input parameter.
-   * @param {*} statusCode - Input parameter.
-   * @returns {*} Result of operation.
+   * Returns a standardized 404 Not Found error JSON response.
+   * @param {import('express').Response} res
+   * @param {string} [message='Resource not found']
+   * @param {string} [code='']
+   * @returns {import('express').Response}
    */
-  error(res, message = 'Internal server error', statusCode = 500) {
-    return res.status(statusCode).json({ ok: false, error: message });
+  notFound(res, message = 'Resource not found', code = '') {
+    return ApiResponse.notFound(res, message, code);
+  }
+
+  /**
+   * Returns a standardized Error response.
+   * @param {import('express').Response} res
+   * @param {string} [message='Internal server error']
+   * @param {number} [statusCode=500]
+   * @param {string} [code='']
+   * @returns {import('express').Response}
+   */
+  error(res, message = 'Internal server error', statusCode = 500, code = '') {
+    return ApiResponse.error(res, message, statusCode, code);
   }
 }
 

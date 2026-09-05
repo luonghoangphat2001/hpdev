@@ -1,6 +1,6 @@
 'use strict';
 
-const CuratedMemoryService = require('../../../src/services/ai/memory/curated-memory.service');
+const CuratedMemoryService = require('@services/ai/memory/curated-memory.service');
 
 describe('T166: Curated Memory Schema/Store Service', () => {
   test('creates curated memory entry with confidence, scope, TTL, status, and version', () => {

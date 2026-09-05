@@ -1,6 +1,6 @@
 'use strict';
 
-const MemoryPrivacyService = require('../../../src/services/ai/memory/memory-privacy.service');
+const MemoryPrivacyService = require('@services/ai/memory/memory-privacy.service');
 
 describe('T169: Log/History/Memory Retention, Privacy, and Load Tests Service', () => {
   test('verifies PII redaction, retention, replay, and cross-agent isolation tests pass', () => {

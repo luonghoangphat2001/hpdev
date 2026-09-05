@@ -1,6 +1,6 @@
 'use strict';
 
-const AlertEscalationService = require('../../../src/services/notification/alert/alert-escalation.service');
+const AlertEscalationService = require('@services/notification/alert/alert-escalation.service');
 
 describe('T110: Alert Rules and Escalation Routing Service', () => {
   test('evaluates CRITICAL alert with 5 min escalation timer', () => {

@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const PortfolioScoringPolicy = require('../../../policy/permissions/portfolio-scoring.policy');
+const PortfolioScoringPolicy = require('@policy/permissions/portfolio-scoring.policy');
 
 /**
  * PortfolioManagerService

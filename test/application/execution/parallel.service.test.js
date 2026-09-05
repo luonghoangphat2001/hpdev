@@ -1,7 +1,7 @@
 'use strict';
 
-const TaskGraph = require('../../../src/services/workflow/task/task-graph');
-const ParallelExecutorService = require('../../../src/services/workflow/action/parallel-executor.service');
+const TaskGraph = require('@services/workflow/task/task-graph');
+const ParallelExecutorService = require('@services/workflow/action/parallel-executor.service');
 
 function plan(tasks) {
   return { graph: new TaskGraph(tasks) };

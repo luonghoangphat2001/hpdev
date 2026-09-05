@@ -1,6 +1,6 @@
 'use strict';
 
-const WorkloadManagerService = require('../../../src/services/ai/lifecycle/workload-manager.service');
+const WorkloadManagerService = require('@services/ai/lifecycle/workload-manager.service');
 
 describe('T068: Agent Workload/Capacity Manager', () => {
   test('tracks agent concurrency and queue depth', () => {

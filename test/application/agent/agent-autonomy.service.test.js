@@ -1,6 +1,6 @@
 'use strict';
 
-const AgentAutonomyService = require('../../../src/services/ai/lifecycle/agent-autonomy.service');
+const AgentAutonomyService = require('@services/ai/lifecycle/agent-autonomy.service');
 
 describe('AgentAutonomyService', () => {
   test('lets CEO pause or configure one agent with optimistic limits', async () => {

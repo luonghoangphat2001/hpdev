@@ -1,6 +1,6 @@
 'use strict';
 
-const RecoveryRehearsalService = require('../../../src/services/release/rollback/recovery-rehearsal.service');
+const RecoveryRehearsalService = require('@services/release/rollback/recovery-rehearsal.service');
 
 describe('T098: Backup, Restore and Disaster-Recovery Rehearsal', () => {
   test('executes backup and restore rehearsal', async () => {

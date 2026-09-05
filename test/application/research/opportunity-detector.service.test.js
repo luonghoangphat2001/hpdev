@@ -1,6 +1,6 @@
 'use strict';
 
-const OpportunityDetectorService = require('../../../src/services/ai/research/opportunity-detector.service');
+const OpportunityDetectorService = require('@services/ai/research/opportunity-detector.service');
 
 describe('T101: Product/Menu Opportunity Detector Service', () => {
   test('detects high-demand high-margin menu opportunities', () => {

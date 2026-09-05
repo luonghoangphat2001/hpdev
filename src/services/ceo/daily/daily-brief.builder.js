@@ -3,15 +3,15 @@
  */
 'use strict';
 
-const env = require('../../../config/env');
-const mysqlPoolFactory = require('../../../database/mysql-pool');
-const CeoRepository = require('../../../repositories/CeoRepository');
-const SsotClient = require('../../notification/adapter/ssot.client');
-const SsotReadAdapter = require('../../notification/adapter/ssot-read.adapter');
-const DanAiClient = require('../../notification/adapter/dan-ai.client');
-const DanAiAdapter = require('../../notification/adapter/dan-ai.adapter');
-const DailyBriefService = require('./daily-brief.service');
-const ReportSchedulerService = require('../../reporting/daily/report-scheduler.service');
+const env = require('@config/config');
+const mysqlPoolFactory = require('@database/mysql-pool');
+const CeoRepository = require('@repositories/CeoRepository');
+const SsotClient = require('@services/notification/adapter/ssot.client');
+const SsotReadAdapter = require('@services/notification/adapter/ssot-read.adapter');
+const DanAiClient = require('@services/notification/adapter/dan-ai.client');
+const DanAiAdapter = require('@services/notification/adapter/dan-ai.adapter');
+const DailyBriefService = require('@services/ceo/daily/daily-brief.service');
+const ReportSchedulerService = require('@services/reporting/daily/report-scheduler.service');
 
 function buildCeoDailyBriefScheduler({
   config = env,

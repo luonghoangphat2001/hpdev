@@ -1,9 +1,10 @@
 'use strict';
 
+require('module-alias/register');
 require("dotenv").config();
 
-const mysqlPoolFactory = require("../src/database/mysql-pool");
-const MigrationRunner = require("../src/database/migration-runner");
+const mysqlPoolFactory = require("@database/mysql-pool");
+const MigrationRunner = require("@database/migration-runner");
 
 async function main() {
   const pool = mysqlPoolFactory.create();

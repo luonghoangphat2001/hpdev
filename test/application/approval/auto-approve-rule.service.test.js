@@ -1,6 +1,6 @@
 'use strict';
 
-const AutoApproveRuleService = require('../../../src/services/approval/decisions/auto-approve-rule.service');
+const AutoApproveRuleService = require('@services/approval/decisions/auto-approve-rule.service');
 
 describe('T194: Versioned AutoApproveRule Model/Editor Service', () => {
   test('creates versioned auto-approve rule with threshold, cumulative cap, confidence, and owner', () => {

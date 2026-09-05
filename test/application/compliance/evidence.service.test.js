@@ -1,6 +1,6 @@
 'use strict';
 
-const EvidenceExportPolicy = require('../../../src/policy/compliance/evidence-export.policy');
+const EvidenceExportPolicy = require('@policy/compliance/evidence-export.policy');
 
 describe('T088: Compliance Evidence Export Service', () => {
   test('exports audit evidence package', () => {

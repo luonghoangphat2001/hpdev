@@ -3,8 +3,8 @@
  */
 'use strict';
 
-const BaseProposalAgent = require('./base-proposal.agent');
-const AnalysisService = require('./cfo/analysis.service');
+const BaseProposalAgent = require('@services/ai/agents/base-proposal.agent');
+const AnalysisService = require('@services/ai/agents/cfo/analysis.service');
 
 /**
  * CfoAgent

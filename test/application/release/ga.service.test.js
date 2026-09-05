@@ -1,6 +1,6 @@
 'use strict';
 
-const GaRolloutService = require('../../../src/services/release/deploy/ga-rollout.service');
+const GaRolloutService = require('@services/release/deploy/ga-rollout.service');
 
 describe('T200: Progressive GA Completion — Final Milestone Gate', () => {
   test('validates all 200 tasks milestones deployed, flags/policies stable, and CEO sign-off for GA release', () => {

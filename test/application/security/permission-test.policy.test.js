@@ -1,6 +1,6 @@
 'use strict';
 
-const PermissionTestPolicy = require('../../../src/policy/permissions/permission-test.policy');
+const PermissionTestPolicy = require('@policy/permissions/permission-test.policy');
 
 describe('T150: Permission/Isolation/Race/Security Test Service', () => {
   test('verifies privilege escalation and cross-agent isolation tests pass', () => {

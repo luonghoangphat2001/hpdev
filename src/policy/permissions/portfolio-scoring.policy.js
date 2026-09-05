@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BasePolicy = require('../BasePolicy');
+const BasePolicy = require('@policy/BasePolicy');
 
 const RISK_SCORE = Object.freeze({
   low: 0.1,

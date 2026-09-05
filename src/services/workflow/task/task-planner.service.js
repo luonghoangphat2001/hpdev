@@ -4,7 +4,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const TaskGraph = require('./task-graph');
+const TaskGraph = require('@services/workflow/task/task-graph');
 
 /**
  * TaskPlannerService

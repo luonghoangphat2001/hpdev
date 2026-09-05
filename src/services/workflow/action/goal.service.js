@@ -4,8 +4,8 @@
 'use strict';
 
 const crypto = require('crypto');
-const Goal = require('./goal');
-const { HORIZONS } = require('./goal');
+const Goal = require('@services/workflow/action/goal');
+const { HORIZONS } = require('@services/workflow/action/goal');
 
 /**
  * GoalService

@@ -1,6 +1,6 @@
 'use strict';
 
-const SopExecutorService = require('../../../src/services/workflow/sop/sop-executor.service');
+const SopExecutorService = require('@services/workflow/sop/sop-executor.service');
 
 describe('T173: SOP/Direct Deterministic Executor Service', () => {
   test('executes routine task via deterministic SOP rules with zero LLM calls', () => {

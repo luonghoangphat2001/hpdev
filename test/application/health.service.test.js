@@ -1,6 +1,6 @@
 'use strict';
 
-const HealthCheckService = require('../../src/services/reporting/dashboard/health-check.service');
+const HealthCheckService = require('@services/reporting/dashboard/health-check.service');
 
 describe('T107: Health/Readiness/Liveness Endpoints Service', () => {
   test('returns UP for liveness and reflects degraded state on readiness check', async () => {

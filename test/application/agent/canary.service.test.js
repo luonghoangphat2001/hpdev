@@ -1,6 +1,6 @@
 'use strict';
 
-const CanaryService = require('../../../src/services/ai/lifecycle/canary.service');
+const CanaryService = require('@services/ai/lifecycle/canary.service');
 
 describe('T158: Per-Agent Canary Deployment Service', () => {
   test('starts canary deployment with configured traffic ratio and metrics comparison', () => {

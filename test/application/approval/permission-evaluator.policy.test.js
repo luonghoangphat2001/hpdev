@@ -1,6 +1,6 @@
 'use strict';
 
-const PermissionEvaluatorPolicy = require('../../../src/policy/permissions/permission-evaluator.policy');
+const PermissionEvaluatorPolicy = require('@policy/permissions/permission-evaluator.policy');
 
 describe('T142: Central Permission Evaluator Service', () => {
   test('evaluates default deny and allowed actions', () => {

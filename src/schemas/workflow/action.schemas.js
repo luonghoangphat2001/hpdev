@@ -3,8 +3,8 @@
  */
 "use strict";
 
-const BaseSchema = require("../BaseSchema");
-const actionCatalog = require("./action.catalog");
+const BaseSchema = require("@schemas/BaseSchema");
+const actionCatalog = require("@schemas/workflow/action.catalog");
 
 const id = { type: ["string", "integer"], minLength: 1 };
 const pagination = {

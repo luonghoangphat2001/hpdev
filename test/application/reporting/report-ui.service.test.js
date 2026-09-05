@@ -1,6 +1,6 @@
 'use strict';
 
-const AgentReportUiService = require('../../../src/services/reporting/daily/agent-report-ui.service');
+const AgentReportUiService = require('@services/reporting/daily/agent-report-ui.service');
 
 describe('T133: Five-Agent Report Center Service', () => {
   test('returns report center overview with deep link base', async () => {

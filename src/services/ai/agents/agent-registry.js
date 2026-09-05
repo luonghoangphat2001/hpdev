@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const { getAgentModel } = require('./agent-model.config');
+const { getAgentModel } = require('@services/ai/agents/agent-model.config');
 
 const AGENTS = Object.freeze([
   Object.freeze({

@@ -1,6 +1,6 @@
 'use strict';
 
-const ContextBuilderService = require('../../../src/services/ai/context/context-builder.service');
+const ContextBuilderService = require('@services/ai/context/context-builder.service');
 
 describe('ContextBuilderService', () => {
   test('builds source-grounded context while redacting PII at every boundary', async () => {

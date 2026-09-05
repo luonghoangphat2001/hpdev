@@ -3,8 +3,8 @@
  */
 'use strict';
 
-const stateMachine = require('./workflow-state-machine');
-const identifiers = require('../../../schemas/events/correlation');
+const stateMachine = require('@services/workflow/state/workflow-state-machine');
+const identifiers = require('@schemas/events/correlation');
 
 /**
  * WorkflowTransitionService

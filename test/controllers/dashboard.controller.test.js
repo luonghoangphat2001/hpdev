@@ -1,6 +1,6 @@
 'use strict';
 
-const DashboardController = require('../../src/controllers/DashboardController');
+const DashboardController = require('@controllers/DashboardController');
 
 describe('T144 supplemental: dashboard agent lifecycle controller', () => {
   test('passes CEO lifecycle command to the persistent service', async () => {

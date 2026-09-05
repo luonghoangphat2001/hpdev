@@ -1,10 +1,10 @@
 'use strict';
 
-const actionCatalog = require('../../src/schemas/workflow/action.catalog');
+const actionCatalog = require('@schemas/workflow/action.catalog');
 const {
   EcommerceActionCatalog,
   ACTION_CATALOG_VERSION,
-} = require('../../src/schemas/workflow/action.catalog');
+} = require('@schemas/workflow/action.catalog');
 
 describe('EcommerceActionCatalog', () => {
   it('defines endpoint, method, permission and receipt for every action', () => {

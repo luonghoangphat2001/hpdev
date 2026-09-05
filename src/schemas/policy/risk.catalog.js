@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const actionCatalog = require('../workflow/action.catalog');
+const actionCatalog = require('@schemas/workflow/action.catalog');
 
 const RISK_POLICY_VERSION = '1.0.0';
 const RISK_LEVELS = Object.freeze(['low', 'medium', 'high', 'critical']);

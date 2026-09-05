@@ -4,11 +4,11 @@
 'use strict';
 
 const crypto = require('crypto');
-const ActionValidatorService = require('../../workflow/action/action-validator.service');
-const RiskEvaluator = require('../../../policy/permissions/risk-evaluator');
-const InvariantChecker = require('../../../policy/permissions/invariant-checker');
-const agentRegistry = require('../../ai/agents/agent-registry');
-const { stableSerialize } = require('../../../schemas/events/correlation');
+const ActionValidatorService = require('@services/workflow/action/action-validator.service');
+const RiskEvaluator = require('@policy/permissions/risk-evaluator');
+const InvariantChecker = require('@policy/permissions/invariant-checker');
+const agentRegistry = require('@services/ai/agents/agent-registry');
+const { stableSerialize } = require('@schemas/events/correlation');
 
 /**
  * ProposalVerifierService

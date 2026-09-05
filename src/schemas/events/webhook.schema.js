@@ -3,8 +3,8 @@
  */
 "use strict";
 
-const BaseSchema = require("../BaseSchema");
-const eventCatalog = require("./event.catalog");
+const BaseSchema = require("@schemas/BaseSchema");
+const eventCatalog = require("@schemas/events/event.catalog");
 const DTO_SCHEMA_VERSION = BaseSchema.DTO_SCHEMA_VERSION;
 
 const ecommerceWebhookEnvelopeSchema = BaseSchema.create({

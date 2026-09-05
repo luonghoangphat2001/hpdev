@@ -1,11 +1,11 @@
 'use strict';
 
-const identityPolicy = require('../../src/schemas/policy/identity.policy');
+const identityPolicy = require('@schemas/policy/identity.policy');
 const {
   IdentityPolicy,
   SYSTEM_IDENTITIES,
   TRUST_FLOWS,
-} = require('../../src/schemas/policy/identity.policy');
+} = require('@schemas/policy/identity.policy');
 
 describe('IdentityPolicy', () => {
   it('keeps Ecommerce as the only business-state writer', () => {

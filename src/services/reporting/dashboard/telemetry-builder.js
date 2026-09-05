@@ -3,9 +3,9 @@
  */
 'use strict';
 
-const mysqlPoolFactory = require('../../../database/mysql-pool');
-const IntelligenceObservabilityRepository = require('../../../repositories/IntelligenceObservabilityRepository');
-const TelemetryService = require('./telemetry.service');
+const mysqlPoolFactory = require('@database/mysql-pool');
+const IntelligenceObservabilityRepository = require('@repositories/IntelligenceObservabilityRepository');
+const TelemetryService = require('@services/reporting/dashboard/telemetry.service');
 
 function buildIntelligenceTelemetry({
   pool = mysqlPoolFactory.create(),

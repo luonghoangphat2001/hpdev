@@ -1,6 +1,6 @@
 'use strict';
 
-const ReauthHooksService = require('../../../src/services/ceo/command/reauth-hooks.service');
+const ReauthHooksService = require('@services/ceo/command/reauth-hooks.service');
 
 describe('T149: CEO Re-Auth, Confirmation, and Dual-Control Hooks Service', () => {
   test('executes dangerous action upon valid re-authentication', () => {

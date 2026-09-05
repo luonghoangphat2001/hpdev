@@ -1,6 +1,6 @@
 'use strict';
 
-const ManifestService = require('../../../src/services/ai/lifecycle/manifest.service');
+const ManifestService = require('@services/ai/lifecycle/manifest.service');
 
 describe('T151: Agent Source-Package Manifest Service', () => {
   test('returns package manifest for target agent', () => {

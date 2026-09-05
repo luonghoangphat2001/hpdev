@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BasePolicy = require('../BasePolicy');
+const BasePolicy = require('@policy/BasePolicy');
 
 /**
  * DataRetentionPolicy

@@ -1,8 +1,8 @@
 'use strict';
 
-const agentRegistry = require('../../src/services/ai/agents/agent-registry');
-const DailyReporterService = require('../../src/services/ai/lifecycle/daily-reporter.service');
-const ReportAggregatorService = require('../../src/services/reporting/daily/report-aggregator.service');
+const agentRegistry = require('@services/ai/agents/agent-registry');
+const DailyReporterService = require('@services/ai/lifecycle/daily-reporter.service');
+const ReportAggregatorService = require('@services/reporting/daily/report-aggregator.service');
 
 class OrchestratorIntegrationHarness {
   constructor() {

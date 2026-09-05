@@ -1,6 +1,6 @@
 'use strict';
 
-const RbacPolicy = require('../../../src/policy/permissions/rbac.policy');
+const RbacPolicy = require('@policy/permissions/rbac.policy');
 
 describe('T141: RBAC/ABAC Permission Schema Service', () => {
   test('evaluates permissions correctly based on role', () => {

@@ -3,8 +3,8 @@
  */
 'use strict';
 
-const ResultAggregatorService = require('./result-aggregator.service');
-const logger = require('../../../utils/logger.service');
+const ResultAggregatorService = require('@services/workflow/action/result-aggregator.service');
+const logger = require('@utils/logger.service');
 
 /**
  * ParallelExecutorService

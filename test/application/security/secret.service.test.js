@@ -1,6 +1,6 @@
 'use strict';
 
-const SecretRotationPolicy = require('../../../src/policy/permissions/secret-rotation.policy');
+const SecretRotationPolicy = require('@policy/permissions/secret-rotation.policy');
 
 describe('T086: Secret Rotation Service', () => {
   test('rotates secret and revokes old key', () => {

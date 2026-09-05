@@ -1,6 +1,6 @@
 'use strict';
 
-const DataRetentionPolicy = require('../../../src/policy/compliance/data-retention.policy');
+const DataRetentionPolicy = require('@policy/compliance/data-retention.policy');
 
 describe('T085: Data Retention Service', () => {
   test('correctly identifies expired records past TTL', () => {

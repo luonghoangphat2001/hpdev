@@ -3,10 +3,10 @@
  */
 'use strict';
 
-const CapabilityRegistry = require('./capability-registry');
-const agentRegistry = require('../agents/agent-registry');
-const actionCatalog = require('../../../schemas/workflow/action.catalog');
-const { ACTION_CATALOG_VERSION } = require('../../../schemas/workflow/action.catalog');
+const CapabilityRegistry = require('@services/ai/capabilities/capability-registry');
+const agentRegistry = require('@services/ai/agents/agent-registry');
+const actionCatalog = require('@schemas/workflow/action.catalog');
+const { ACTION_CATALOG_VERSION } = require('@schemas/workflow/action.catalog');
 
 const LOGICAL_MODELS = Object.freeze([
   Object.freeze({

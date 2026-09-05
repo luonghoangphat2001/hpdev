@@ -4,7 +4,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const { stableSerialize } = require('../../../schemas/events/correlation');
+const { stableSerialize } = require('@schemas/events/correlation');
 
 /**
  * ActionExecutionService

@@ -4,8 +4,8 @@
 'use strict';
 
 const crypto = require('crypto');
-const identifiers = require('../../../schemas/events/correlation');
-const { stableSerialize } = require('../../../schemas/events/correlation');
+const identifiers = require('@schemas/events/correlation');
+const { stableSerialize } = require('@schemas/events/correlation');
 
 /**
  * ReconciliationService

@@ -1,6 +1,6 @@
 'use strict';
 
-const CandidateGateService = require('../../../src/services/release/deploy/candidate-gate.service');
+const CandidateGateService = require('@services/release/deploy/candidate-gate.service');
 
 describe('T170: Full-System Release-Candidate Gate Service', () => {
   test('verifies staging release candidate passes gate without enabling production', () => {

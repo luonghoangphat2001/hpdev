@@ -3,8 +3,8 @@
  */
 'use strict';
 
-const BaseProposalAgent = require('./base-proposal.agent');
-const ReorderService = require('./logistics/reorder.service');
+const BaseProposalAgent = require('@services/ai/agents/base-proposal.agent');
+const ReorderService = require('@services/ai/agents/logistics/reorder.service');
 
 /**
  * LogisticsAgent

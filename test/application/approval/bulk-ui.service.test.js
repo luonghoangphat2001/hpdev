@@ -1,6 +1,6 @@
 'use strict';
 
-const BulkUiService = require('../../../src/services/approval/decisions/bulk-ui.service');
+const BulkUiService = require('@services/approval/decisions/bulk-ui.service');
 
 describe('T193: CEO Bulk Approval UI Service', () => {
   test('processes bulk approval UI action with filtering, re-authentication, and per-item results', () => {

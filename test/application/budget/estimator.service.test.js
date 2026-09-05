@@ -1,6 +1,6 @@
 'use strict';
 
-const CostEstimatorPolicy = require('../../../src/policy/budget/cost-estimator.policy');
+const CostEstimatorPolicy = require('@policy/budget/cost-estimator.policy');
 
 describe('T182: Preflight Token/Cost/Latency Estimator Service', () => {
   test('estimates tokens, cost, latency, and gives preflight recommendation', () => {

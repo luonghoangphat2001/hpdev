@@ -1,6 +1,6 @@
 'use strict';
 
-const DanAiAdapter = require('../../../src/services/notification/adapter/dan-ai.adapter');
+const DanAiAdapter = require('@services/notification/adapter/dan-ai.adapter');
 
 describe('DanAiAdapter', () => {
   test('maps an orchestration notification to the dan_ai boundary', async () => {

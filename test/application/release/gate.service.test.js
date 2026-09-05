@@ -1,6 +1,6 @@
 'use strict';
 
-const ReleaseGateService = require('../../../src/services/release/deploy/release-gate.service');
+const ReleaseGateService = require('@services/release/deploy/release-gate.service');
 
 describe('T190: Adaptive Optimization Release Gate Service', () => {
   test('evaluates release gate ensuring profiles are ready for canary with rollback support', () => {

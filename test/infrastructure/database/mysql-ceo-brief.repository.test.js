@@ -1,7 +1,7 @@
 'use strict';
 
 const MysqlCeoRepository =
-  require('../../../src/repositories/CeoRepository');
+  require('@repositories/CeoRepository');
 
 describe('MysqlCeoRepository', () => {
   test('normalizes goal counts for the CEO brief', async () => {

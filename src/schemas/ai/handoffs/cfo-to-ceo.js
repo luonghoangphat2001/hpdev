@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const { createCrossAgentHandoffDto } = require('../handoff.dto');
+const { createCrossAgentHandoffDto } = require('@schemas/ai/handoff.dto');
 
 function createCfoToCeoEscalationHandoff({
   handoffId,

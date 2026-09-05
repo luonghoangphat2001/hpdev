@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const BaseSchema = require("../BaseSchema");
+const BaseSchema = require("@schemas/BaseSchema");
 
 const COMMAND_CATALOG_VERSION = "1.0.0";
 

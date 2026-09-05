@@ -1,8 +1,8 @@
 'use strict';
 
 const GoalTranslatorService =
-  require('../../../src/services/workflow/action/goal-translator.service');
-const TaskGraph = require('../../../src/services/workflow/task/task-graph');
+  require('@services/workflow/action/goal-translator.service');
+const TaskGraph = require('@services/workflow/task/task-graph');
 
 describe('GoalTranslatorService', () => {
   test('translates an active goal into a milestone task graph with bounded execution', async () => {

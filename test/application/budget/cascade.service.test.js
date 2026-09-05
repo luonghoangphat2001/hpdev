@@ -1,6 +1,6 @@
 'use strict';
 
-const ModelCascadePolicy = require('../../../src/policy/budget/model-cascade.policy');
+const ModelCascadePolicy = require('@policy/budget/model-cascade.policy');
 
 describe('T178: Cost/Quality-Aware Model Cascade Service', () => {
   test('cascades from rule to small, medium, and strong LLMs based on risk and confidence', () => {

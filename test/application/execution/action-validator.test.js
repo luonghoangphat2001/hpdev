@@ -1,8 +1,8 @@
 'use strict';
 
-const actionCatalog = require('../../../src/schemas/workflow/action.catalog');
-const actionSchemas = require('../../../src/schemas/workflow/action.schemas');
-const ActionValidatorService = require('../../../src/services/workflow/action/action-validator.service');
+const actionCatalog = require('@schemas/workflow/action.catalog');
+const actionSchemas = require('@schemas/workflow/action.schemas');
+const ActionValidatorService = require('@services/workflow/action/action-validator.service');
 
 describe('ActionValidatorService', () => {
   const validator = new ActionValidatorService();

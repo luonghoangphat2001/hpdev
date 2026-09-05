@@ -1,6 +1,6 @@
 'use strict';
 
-const ExecutionProfileService = require('../../../src/services/workflow/action/execution-profile.service');
+const ExecutionProfileService = require('@services/workflow/action/execution-profile.service');
 
 describe('T171: ExecutionProfile Domain Model Service', () => {
   test('creates ExecutionProfile with FAST/STANDARD/STRICT mode and budgets', () => {

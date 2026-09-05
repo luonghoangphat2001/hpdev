@@ -1,7 +1,7 @@
 'use strict';
 
-const FetchService = require('../../src/services/web/fetch/fetch.service');
-const WebController = require('../../src/controllers/WebController');
+const FetchService = require('@services/web/fetch/fetch.service');
+const WebController = require('@controllers/WebController');
 
 describe('POST /fetch — PDF parsing', () => {
   let axios, pdfParse;

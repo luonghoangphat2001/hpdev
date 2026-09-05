@@ -1,6 +1,6 @@
 'use strict';
 
-const { kpiDictionary, getKpiDefinition } = require('../../src/schemas/reporting/kpi.catalog');
+const { kpiDictionary, getKpiDefinition } = require('@schemas/reporting/kpi.catalog');
 
 describe('T069: KPI Dictionary and Ownership', () => {
   test('contains definitions for all 5 domain agents', () => {

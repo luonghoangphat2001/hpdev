@@ -1,6 +1,6 @@
 'use strict';
 
-const StrategyReportService = require('../../../src/services/ceo/daily/strategy-report.service');
+const StrategyReportService = require('@services/ceo/daily/strategy-report.service');
 
 describe('T106: CEO Strategy Report Service', () => {
   test('generates comprehensive strategic report for CEO', () => {

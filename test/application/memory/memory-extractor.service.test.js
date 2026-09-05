@@ -1,6 +1,6 @@
 'use strict';
 
-const MemoryExtractorService = require('../../../src/services/ai/memory/memory-extractor.service');
+const MemoryExtractorService = require('@services/ai/memory/memory-extractor.service');
 
 describe('T167: History Evaluator and Memory-Candidate Extractor Service', () => {
   test('extracts memory candidates only with evidence and without promoting raw logs directly', () => {

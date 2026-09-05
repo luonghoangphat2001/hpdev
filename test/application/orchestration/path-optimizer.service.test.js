@@ -1,6 +1,6 @@
 'use strict';
 
-const PathOptimizerService = require('../../../src/services/workflow/task/path-optimizer.service');
+const PathOptimizerService = require('@services/workflow/task/path-optimizer.service');
 
 describe('T184: Critical-Path/Parallel Scheduling Optimizer Service', () => {
   test('schedules independent tasks in parallel while respecting critical path and fan-out limits', () => {

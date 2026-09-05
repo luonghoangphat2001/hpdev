@@ -1,8 +1,8 @@
 'use strict';
 
-const TaskGraph = require('../../../src/services/workflow/task/task-graph');
+const TaskGraph = require('@services/workflow/task/task-graph');
 const ScenarioSimulatorService =
-  require('../../../src/services/ai/research/scenario-simulator.service');
+  require('@services/ai/research/scenario-simulator.service');
 
 describe('ScenarioSimulatorService', () => {
   function build() {

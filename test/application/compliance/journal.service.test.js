@@ -1,6 +1,6 @@
 'use strict';
 
-const DecisionJournalPolicy = require('../../../src/policy/compliance/decision-journal.policy');
+const DecisionJournalPolicy = require('@policy/compliance/decision-journal.policy');
 
 describe('DecisionJournalPolicy', () => {
   test('stores rationale, redacted inputs, policy and immutable input hash', async () => {

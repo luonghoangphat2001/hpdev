@@ -1,9 +1,9 @@
 'use strict';
 
-const DanAiClient = require('../../../src/services/notification/adapter/dan-ai.client');
+const DanAiClient = require('@services/notification/adapter/dan-ai.client');
 const {
   DanAiNotificationClientError,
-} = require('../../../src/services/notification/adapter/dan-ai.client');
+} = require('@services/notification/adapter/dan-ai.client');
 
 describe('DanAiClient', () => {
   const config = {

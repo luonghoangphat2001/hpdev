@@ -1,7 +1,7 @@
 'use strict';
 
-const MemoryPolicy = require('../../src/policy/permissions/memory-policy');
-const { SCOPE_TTL_MS } = require('../../src/policy/permissions/memory-policy');
+const MemoryPolicy = require('@policy/permissions/memory-policy');
+const { SCOPE_TTL_MS } = require('@policy/permissions/memory-policy');
 
 describe('MemoryPolicy', () => {
   test('redacts PII and secrets before creating scoped memory', () => {

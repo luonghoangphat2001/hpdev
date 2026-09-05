@@ -1,6 +1,6 @@
 'use strict';
 
-const ProviderFailoverPolicy = require('../../../src/policy/permissions/provider-failover.policy');
+const ProviderFailoverPolicy = require('@policy/permissions/provider-failover.policy');
 
 describe('T094: Provider Failover and Degraded Mode Service', () => {
   test('falls back to secondary provider when primary fails', async () => {

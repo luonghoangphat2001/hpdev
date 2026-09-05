@@ -3,8 +3,8 @@
  */
 'use strict';
 
-const resiliencePolicy = require('../../../schemas/policy/retry.policy');
-const CircuitBreaker = require('./circuit-breaker');
+const resiliencePolicy = require('@schemas/policy/retry.policy');
+const CircuitBreaker = require('@services/notification/adapter/circuit-breaker');
 
 const ERROR_CODE_MAP = Object.freeze({
   ssot_rate_limited: 'rate_limited',

@@ -1,6 +1,6 @@
 'use strict';
 
-const CriticPolicy = require('../../../src/policy/permissions/critic.policy');
+const CriticPolicy = require('@policy/permissions/critic.policy');
 
 describe('T176: Conditional Critic Policy Service', () => {
   test('skips critic for low risk with high confidence and runs for high risk', () => {

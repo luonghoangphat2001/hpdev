@@ -1,13 +1,13 @@
 'use strict';
 
-jest.mock('../src/app', () => ({ listen: jest.fn() }));
-jest.mock('../src/utils/logger.service', () => ({
+jest.mock('@app', () => ({ listen: jest.fn() }));
+jest.mock('@utils/logger.service', () => ({
   info: jest.fn(),
   error: jest.fn(),
   formatError: jest.fn((error) => error.message),
 }));
 
-const Server = require('../src/server');
+const Server = require('@server');
 
 function createConfig() {
   return {

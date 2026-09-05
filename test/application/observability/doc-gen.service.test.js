@@ -1,6 +1,6 @@
 'use strict';
 
-const SchemaDocGenService = require('../../../src/services/reporting/dashboard/schema-doc-gen.service');
+const SchemaDocGenService = require('@services/reporting/dashboard/schema-doc-gen.service');
 
 describe('T114: API/Schema Documentation Generator Service', () => {
   test('generates API doc payload with compatibility matrix', () => {

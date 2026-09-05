@@ -1,6 +1,6 @@
 'use strict';
 
-const migration = require('../../../../src/database/migrations/011-create-goals');
+const migration = require('@database/migrations/011-create-goals');
 
 describe('011-create-goals migration', () => {
   test('stores hierarchical goal horizon, owner, target, deadline and status', () => {

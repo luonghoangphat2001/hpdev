@@ -1,6 +1,6 @@
 'use strict';
 
-const LogisticsAgent = require('../../../src/services/ai/agents/logistics.agent');
+const LogisticsAgent = require('@services/ai/agents/logistics.agent');
 
 describe('dan_logistics', () => {
   function createAgent(inventory, receipt = { status: 'completed' }) {

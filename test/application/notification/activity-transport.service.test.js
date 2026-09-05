@@ -1,6 +1,6 @@
 'use strict';
 
-const ActivityTransportService = require('../../../src/services/notification/realtime/activity-transport.service');
+const ActivityTransportService = require('@services/notification/realtime/activity-transport.service');
 
 describe('T123: Realtime Activity Transport Service', () => {
   test('broadcasts activity events to subscribers', () => {

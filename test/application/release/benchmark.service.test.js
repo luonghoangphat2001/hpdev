@@ -1,6 +1,6 @@
 'use strict';
 
-const BenchmarkCorpusService = require('../../../src/services/release/deploy/benchmark-corpus.service');
+const BenchmarkCorpusService = require('@services/release/deploy/benchmark-corpus.service');
 
 describe('T188: Representative Benchmark Corpus Service', () => {
   test('provides LOW/MEDIUM/HIGH fixtures across all 5 agents covering known, novel, and failure cases', () => {

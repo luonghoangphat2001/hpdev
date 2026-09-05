@@ -1,6 +1,6 @@
 'use strict';
 
-const MysqlApprovalRepository = require('../../../src/repositories/ApprovalRepository');
+const MysqlApprovalRepository = require('@repositories/ApprovalRepository');
 
 describe('MysqlApprovalRepository', () => {
   test('locks approval rows before making a decision', async () => {

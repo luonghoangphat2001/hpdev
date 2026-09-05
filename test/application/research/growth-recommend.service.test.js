@@ -1,6 +1,6 @@
 'use strict';
 
-const GrowthRecommendService = require('../../../src/services/ai/research/growth-recommend.service');
+const GrowthRecommendService = require('@services/ai/research/growth-recommend.service');
 
 describe('T104: Growth Recommendation Service', () => {
   test('generates advisory growth recommendation without auto-spend', () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const SegmentationService = require('../../../src/services/ai/research/segmentation.service');
+const SegmentationService = require('@services/ai/research/segmentation.service');
 
 describe('T100: Customer Segmentation and Cohort Analysis Service', () => {
   test('segments customers into VIP, REGULAR, and AT_RISK cohorts', () => {

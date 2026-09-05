@@ -1,6 +1,6 @@
 'use strict';
 
-const PortfolioManagerService = require('../../../src/services/reporting/kpi/portfolio-manager.service');
+const PortfolioManagerService = require('@services/reporting/kpi/portfolio-manager.service');
 
 describe('PortfolioManagerService', () => {
   test('ranks deterministically and updates changed priorities in one transaction', async () => {

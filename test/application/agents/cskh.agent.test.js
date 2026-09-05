@@ -1,6 +1,6 @@
 'use strict';
 
-const CskhAgent = require('../../../src/services/ai/agents/cskh.agent');
+const CskhAgent = require('@services/ai/agents/cskh.agent');
 
 describe('dan_cskh', () => {
   function setup(feedback) {

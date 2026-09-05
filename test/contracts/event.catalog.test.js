@@ -1,11 +1,11 @@
 'use strict';
 
-const eventCatalog = require('../../src/schemas/events/event.catalog');
+const eventCatalog = require('@schemas/events/event.catalog');
 const {
   EcommerceEventCatalog,
   EVENT_CATALOG_VERSION,
   EVENT_ENVELOPE_FIELDS,
-} = require('../../src/schemas/events/event.catalog');
+} = require('@schemas/events/event.catalog');
 
 describe('EcommerceEventCatalog', () => {
   it('contains every event currently emitted by Ecommerce webhook models', () => {

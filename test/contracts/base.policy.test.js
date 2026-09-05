@@ -1,6 +1,6 @@
 'use strict';
 
-const BasePolicy = require("../../src/policy/BasePolicy");
+const BasePolicy = require("@policy/BasePolicy");
 
 describe("BasePolicy", () => {
   test("instantiates with default options and allows by default", () => {

@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const NotificationGateway = require('../realtime/notification.gateway');
+const NotificationGateway = require('@services/notification/realtime/notification.gateway');
 
 const ALLOWED_SEVERITIES = new Set(['info', 'success', 'warning', 'critical']);
 

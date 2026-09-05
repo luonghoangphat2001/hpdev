@@ -1,7 +1,7 @@
 'use strict';
 
-const SignaturePolicy = require('../../src/policy/permissions/signature.policy');
-const { SIGNATURE_POLICY } = require('../../src/policy/permissions/signature.policy');
+const SignaturePolicy = require('@policy/permissions/signature.policy');
+const { SIGNATURE_POLICY } = require('@policy/permissions/signature.policy');
 
 describe('SignaturePolicy', () => {
   const nowSeconds = 1784966400;

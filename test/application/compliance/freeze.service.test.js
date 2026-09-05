@@ -1,6 +1,6 @@
 'use strict';
 
-const ContractFreezePolicy = require('../../../src/policy/compliance/contract-freeze.policy');
+const ContractFreezePolicy = require('@policy/compliance/contract-freeze.policy');
 
 describe('T120: Control Plane API/UI Contract Freeze Service', () => {
   test('returns frozen contract spec with locked endpoints and scopes', () => {

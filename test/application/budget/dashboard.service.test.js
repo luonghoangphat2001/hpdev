@@ -1,6 +1,6 @@
 'use strict';
 
-const BudgetDashboardPolicy = require('../../../src/policy/budget/budget-dashboard.policy');
+const BudgetDashboardPolicy = require('@policy/budget/budget-dashboard.policy');
 
 describe('T134: Cost, Budget, and Provider Dashboard Service', () => {
   test('returns cost, budget cap, and provider breakdown', async () => {

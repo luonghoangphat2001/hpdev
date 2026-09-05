@@ -1,12 +1,12 @@
 'use strict';
 
-const actionCatalog = require('../../src/schemas/workflow/action.catalog');
-const policy = require('../../src/schemas/policy/retry.policy');
+const actionCatalog = require('@schemas/workflow/action.catalog');
+const policy = require('@schemas/policy/retry.policy');
 const {
   ErrorRetryPolicy,
   ERROR_POLICIES,
   ACTION_TIMEOUTS_MS,
-} = require('../../src/schemas/policy/retry.policy');
+} = require('@schemas/policy/retry.policy');
 
 describe('ErrorRetryPolicy', () => {
   it('defines a positive timeout for every allowlisted SSOT action', () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const ActionExecutionService = require('../../../src/services/workflow/action/action-execution.service');
+const ActionExecutionService = require('@services/workflow/action/action-execution.service');
 
 describe('ActionExecutionService', () => {
   const action = {

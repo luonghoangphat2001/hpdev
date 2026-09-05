@@ -1,6 +1,6 @@
 'use strict';
 
-const migration = require('../../../../src/database/migrations/005-create-audit-events');
+const migration = require('@database/migrations/005-create-audit-events');
 
 describe('005-create-audit-events migration', () => {
   it('creates a reversible audit store', () => {

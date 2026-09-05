@@ -1,6 +1,6 @@
 'use strict';
 
-const TaskComposerService = require('../../../src/services/ceo/command/task-composer.service');
+const TaskComposerService = require('@services/ceo/command/task-composer.service');
 
 describe('T126: CEO Task Composer and Multi-Agent Assignment Service', () => {
   test('composes task and assigns to multiple agents with budget cap', () => {

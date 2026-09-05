@@ -1,6 +1,6 @@
 'use strict';
 
-const EmergencyStopService = require('../../../src/services/operator/control/emergency-stop.service');
+const EmergencyStopService = require('@services/operator/control/emergency-stop.service');
 
 describe('T096: Global/Agent Emergency Stop Service', () => {
   test('stops specific agent or global system atomically', () => {

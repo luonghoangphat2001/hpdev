@@ -1,6 +1,6 @@
 'use strict';
 
-const migration = require('../../../../src/database/migrations/009-add-operator-control');
+const migration = require('@database/migrations/009-add-operator-control');
 
 describe('009-add-operator-control migration', () => {
   test('adds resumable workflow state and bounded feedback', () => {

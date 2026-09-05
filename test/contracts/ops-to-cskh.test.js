@@ -1,6 +1,6 @@
 'use strict';
 
-const { createOpsToCskhHandoff } = require('../../src/schemas/ai/handoffs/ops-to-cskh');
+const { createOpsToCskhHandoff } = require('@schemas/ai/handoffs/ops-to-cskh');
 
 describe('T065: Ops -> CSKH Handoff', () => {
   test('creates valid Ops to CSKH handoff', () => {

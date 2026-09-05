@@ -1,6 +1,6 @@
 'use strict';
 
-const FallbackRoutingService = require('../../../src/services/workflow/task/fallback-routing.service');
+const FallbackRoutingService = require('@services/workflow/task/fallback-routing.service');
 
 describe('T146: Dependency Blocking and Approved Fallback Routing Service', () => {
   test('blocks workflow and routes to fallback agent when primary agent is quarantined', () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const CredentialRotationService = require('../../../src/services/ai/lifecycle/credential-rotation.service');
+const CredentialRotationService = require('@services/ai/lifecycle/credential-rotation.service');
 
 describe('T147: Per-Agent Credential Revoke/Rotate Service', () => {
   test('revokes and rotates specific agent credential without global downtime', () => {

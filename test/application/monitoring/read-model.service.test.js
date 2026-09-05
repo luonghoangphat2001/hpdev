@@ -1,7 +1,7 @@
 'use strict';
 
 const ReadModelService =
-  require('../../../src/services/reporting/dashboard/read-model.service');
+  require('@services/reporting/dashboard/read-model.service');
 
 describe('T122 supplemental: Dashboard Read Model Service', () => {
   test('returns database-backed operational counts and live metrics', async () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const WeeklyReviewService = require('../../../src/services/ceo/daily/weekly-review.service');
+const WeeklyReviewService = require('@services/ceo/daily/weekly-review.service');
 
 describe('T055: CEO Weekly Business Review Service', () => {
   test('generates weekly review successfully', async () => {

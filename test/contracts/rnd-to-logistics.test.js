@@ -1,6 +1,6 @@
 'use strict';
 
-const { createRnDToLogisticsHandoff } = require('../../src/schemas/ai/handoffs/rnd-to-logistics');
+const { createRnDToLogisticsHandoff } = require('@schemas/ai/handoffs/rnd-to-logistics');
 
 describe('T063: R&D -> Logistics Handoff', () => {
   test('creates valid R&D to Logistics handoff', () => {

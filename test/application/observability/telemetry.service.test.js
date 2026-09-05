@@ -1,7 +1,7 @@
 'use strict';
 
-const TelemetryService = require('../../../src/services/reporting/dashboard/telemetry.service');
-const { MetricsRegistry } = require('../../../src/utils/metrics-registry');
+const TelemetryService = require('@services/reporting/dashboard/telemetry.service');
+const { MetricsRegistry } = require('@utils/metrics-registry');
 
 describe('TelemetryService', () => {
   function build() {

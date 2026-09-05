@@ -1,6 +1,6 @@
 'use strict';
 
-const SecondPassService = require('../../../src/services/ai/critics/second-pass.service');
+const SecondPassService = require('@services/ai/critics/second-pass.service');
 
 describe('T082: Second-Pass Critic Service', () => {
   test('skips review for LOW risk proposal', async () => {

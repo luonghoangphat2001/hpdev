@@ -1,0 +1,259 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "OpenClaw Microservice API",
+    "version": "1.0.0",
+    "description": "API Documentation cho OpenClaw Autonomous Engine (Web Search, Scraper, Crawler, Browser Automation, Orchestrator, Approvals & CEO Commands)."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "https://openclaw.hpdev.name.vn",
+      "description": "Production Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API Secret token (Authorization: Bearer <API_SECRET>)"
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API Secret passed via x-api-key header"
+      }
+    },
+    "schemas": {
+      "SearchRequest": {
+        "type": "object",
+        "required": ["query"],
+        "properties": {
+          "query": { "type": "string", "example": "DeepMind Gemini 2.5 release" },
+          "limit": { "type": "integer", "default": 5, "example": 5 }
+        }
+      },
+      "FetchRequest": {
+        "type": "object",
+        "required": ["url"],
+        "properties": {
+          "url": { "type": "string", "example": "https://example.com" },
+          "format": { "type": "string", "enum": ["markdown", "html", "text"], "default": "markdown" }
+        }
+      },
+      "CrawlRequest": {
+        "type": "object",
+        "required": ["url"],
+        "properties": {
+          "url": { "type": "string", "example": "https://example.com/docs" },
+          "depth": { "type": "integer", "default": 2, "example": 2 },
+          "maxPages": { "type": "integer", "default": 10, "example": 10 }
+        }
+      },
+      "AutomateRequest": {
+        "type": "object",
+        "required": ["url", "actions"],
+        "properties": {
+          "url": { "type": "string", "example": "https://example.com/login" },
+          "actions": {
+            "type": "array",
+            "items": { "type": "object" },
+            "example": [{ "type": "click", "selector": "#btn-submit" }]
+          }
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "ok": { "type": "boolean", "example": true },
+          "message": { "type": "string", "example": "Thành công" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "ok": { "type": "boolean", "example": false },
+          "error": { "type": "string", "example": "Unauthorized" },
+          "code": { "type": "string", "example": "UNAUTHORIZED" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "tags": ["Public"],
+        "responses": {
+          "200": {
+            "description": "Dịch vụ đang chạy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search": {
+      "post": {
+        "summary": "Tìm kiếm web thời gian thực",
+        "tags": ["Web Tools"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SearchRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Kết quả tìm kiếm" }
+        }
+      }
+    },
+    "/fetch": {
+      "post": {
+        "summary": "Lấy nội dung văn bản từ URL",
+        "tags": ["Web Tools"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/FetchRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Nội dung trang web đã lọc" }
+        }
+      }
+    },
+    "/crawl": {
+      "post": {
+        "summary": "Cào dữ liệu website theo độ sâu",
+        "tags": ["Web Tools"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrawlRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Danh sách trang đã cào" }
+        }
+      }
+    },
+    "/automate": {
+      "post": {
+        "summary": "Tự động hóa trình duyệt qua Playwright",
+        "tags": ["Web Tools"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AutomateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Kết quả thực thi tự động" }
+        }
+      }
+    },
+    "/orchestrator/v1/events": {
+      "post": {
+        "summary": "Tiếp nhận webhook sự kiện có chữ ký (HMAC)",
+        "tags": ["Webhook Ingestion"],
+        "responses": {
+          "200": { "description": "Sự kiện được tiếp nhận" }
+        }
+      }
+    },
+    "/orchestrator/v1/control/status": {
+      "get": {
+        "summary": "Xem trạng thái Autonomy Control của hệ thống",
+        "tags": ["Operator Control"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Trạng thái vận hành và mức độ tự trị" }
+        }
+      }
+    },
+    "/orchestrator/v1/control/emergency-stop": {
+      "post": {
+        "summary": "Dừng khẩn cấp toàn bộ tác vụ tự trị",
+        "tags": ["Operator Control"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Đã dừng khẩn cấp" }
+        }
+      }
+    },
+    "/orchestrator/v1/control/resume": {
+      "post": {
+        "summary": "Tiếp tục vận hành hệ thống",
+        "tags": ["Operator Control"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Đã tiếp tục vận hành" }
+        }
+      }
+    },
+    "/orchestrator/v1/dashboard/overview": {
+      "get": {
+        "summary": "Tổng quan Dashboard Orchestrator",
+        "tags": ["Dashboard"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Dữ liệu tổng quan" }
+        }
+      }
+    },
+    "/orchestrator/v1/dashboard/agents": {
+      "get": {
+        "summary": "Danh sách các Agents đang chạy",
+        "tags": ["Dashboard"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Danh sách agents" }
+        }
+      }
+    },
+    "/orchestrator/v1/dashboard/workflows": {
+      "get": {
+        "summary": "Danh sách các Workflows",
+        "tags": ["Dashboard"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Danh sách workflows" }
+        }
+      }
+    },
+    "/orchestrator/v1/exceptions": {
+      "get": {
+        "summary": "Danh sách ngoại lệ và cảnh báo cần CEO xử lý",
+        "tags": ["CEO Exceptions"],
+        "security": [{ "BearerAuth": [] }, { "ApiKeyAuth": [] }],
+        "responses": {
+          "200": { "description": "Danh sách exceptions" }
+        }
+      }
+    }
+  }
+}

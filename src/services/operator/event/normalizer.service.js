@@ -3,11 +3,11 @@
  */
 'use strict';
 
-const ecommerceEnvelopeSchema = require('../../../schemas/events/webhook.schema');
-const BaseSchema = require('../../../schemas/BaseSchema');
+const ecommerceEnvelopeSchema = require('@schemas/events/webhook.schema');
+const BaseSchema = require('@schemas/BaseSchema');
 const eventSchema = BaseSchema.eventSchema;
-const JsonSchemaValidator = require('../../../utils/json-schema.validator');
-const AppError = require('../../../utils/errors/app.error');
+const JsonSchemaValidator = require('@utils/json-schema.validator');
+const AppError = require('@utils/errors/app.error');
 
 /**
  * NormalizerService

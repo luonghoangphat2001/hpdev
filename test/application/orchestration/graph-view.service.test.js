@@ -1,6 +1,6 @@
 'use strict';
 
-const TaskGraphViewService = require('../../../src/services/workflow/task/task-graph-view.service');
+const TaskGraphViewService = require('@services/workflow/task/task-graph-view.service');
 
 describe('T129: Planner/Task Graph Visualization Service', () => {
   test('renders nodes and edges for task graph visualization', () => {

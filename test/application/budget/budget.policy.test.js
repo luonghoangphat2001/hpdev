@@ -1,6 +1,6 @@
 'use strict';
 
-const BudgetPolicy = require('../../../src/policy/permissions/budget.policy');
+const BudgetPolicy = require('@policy/permissions/budget.policy');
 
 describe('T090: Budget Policy Service', () => {
   test('evaluates budget limits correctly', () => {

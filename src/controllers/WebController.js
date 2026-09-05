@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BaseController = require('./BaseController');
+const BaseController = require('@controllers/BaseController');
 
 /**
  * WebController
@@ -40,7 +40,7 @@ class WebController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async search(req, res) {
-    const { query, num } = req.body || {};
+    const { query, num } = req.body;
     const result = await this.searchService.search({ query, num });
     return this.ok(res, result);
   }
@@ -52,7 +52,7 @@ class WebController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async crawl(req, res) {
-    const { url, options } = req.body || {};
+    const { url, options } = req.body;
     const result = await this.crawlService.crawl({ url, ...options });
     return this.ok(res, result);
   }
@@ -64,7 +64,7 @@ class WebController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async automate(req, res) {
-    const { task, options } = req.body || {};
+    const { task, options } = req.body;
     const result = await this.automateService.automate({ task, ...options });
     return this.ok(res, result);
   }
@@ -77,7 +77,11 @@ class WebController extends BaseController {
    */
   async fetch(req, res) {
     const result = await this.fetchService.fetchUrl(req.body);
-    return res.status(result.status || 200).json(result);
+    let statusCode = 200;
+    if (result && typeof result.status === 'number') {
+      statusCode = result.status;
+    }
+    return res.status(statusCode).json(result);
   }
 }
 

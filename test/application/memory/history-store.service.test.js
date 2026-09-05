@@ -1,6 +1,6 @@
 'use strict';
 
-const HistoryStoreService = require('../../../src/services/ai/memory/history-store.service');
+const HistoryStoreService = require('@services/ai/memory/history-store.service');
 
 describe('T165: Immutable Agent History Store/Query Service', () => {
   test('records and queries immutable history entries by agent and time', () => {

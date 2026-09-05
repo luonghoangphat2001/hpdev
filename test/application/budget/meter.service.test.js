@@ -1,6 +1,6 @@
 'use strict';
 
-const TokenMeterPolicy = require('../../../src/policy/budget/token-meter.policy');
+const TokenMeterPolicy = require('@policy/budget/token-meter.policy');
 
 describe('T089: Token and Tool Cost Metering Service', () => {
   test('records and aggregates cost by agent', () => {

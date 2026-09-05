@@ -1,9 +1,9 @@
 'use strict';
 
-const CapabilityRegistry = require('../../src/services/ai/capabilities/capability-registry');
+const CapabilityRegistry = require('@services/ai/capabilities/capability-registry');
 const {
   buildCapabilityRegistry,
-} = require('../../src/services/ai/capabilities/capability-builder');
+} = require('@services/ai/capabilities/capability-builder');
 
 describe('CapabilityRegistry', () => {
   test('queries versioned agents, tools, and model profiles', () => {

@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BaseController = require('./BaseController');
+const BaseController = require('@controllers/BaseController');
 
 /**
  * OperatorController
@@ -31,6 +31,29 @@ class OperatorController extends BaseController {
     }
   }
 
+  #resolveIntakeService() {
+    if (this.intakeService) {
+      return this.intakeService;
+    }
+    if (this.service) {
+      return this.service;
+    }
+    throw new Error('[OperatorController] Intake service not configured');
+  }
+
+  #resolveIntakeFn(service) {
+    if (typeof service.intake === 'function') {
+      return service.intake;
+    }
+    if (typeof service.accept === 'function') {
+      return service.accept;
+    }
+    if (typeof service.ingest === 'function') {
+      return service.ingest;
+    }
+    throw new Error('[OperatorController] No valid intake method found on service');
+  }
+
   /**
    * intake - Asynchronously executes intake.
    * @param {import('express').Request} req - Express request object.
@@ -38,11 +61,15 @@ class OperatorController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async intake(req, res) {
-    const service = this.intakeService || this.service;
-    const fn = service.intake || service.accept || service.ingest;
+    const service = this.#resolveIntakeService();
+    const fn = this.#resolveIntakeFn(service);
     const result = await fn.call(service, req.body);
-    return res.status(202).json({
-      event_id: result.eventId || result.event_id,
+    let eventId = result.eventId;
+    if (eventId === undefined) {
+      eventId = result.event_id;
+    }
+    return this.accepted(res, {
+      event_id: eventId,
       ...result,
     });
   }
@@ -85,9 +112,9 @@ class OperatorController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async setLevel(req, res) {
-    const { level } = req.body || {};
-    const result = await this.controlService.setLevel(level, req.body?.actorId);
-    return this.ok(res, { ok: true, ...result });
+    const { level, actorId } = req.body;
+    const result = await this.controlService.setLevel(level, actorId);
+    return this.ok(res, result);
   }
 
   /**
@@ -97,8 +124,9 @@ class OperatorController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async emergencyStop(req, res) {
-    const result = await this.controlService.emergencyStop(req.body?.reason, req.body?.actorId);
-    return this.ok(res, { ok: true, ...result });
+    const { reason, actorId } = req.body;
+    const result = await this.controlService.emergencyStop(reason, actorId);
+    return this.ok(res, result);
   }
 
   /**
@@ -108,8 +136,9 @@ class OperatorController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async resume(req, res) {
-    const result = await this.controlService.resume(req.body?.actorId);
-    return this.ok(res, { ok: true, ...result });
+    const { actorId } = req.body;
+    const result = await this.controlService.resume(actorId);
+    return this.ok(res, result);
   }
 
   /**
@@ -119,8 +148,8 @@ class OperatorController extends BaseController {
    * @returns {*} Promise resolving result.
    */
   async replay(req, res) {
-    const result = await this.replayService.replay(req.body || {});
-    return this.accepted(res, { ok: true, ...result });
+    const result = await this.replayService.replay(req.body);
+    return this.accepted(res, result);
   }
 }
 

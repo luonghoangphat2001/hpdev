@@ -1,6 +1,6 @@
 'use strict';
 
-const CfoKpiService = require('../../../src/services/reporting/kpi/cfo-kpi.service');
+const CfoKpiService = require('@services/reporting/kpi/cfo-kpi.service');
 
 describe('T073: CFO KPI Engine', () => {
   test('evaluates CFO KPI metrics', async () => {

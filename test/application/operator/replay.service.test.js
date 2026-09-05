@@ -1,6 +1,6 @@
 'use strict';
 
-const ReplayService = require('../../../src/services/operator/event/replay.service');
+const ReplayService = require('@services/operator/event/replay.service');
 
 const event = {
   event_id: 'evt_1',

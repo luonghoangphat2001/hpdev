@@ -1,6 +1,6 @@
 'use strict';
 
-const CriticSamplerService = require('../../../src/services/ai/critics/critic-sampler.service');
+const CriticSamplerService = require('@services/ai/critics/critic-sampler.service');
 
 describe('T177: Critic Sampling for LOW/MEDIUM RISK Service', () => {
   test('evaluates sampling rate and auto-increases rate when error rate spikes', () => {

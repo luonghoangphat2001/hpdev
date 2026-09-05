@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const { getKpiDefinition } = require('../../../schemas/reporting/kpi.catalog');
+const { getKpiDefinition } = require('@schemas/reporting/kpi.catalog');
 
 /**
  * KpiCollectorService

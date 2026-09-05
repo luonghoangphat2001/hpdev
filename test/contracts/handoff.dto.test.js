@@ -1,6 +1,6 @@
 'use strict';
 
-const { createCrossAgentHandoffDto } = require('../../src/schemas/ai/handoff.dto');
+const { createCrossAgentHandoffDto } = require('@schemas/ai/handoff.dto');
 
 describe('T062: Cross-agent handoff DTO', () => {
   test('creates valid frozen handoff DTO', () => {

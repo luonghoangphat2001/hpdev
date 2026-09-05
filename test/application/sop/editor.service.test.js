@@ -1,6 +1,6 @@
 'use strict';
 
-const SopEditorService = require('../../../src/services/workflow/sop/sop-editor.service');
+const SopEditorService = require('@services/workflow/sop/sop-editor.service');
 
 describe('T135: SOP, Policy, and Autonomy Viewer and Editor Service', () => {
   test('retrieves policy details and submits proposed change request', () => {

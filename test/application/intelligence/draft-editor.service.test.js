@@ -1,6 +1,6 @@
 'use strict';
 
-const DraftEditorService = require('../../../src/services/ai/critics/draft-editor.service');
+const DraftEditorService = require('@services/ai/critics/draft-editor.service');
 
 describe('T154: Draft Editor for Prompt/SOP/Policy/Config Service', () => {
   test('saves validated draft with change reason and autosave timestamp', () => {

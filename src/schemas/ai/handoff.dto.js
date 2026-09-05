@@ -3,7 +3,7 @@
  */
 "use strict";
 
-const BaseSchema = require("../BaseSchema");
+const BaseSchema = require("@schemas/BaseSchema");
 
 const crossAgentHandoffSchema = BaseSchema.create({
   path: "cross-agent-handoff.json",

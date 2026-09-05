@@ -1,6 +1,6 @@
 'use strict';
 
-const LogViewerService = require('../../../src/services/reporting/dashboard/log-viewer.service');
+const LogViewerService = require('@services/reporting/dashboard/log-viewer.service');
 
 describe('T164: Per-Agent Realtime Log Viewer Service', () => {
   test('returns log viewer state with filter, pause/tail, export, and deep-link features', () => {

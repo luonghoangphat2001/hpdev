@@ -1,6 +1,6 @@
 'use strict';
 
-const { createCskhToRndOpsFeedbackHandoff } = require('../../src/schemas/ai/handoffs/cskh-to-rnd');
+const { createCskhToRndOpsFeedbackHandoff } = require('@schemas/ai/handoffs/cskh-to-rnd');
 
 describe('T066: CSKH -> R&D/Ops Feedback Handoff', () => {
   test('creates valid CSKH to R&D feedback handoff', () => {

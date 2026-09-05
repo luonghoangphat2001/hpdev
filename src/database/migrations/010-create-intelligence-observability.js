@@ -6,7 +6,7 @@
 module.exports = Object.freeze({
   id: '010-create-intelligence-observability',
   up: `
-    CREATE TABLE IF NOT EXISTS intelligence_traces (
+    CREATE TABLE intelligence_traces (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       trace_id VARCHAR(128) NOT NULL,
       span_id VARCHAR(128) NOT NULL,

@@ -1,6 +1,6 @@
 'use strict';
 
-const ReadinessGateService = require('../../../src/services/ceo/exception/readiness-gate.service');
+const ReadinessGateService = require('@services/ceo/exception/readiness-gate.service');
 
 describe('T140: CEO Dashboard/OpenClaw Monitor Baseline Readiness Gate Service', () => {
   test('verifies all dashboard baseline readiness criteria', () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const WorkflowFilterService = require('../../../src/services/workflow/state/workflow-filter.service');
+const WorkflowFilterService = require('@services/workflow/state/workflow-filter.service');
 
 describe('T127: Workflow List/Search/Filter Page Service', () => {
   test('filters workflows by agent, status, and risk level', () => {

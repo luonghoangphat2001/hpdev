@@ -1,6 +1,6 @@
 'use strict';
 
-const AgentControlService = require('../../../src/services/workflow/state/agent-control.service');
+const AgentControlService = require('@services/workflow/state/agent-control.service');
 
 describe('T144: Single-Agent Pause/Suspend/Resume Control Service', () => {
   test('pauses and resumes single agent without affecting others', () => {

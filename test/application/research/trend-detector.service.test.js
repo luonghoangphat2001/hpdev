@@ -1,6 +1,6 @@
 'use strict';
 
-const TrendDetectorService = require('../../../src/services/ai/research/trend-detector.service');
+const TrendDetectorService = require('@services/ai/research/trend-detector.service');
 
 describe('T076: Trend Anomaly Detector Service', () => {
   test('detects anomaly when variance exceeds threshold', () => {

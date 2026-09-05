@@ -1,6 +1,6 @@
 'use strict';
 
-const SlaPolicy = require('../../../src/policy/permissions/sla.policy');
+const SlaPolicy = require('@policy/permissions/sla.policy');
 
 describe('T197: WorkflowSlaPolicy Registry Service', () => {
   test('manages versioned SLA, timeout, token, cost, and fallback policies by workflow type', () => {

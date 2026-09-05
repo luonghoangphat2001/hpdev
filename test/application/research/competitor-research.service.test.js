@@ -1,6 +1,6 @@
 'use strict';
 
-const CompetitorResearchService = require('../../../src/services/ai/research/competitor-research.service');
+const CompetitorResearchService = require('@services/ai/research/competitor-research.service');
 
 describe('T103: Competitor/Market Research Workflow Service', () => {
   test('executes compliant competitor research within cost budget', () => {

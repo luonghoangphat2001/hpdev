@@ -1,6 +1,6 @@
 'use strict';
 
-const { createModelDisclosureMetadata } = require('../../src/schemas/ai/model.metadata');
+const { createModelDisclosureMetadata } = require('@schemas/ai/model.metadata');
 
 describe('T087: Model Disclosure Metadata', () => {
   test('creates valid frozen disclosure metadata', () => {

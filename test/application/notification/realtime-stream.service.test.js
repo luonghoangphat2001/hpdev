@@ -1,6 +1,6 @@
 'use strict';
 
-const RealtimeStreamService = require('../../../src/services/notification/realtime/realtime-stream.service');
+const RealtimeStreamService = require('@services/notification/realtime/realtime-stream.service');
 
 describe('T163: Authorized Realtime Stream API Service', () => {
   test('creates streaming session for authorized CEO role with cursor and redaction', () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const ValidationPipelineService = require('../../../src/services/workflow/state/validation-pipeline.service');
+const ValidationPipelineService = require('@services/workflow/state/validation-pipeline.service');
 
 describe('T156: Validation/Lint/Contract/Security Pipeline Service', () => {
   test('runs complete validation pipeline on draft code and passes', async () => {

@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const BaseController = require('./BaseController');
+const BaseController = require('@controllers/BaseController');
 
 /**
  * ApprovalController
@@ -34,7 +34,7 @@ class ApprovalController extends BaseController {
       actorId: req.body?.actorId,
       reason: req.body?.reason,
     });
-    return this.ok(res, { ok: true, approval });
+    return this.ok(res, { approval });
   }
 }
 

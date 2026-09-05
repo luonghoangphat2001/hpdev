@@ -1,6 +1,6 @@
 'use strict';
 
-const VersionPromotionService = require('../../../src/services/release/rollback/version-promotion.service');
+const VersionPromotionService = require('@services/release/rollback/version-promotion.service');
 
 describe('T159: Version Promotion and Instant Rollback Service', () => {
   test('promotes version atomically and rolls back to known-good version', () => {

@@ -1,11 +1,11 @@
 'use strict';
 
-const SignaturePolicy = require('../../src/policy/permissions/signature.policy');
+const SignaturePolicy = require('@policy/permissions/signature.policy');
 const {
   WebhookVerificationMiddleware,
   parseSigningKeys,
   unavailableMiddleware,
-} = require('../../src/middleware/webhook-verification.middleware');
+} = require('@middleware/webhook-verification.middleware');
 
 describe('WebhookVerificationMiddleware', () => {
   const nowSeconds = 1784966400;

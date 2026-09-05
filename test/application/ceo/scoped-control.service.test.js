@@ -1,6 +1,6 @@
 'use strict';
 
-const ScopedControlService = require('../../../src/services/ceo/command/scoped-control.service');
+const ScopedControlService = require('@services/ceo/command/scoped-control.service');
 
 describe('T148: Scoped CEO/Agent Control APIs Service', () => {
   test('handles control request for authorized CEO role', () => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const ExperimentRunnerService = require('../../../src/services/release/deploy/experiment-runner.service');
+const ExperimentRunnerService = require('@services/release/deploy/experiment-runner.service');
 
 describe('T102: Experiment/A-B Proposal Framework Service', () => {
   test('creates structured experiment proposal with guardrails', () => {

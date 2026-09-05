@@ -1,10 +1,10 @@
 'use strict';
 
-const convention = require('../../src/schemas/events/correlation');
+const convention = require('@schemas/events/correlation');
 const {
   CorrelationConvention,
   REQUIRED_LOG_FIELDS,
-} = require('../../src/schemas/events/correlation');
+} = require('@schemas/events/correlation');
 
 describe('CorrelationConvention', () => {
   const uuid = '123e4567-e89b-42d3-a456-426614174000';

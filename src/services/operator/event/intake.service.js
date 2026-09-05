@@ -4,8 +4,8 @@
 'use strict';
 
 const crypto = require('crypto');
-const correlationConvention = require('../../../schemas/events/correlation');
-const NormalizerService = require('./normalizer.service');
+const correlationConvention = require('@schemas/events/correlation');
+const NormalizerService = require('@services/operator/event/normalizer.service');
 
 /**
  * IntakeService

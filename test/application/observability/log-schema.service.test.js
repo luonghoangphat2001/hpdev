@@ -1,6 +1,6 @@
 'use strict';
 
-const LogSchemaService = require('../../../src/services/reporting/dashboard/log-schema.service');
+const LogSchemaService = require('@services/reporting/dashboard/log-schema.service');
 
 describe('T161: Unified Agent Event/Log Schema Service', () => {
   test('creates structured log entry adhering to schema version 1.0.0', () => {

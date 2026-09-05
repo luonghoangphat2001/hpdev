@@ -6,7 +6,7 @@
 const migration = Object.freeze({
   id: '001-create-orchestrator-events',
   up: `
-    CREATE TABLE IF NOT EXISTS orchestrator_events (
+    CREATE TABLE orchestrator_events (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       event_id VARCHAR(128) NOT NULL,
       schema_version VARCHAR(32) NOT NULL,

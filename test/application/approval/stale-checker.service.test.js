@@ -1,6 +1,6 @@
 'use strict';
 
-const StaleCheckerService = require('../../../src/services/approval/decisions/stale-checker.service');
+const StaleCheckerService = require('@services/approval/decisions/stale-checker.service');
 
 describe('T192: Bulk Eligibility, Stale, and Atomic Consume Checks Service', () => {
   test('rechecks payload hash and resource version per item, ensuring safe partial results', () => {

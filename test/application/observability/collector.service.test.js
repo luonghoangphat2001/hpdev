@@ -1,6 +1,6 @@
 'use strict';
 
-const LogCollectorService = require('../../../src/services/reporting/dashboard/log-collector.service');
+const LogCollectorService = require('@services/reporting/dashboard/log-collector.service');
 
 describe('T162: Realtime Log Collector and Durable Buffer Service', () => {
   test('ingests non-blocking log entries and flushes buffer cleanly', () => {

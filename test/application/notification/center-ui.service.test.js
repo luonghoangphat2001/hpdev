@@ -1,6 +1,6 @@
 'use strict';
 
-const CenterUiService = require('../../../src/services/notification/alert/center-ui.service');
+const CenterUiService = require('@services/notification/alert/center-ui.service');
 
 describe('T136: Alert and Incident Center UI Service', () => {
   test('lists incidents and acknowledges incident', () => {

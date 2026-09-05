@@ -1,6 +1,6 @@
 'use strict';
 
-const StateMachineService = require('../../../src/services/ai/lifecycle/state-machine.service');
+const StateMachineService = require('@services/ai/lifecycle/state-machine.service');
 
 describe('T143: Agent Lifecycle State Machine Service', () => {
   test('transitions agent through valid lifecycle states', () => {

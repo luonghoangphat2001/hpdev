@@ -6,7 +6,7 @@
 module.exports = Object.freeze({
   id: '016-create-sop-playbooks',
   up: `
-    CREATE TABLE IF NOT EXISTS sop_playbooks (
+    CREATE TABLE sop_playbooks (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       sop_id VARCHAR(128) NOT NULL,
       name VARCHAR(500) NOT NULL,
@@ -20,7 +20,7 @@ module.exports = Object.freeze({
       KEY idx_sop_playbooks_owner (owner_agent_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-    CREATE TABLE IF NOT EXISTS sop_versions (
+    CREATE TABLE sop_versions (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
       sop_id VARCHAR(128) NOT NULL,
       version INT UNSIGNED NOT NULL,

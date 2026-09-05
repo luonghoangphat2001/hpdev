@@ -1,6 +1,6 @@
 'use strict';
 
-const PatchEditorService = require('../../../src/services/ai/critics/patch-editor.service');
+const PatchEditorService = require('@services/ai/critics/patch-editor.service');
 
 describe('T155: Executable-Code Patch Editor Service', () => {
   test('creates isolated patch branch without writing directly to production files', () => {

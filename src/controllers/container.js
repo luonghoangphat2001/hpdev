@@ -3,41 +3,41 @@
  */
 'use strict';
 
-const env = require('../config/env');
-const mysqlPoolFactory = require('../database/mysql-pool');
-const metricsRegistry = require('../utils/metrics-registry');
-const { buildCapabilityRegistry } = require('../services/ai/capabilities/capability-builder');
+const env = require('@config');
+const mysqlPoolFactory = require('@database/mysql-pool');
+const metricsRegistry = require('@utils/metrics-registry');
+const { buildCapabilityRegistry } = require('@services/ai/capabilities/capability-builder');
 
 // Repositories (5 Core Data Access)
-const ApprovalRepository = require('../repositories/ApprovalRepository');
-const WorkflowRepository = require('../repositories/WorkflowRepository');
-const OperatorRepository = require('../repositories/OperatorRepository');
-const CeoRepository = require('../repositories/CeoRepository');
-const AgentRepository = require('../repositories/AgentRepository');
-const DashboardReadRepository = require('../repositories/DashboardReadRepository');
+const ApprovalRepository = require('@repositories/ApprovalRepository');
+const WorkflowRepository = require('@repositories/WorkflowRepository');
+const OperatorRepository = require('@repositories/OperatorRepository');
+const CeoRepository = require('@repositories/CeoRepository');
+const AgentRepository = require('@repositories/AgentRepository');
+const DashboardReadRepository = require('@repositories/DashboardReadRepository');
 
 // Services
-const SearchService = require('../services/web/search/search.service');
-const CrawlService = require('../services/web/crawl/crawl.service');
-const AutomateService = require('../services/web/automate/automate.service');
-const FetchService = require('../services/web/fetch/fetch.service');
-const ApprovalDecisionService = require('../services/approval/decisions/approval-decision.service');
-const ApprovalAggregateService = require('../services/approval/decisions/approval-aggregate.service');
-const IntakeService = require('../services/operator/event/intake.service');
-const OperatorControlService = require('../services/operator/control/operator-control.service');
-const ReplayService = require('../services/operator/event/replay.service');
-const CommandDispatcherService = require('../services/ceo/command/command-dispatcher.service');
-const ExceptionInboxService = require('../services/ceo/exception/exception-inbox.service');
-const ReadModelService = require('../services/reporting/dashboard/read-model.service');
-const DecisionJournalPolicy = require('../policy/compliance/decision-journal.policy');
-const agentRegistry = require('../services/ai/agents/agent-registry');
+const SearchService = require('@services/web/search/search.service');
+const CrawlService = require('@services/web/crawl/crawl.service');
+const AutomateService = require('@services/web/automate/automate.service');
+const FetchService = require('@services/web/fetch/fetch.service');
+const ApprovalDecisionService = require('@services/approval/decisions/approval-decision.service');
+const ApprovalAggregateService = require('@services/approval/decisions/approval-aggregate.service');
+const IntakeService = require('@services/operator/event/intake.service');
+const OperatorControlService = require('@services/operator/control/operator-control.service');
+const ReplayService = require('@services/operator/event/replay.service');
+const CommandDispatcherService = require('@services/ceo/command/command-dispatcher.service');
+const ExceptionInboxService = require('@services/ceo/exception/exception-inbox.service');
+const ReadModelService = require('@services/reporting/dashboard/read-model.service');
+const DecisionJournalPolicy = require('@policy/compliance/decision-journal.policy');
+const agentRegistry = require('@services/ai/agents/agent-registry');
 
 // Controllers (5 Core Controllers)
-const WebController = require('./WebController');
-const ApprovalController = require('./ApprovalController');
-const CeoController = require('./CeoController');
-const OperatorController = require('./OperatorController');
-const DashboardController = require('./DashboardController');
+const WebController = require('@controllers/WebController');
+const ApprovalController = require('@controllers/ApprovalController');
+const CeoController = require('@controllers/CeoController');
+const OperatorController = require('@controllers/OperatorController');
+const DashboardController = require('@controllers/DashboardController');
 
 /**
  * Creates and wires all OOP Controllers with their dependencies (SOLID DI).
@@ -104,8 +104,8 @@ function createControllers({
     dashboardRepository: dashboardReadRepository,
     metricsRegistry,
     agentRegistry,
-    productionEnabled: config.orchestratorProductionEnabled || false,
-    companyDashboardUrl: config.companyDashboardUrl || null,
+    productionEnabled: config.orchestratorProductionEnabled,
+    companyDashboardUrl: config.companyDashboardUrl,
     ssotClient: null,
   });
 
