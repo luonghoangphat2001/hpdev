@@ -4,7 +4,7 @@
  * Dashboard entry point.
  * Centralized bootstrap with module aliases and clean lifecycle management.
  */
-require('module-alias/register');
+require('module-alias')(__dirname);
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 require('@utils/Logger').init();
 

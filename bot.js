@@ -5,7 +5,7 @@
  * Managed by pm2. The web dashboard runs separately via app.js (Phusion Passenger).
  */
 
-require('module-alias/register');
+require('module-alias')(__dirname);
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 require('@utils/Logger').init();
 
