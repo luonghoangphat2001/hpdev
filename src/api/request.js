@@ -17,9 +17,15 @@ export const api = axios.create({
   },
 });
 
+const PUBLIC_PATHS = ['/login', '/logout'];
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth_token');
+    const isPublic = PUBLIC_PATHS.some((p) => config.url?.startsWith(p));
+    if (!token && !isPublic) {
+      return Promise.reject(new Error('Unauthorized'));
+    }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
