@@ -6,6 +6,10 @@ on:
       - learning
   workflow_dispatch:
 
+concurrency:
+  group: deploy-hpdev-production
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     name: Build, Push DockerHub & Deploy Dan Learning
@@ -44,6 +48,7 @@ jobs:
 
       - name: Install dependencies & Build Vue 3 App
         run: |
+          [ -f .env ] || cp .env.example .env
           npm ci --no-audit --no-fund
           npm run build
           printf '{"commit":"%s","builtAt":"%s"}\n' "${GITHUB_SHA}" "$(date -u +%FT%TZ)" > dist/version.json

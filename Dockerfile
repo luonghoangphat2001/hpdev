@@ -5,6 +5,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 
 COPY . .
+RUN [ -f .env ] || cp .env.example .env
 RUN npm run build
 
 FROM nginx:alpine AS runtime
