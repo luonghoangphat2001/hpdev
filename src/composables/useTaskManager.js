@@ -1,5 +1,5 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue"
-import { normalizeLearningItems } from "./useLearningHelper"
+import { normalizeLearningItems } from "@/composables/useLearningHelper"
 
 /**
  * Reusable Task/Question Controller Composable.

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { getLearnings, getLearningItems, toggleBookmark as apiToggleBookmark } from '../api/learning';
+import { getLearnings, getLearningItems, toggleBookmark as apiToggleBookmark } from '@/api/learning';
 
 export const useLearningStore = defineStore('learning', {
   state: () => ({

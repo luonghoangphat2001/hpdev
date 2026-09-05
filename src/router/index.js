@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from '@/stores/auth';
 
 const quizModes = new Set(['multiple_choice', 'spelling', 'leaderboard']);
 const techStacks = new Set(['php', 'nextjs', 'python', 'reactjs', 'javascript', 'nodejs']);

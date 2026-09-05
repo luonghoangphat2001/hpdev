@@ -1,4 +1,4 @@
-import { api } from './request';
+import { api, API_BASE } from '@/api/request';
 
 const query = (params = {}) => {
   const values = new URLSearchParams();
@@ -51,8 +51,7 @@ export const importLearningExcel = (learningId, file) => {
 };
 
 export const learningExportUrl = (slug = '') => {
-  const base = api.defaults.baseURL || '/api';
-  return `${base}/learning/export/${encodeURIComponent(slug)}`;
+  return `${API_BASE}/learning/export/${encodeURIComponent(slug)}`;
 };
 
 export const evaluateWritingAI = evaluateLearningAI;

@@ -21,10 +21,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue"
-import { useAuthStore } from "./stores/auth"
-import { useTheme } from "./composables/useTheme"
-import AppSidebar from "./components/layout/AppSidebar.vue"
-import MobileHeader from "./components/layout/MobileHeader.vue"
+import { useAuthStore } from "@/stores/auth"
+import { useTheme } from "@/composables/useTheme"
+import AppSidebar from "@/components/layout/AppSidebar.vue"
+import MobileHeader from "@/components/layout/MobileHeader.vue"
 
 const authStore = useAuthStore()
 const { initTheme } = useTheme()
