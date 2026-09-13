@@ -5,7 +5,7 @@ const { weightedShuffle } = require('@services/learning/AdaptiveSelector');
 const DIFFICULTY_ORDER = ['hard', 'medium', 'easy'];
 
 const LEVEL_BUCKETS = {
-  easy: new Set(['begin', 'beginner', 'junior', 'a1', 'a2', 'basic', 'easy']),
+  easy: new Set(['begin', 'beginner', 'junior', 'a1', 'a2', 'basic', 'easy', 'student']),
   medium: new Set(['intermediate', 'mid', 'middle', 'b1', 'b2', 'medium']),
   hard: new Set(['advanced', 'senior', 'c1', 'c2', 'expert', 'hard']),
 };
