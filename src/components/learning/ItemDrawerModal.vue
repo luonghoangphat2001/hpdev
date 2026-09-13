@@ -54,9 +54,17 @@
                             <span class="font-mono font-bold text-[11px]" :class="activeIndex === idx ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400'">
                                 #{{ idx + 1 }}
                             </span>
-                            <span v-if="item[badgeKey] || item.level || item.category" :class="['px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border', getLevelBadgeClass(item[badgeKey] || item.level)]">
-                                {{ item[badgeKey] || item.level || item.category }}
-                            </span>
+                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                                <span v-if="item.status === 'studying'" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border bg-rose-100 dark:bg-rose-950/60 border-rose-300 dark:border-rose-700 text-rose-700 dark:text-rose-300">
+                                    Cần học lại
+                                </span>
+                                <span v-else-if="item.status === 'mastered'" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border bg-emerald-100 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300">
+                                    Đã thuộc
+                                </span>
+                                <span v-if="item[badgeKey] || item.level || item.category" :class="['px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase border', getLevelBadgeClass(item[badgeKey] || item.level)]">
+                                    {{ item[badgeKey] || item.level || item.category }}
+                                </span>
+                            </div>
                         </div>
                         <p class="font-semibold text-xs leading-snug line-clamp-2" :class="activeIndex === idx ? 'text-indigo-900 dark:text-white font-bold' : 'text-gray-900 dark:text-gray-100'">
                             {{ item.title || item.question || item.word || item.prompt }}

@@ -5,6 +5,7 @@ import { getLearnings, getLearningItems, toggleBookmark as apiToggleBookmark } f
 // the same items request concurrently.
 let pendingQuestionsKey = '';
 let pendingQuestionsRequest = null;
+let lastLoadedQuestionsKey = '';
 
 export const useLearningStore = defineStore('learning', {
   state: () => ({
@@ -46,6 +47,10 @@ export const useLearningStore = defineStore('learning', {
       };
       const requestKey = JSON.stringify(params);
 
+      if (lastLoadedQuestionsKey === requestKey && this.techQuestions.length) {
+        return Promise.resolve();
+      }
+
       if (pendingQuestionsRequest && pendingQuestionsKey === requestKey) {
         return pendingQuestionsRequest;
       }
@@ -57,6 +62,7 @@ export const useLearningStore = defineStore('learning', {
           const res = await getLearningItems(params);
           if (res && res.items) {
             this.techQuestions = res.items;
+            lastLoadedQuestionsKey = requestKey;
             const activeId = this.activeQuestion?.id;
             this.activeQuestion = this.techQuestions.find((question) => question.id === activeId)
               || this.techQuestions[0]

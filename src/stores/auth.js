@@ -53,6 +53,7 @@ export const useAuthStore = defineStore('auth', {
         await apiLogout();
       } catch (_) {}
       localStorage.removeItem('auth_token');
+      sessionStorage.clear();
       this.user = null;
       window.location.href = '/login';
     },
