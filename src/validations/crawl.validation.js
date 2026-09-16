@@ -26,4 +26,28 @@ class CrawlValidation {
   }
 }
 
-module.exports = CrawlValidation;
+const validator = new CrawlValidation();
+
+function validateCrawl(req, res, next) {
+  try {
+    const payload = req && req.body ? req.body : req;
+    const validated = validator.validateCrawl(payload);
+    if (req && req.body) {
+      req.body = { ...req.body, ...validated };
+    }
+    if (typeof next === 'function') {
+      return next();
+    }
+    return validated;
+  } catch (err) {
+    if (typeof next === 'function') {
+      return next(err);
+    }
+    throw err;
+  }
+}
+
+validateCrawl.CrawlValidation = CrawlValidation;
+validateCrawl.validateCrawl = validator.validateCrawl.bind(validator);
+
+module.exports = validateCrawl;

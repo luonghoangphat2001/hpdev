@@ -29,4 +29,28 @@ class FetchValidation {
   }
 }
 
-module.exports = FetchValidation;
+const validator = new FetchValidation();
+
+function validateFetch(req, res, next) {
+  try {
+    const payload = req && req.body ? req.body : req;
+    const validated = validator.validateFetch(payload);
+    if (req && req.body) {
+      req.body = { ...req.body, ...validated };
+    }
+    if (typeof next === 'function') {
+      return next();
+    }
+    return validated;
+  } catch (err) {
+    if (typeof next === 'function') {
+      return next(err);
+    }
+    throw err;
+  }
+}
+
+validateFetch.FetchValidation = FetchValidation;
+validateFetch.validateFetch = validator.validateFetch.bind(validator);
+
+module.exports = validateFetch;
