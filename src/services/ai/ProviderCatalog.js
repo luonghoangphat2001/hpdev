@@ -56,7 +56,7 @@ function getFallbackVersion(providerKey, configRepo, env = process.env) {
     case 'ollama':
       return env.OLLAMA_MODEL || 'llama3.1';
     case 'nvidia':
-      return env.NVIDIA_MODEL || 'meta/llama-3.1-8b-instruct';
+      return env.NVIDIA_MODEL || 'meta/llama-3.2-11b-vision-instruct';
     case 'cloudflare':
       return env.CLOUDFLARE_MODEL || '@cf/meta/llama-3.1-8b-instruct';
     default:
