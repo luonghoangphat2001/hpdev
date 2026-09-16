@@ -102,7 +102,12 @@
                                 <i :class="provider.iconClass" class="text-xs"></i>
                                 <span>{{ provider.label }}</span>
                             </span>
-                            <input v-model.trim="form[provider.field]" class="field" :placeholder="provider.placeholder" />
+                            <select v-model="form[provider.field]" class="field">
+                                <option value="" disabled>-- Chọn model {{ provider.label }} --</option>
+                                <option v-for="model in (modelOptions[provider.key] || [])" :key="model.id" :value="model.id">
+                                    {{ model.label }}
+                                </option>
+                            </select>
                         </label>
                     </div>
                 </section>
@@ -252,7 +257,86 @@ const getProviderIcon = (key) => {
     if (s.includes("deepseek")) return "fa-solid fa-compass"
     return "fa-solid fa-microchip"
 }
-const modelOptions = reactive({ gemini: [], claude: [], chatgpt: [] })
+const defaultModelOptions = {
+    gemini: [
+        { id: "models/gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+        { id: "models/gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+        { id: "models/gemini-1.5-pro", label: "Gemini 1.5 Pro" },
+        { id: "models/gemini-1.5-flash", label: "Gemini 1.5 Flash" },
+    ],
+    claude: [
+        { id: "claude-sonnet-4-6", label: "Claude 3.7 Sonnet" },
+        { id: "claude-3-5-sonnet-latest", label: "Claude 3.5 Sonnet" },
+        { id: "claude-3-5-haiku-latest", label: "Claude 3.5 Haiku" },
+        { id: "claude-3-opus-latest", label: "Claude 3 Opus" },
+    ],
+    chatgpt: [
+        { id: "gpt-4o", label: "GPT-4o" },
+        { id: "gpt-4o-mini", label: "GPT-4o Mini" },
+        { id: "o1", label: "o1" },
+        { id: "o3-mini", label: "o3-mini" },
+    ],
+    deepseek: [
+        { id: "deepseek-chat", label: "deepseek-chat (DeepSeek V3)" },
+        { id: "deepseek-reasoner", label: "deepseek-reasoner (DeepSeek R1)" },
+        { id: "deepseek-v4-flash", label: "deepseek-v4-flash" },
+        { id: "deepseek-coder", label: "deepseek-coder" },
+        { id: "deepseek-ai/DeepSeek-V3", label: "deepseek-ai/DeepSeek-V3" },
+        { id: "deepseek-ai/DeepSeek-R1", label: "deepseek-ai/DeepSeek-R1" },
+    ],
+    kimi: [
+        { id: "kimi-k2.6", label: "kimi-k2.6" },
+        { id: "kimi-latest", label: "kimi-latest" },
+        { id: "moonshot-v1-8k", label: "moonshot-v1-8k" },
+        { id: "moonshot-v1-32k", label: "moonshot-v1-32k" },
+        { id: "moonshot-v1-128k", label: "moonshot-v1-128k" },
+        { id: "moonshot-v1-auto", label: "moonshot-v1-auto" },
+    ],
+    vllm: [
+        { id: "llama3.1", label: "llama3.1" },
+        { id: "meta-llama/Meta-Llama-3.1-8B-Instruct", label: "Meta-Llama-3.1-8B-Instruct" },
+        { id: "meta-llama/Meta-Llama-3.1-70B-Instruct", label: "Meta-Llama-3.1-70B-Instruct" },
+        { id: "mistralai/Mistral-7B-Instruct-v0.3", label: "Mistral-7B-Instruct-v0.3" },
+        { id: "Qwen/Qwen2.5-7B-Instruct", label: "Qwen2.5-7B-Instruct" },
+        { id: "Qwen/Qwen2.5-14B-Instruct", label: "Qwen2.5-14B-Instruct" },
+        { id: "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B", label: "DeepSeek-R1-Distill-Qwen-14B" },
+    ],
+    ollama: [
+        { id: "llama3.1", label: "llama3.1" },
+        { id: "llama3.2", label: "llama3.2" },
+        { id: "llama3.3", label: "llama3.3" },
+        { id: "deepseek-r1", label: "deepseek-r1" },
+        { id: "deepseek-r1:14b", label: "deepseek-r1:14b" },
+        { id: "qwen2.5", label: "qwen2.5" },
+        { id: "mistral", label: "mistral" },
+        { id: "phi4", label: "phi4" },
+        { id: "gemma2", label: "gemma2" },
+    ],
+    nvidia: [
+        { id: "meta/llama-3.2-11b-vision-instruct", label: "meta/llama-3.2-11b-vision-instruct" },
+        { id: "meta/llama-3.2-90b-vision-instruct", label: "meta/llama-3.2-90b-vision-instruct" },
+        { id: "meta/llama-3.2-3b-instruct", label: "meta/llama-3.2-3b-instruct" },
+        { id: "meta/llama-3.2-1b-instruct", label: "meta/llama-3.2-1b-instruct" },
+        { id: "nvidia/llama-3.1-nemotron-70b-instruct", label: "nvidia/llama-3.1-nemotron-70b-instruct" },
+        { id: "nvidia/llama-3.1-nemotron-51b-instruct", label: "nvidia/llama-3.1-nemotron-51b-instruct" },
+        { id: "mistralai/mistral-large-2-instruct", label: "mistralai/mistral-large-2-instruct" },
+        { id: "deepseek-ai/deepseek-r1", label: "deepseek-ai/deepseek-r1" },
+        { id: "deepseek-ai/deepseek-coder-6.7b-instruct", label: "deepseek-ai/deepseek-coder-6.7b-instruct" },
+    ],
+    cloudflare: [
+        { id: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", label: "@cf/meta/llama-3.3-70b-instruct-fp8-fast" },
+        { id: "@cf/meta/llama-3.1-8b-instruct", label: "@cf/meta/llama-3.1-8b-instruct" },
+        { id: "@cf/meta/llama-3.1-70b-instruct", label: "@cf/meta/llama-3.1-70b-instruct" },
+        { id: "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b", label: "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b" },
+        { id: "@cf/mistral/mistral-7b-instruct-v0.2", label: "@cf/mistral/mistral-7b-instruct-v0.2" },
+        { id: "@cf/qwen/qwen1.5-7b-chat-awq", label: "@cf/qwen/qwen1.5-7b-chat-awq" },
+    ],
+}
+
+const allProviders = ["gemini", "claude", "chatgpt", "deepseek", "kimi", "vllm", "ollama", "nvidia", "cloudflare"]
+const modelOptions = reactive(
+    Object.fromEntries(allProviders.map((p) => [p, [...(defaultModelOptions[p] || [])]]))
+)
 const platforms = [
     { key: "discord", field: "discord_active_model", iconClass: "fa-brands fa-discord", title: "Discord Bot — Model Mặc Định", description: "Mô hình AI xử lý tin nhắn trực tiếp và lệnh trong server Discord", color: "text-indigo-400" },
     { key: "telegram", field: "telegram_active_model", iconClass: "fa-brands fa-telegram", title: "Telegram Bot — Model Mặc Định", description: "Mô hình AI xử lý tin nhắn chat và lệnh trong bot Telegram", color: "text-blue-400" },
@@ -260,12 +344,12 @@ const platforms = [
     { key: "web", field: "active_model", iconClass: "fa-solid fa-desktop", title: "Web Chat — Model Mặc Định", description: "Mô hình AI mặc định cho giao diện Web Dashboard Chat", color: "text-purple-400" },
 ]
 const additionalProviders = [
-    { field: "deepseek_model", label: "DeepSeek", iconClass: "fa-solid fa-compass text-sky-400", placeholder: "deepseek-v4-flash" },
-    { field: "kimi_model", label: "Kimi", iconClass: "fa-solid fa-brain text-purple-400", placeholder: "kimi-k2.6" },
-    { field: "vllm_model", label: "vLLM", iconClass: "fa-solid fa-bolt text-amber-400", placeholder: "llama3.1" },
-    { field: "ollama_model", label: "Ollama", iconClass: "fa-solid fa-server text-emerald-400", placeholder: "llama3.1" },
-    { field: "nvidia_model", label: "NVIDIA NIM", iconClass: "fa-solid fa-microchip text-green-400", placeholder: "meta/llama-3.1-8b-instruct" },
-    { field: "cloudflare_model", label: "Cloudflare AI", iconClass: "fa-solid fa-cloud text-amber-400", placeholder: "@cf/meta/llama-3.1-8b-instruct" },
+    { key: "deepseek", field: "deepseek_model", label: "DeepSeek", iconClass: "fa-solid fa-compass text-sky-400", placeholder: "deepseek-chat" },
+    { key: "kimi", field: "kimi_model", label: "Kimi", iconClass: "fa-solid fa-brain text-purple-400", placeholder: "kimi-k2.6" },
+    { key: "vllm", field: "vllm_model", label: "vLLM", iconClass: "fa-solid fa-bolt text-amber-400", placeholder: "llama3.1" },
+    { key: "ollama", field: "ollama_model", label: "Ollama", iconClass: "fa-solid fa-server text-emerald-400", placeholder: "llama3.1" },
+    { key: "nvidia", field: "nvidia_model", label: "NVIDIA NIM", iconClass: "fa-solid fa-microchip text-green-400", placeholder: "meta/llama-3.2-11b-vision-instruct" },
+    { key: "cloudflare", field: "cloudflare_model", label: "Cloudflare AI", iconClass: "fa-solid fa-cloud text-amber-400", placeholder: "@cf/meta/llama-3.1-8b-instruct" },
 ]
 const agents = [
     { key: "dan_rnd", label: "R&D" },
@@ -302,17 +386,31 @@ const saving = ref(false),
 const providerName = (key) => providers.value.find((p) => (p.key || p.id) === key)?.display || providers.value.find((p) => (p.key || p.id) === key)?.label || key
 const normalizeModels = (rows) => (rows || []).map((model) => (typeof model === "string" ? { id: model, label: model } : { id: model.id || model.value, label: model.label || model.name || model.id || model.value }))
 const ensureModel = (provider, value) => {
-    if (value && !modelOptions[provider].some((model) => model.id === value)) modelOptions[provider].push({ id: value, label: value })
+    if (value && modelOptions[provider] && !modelOptions[provider].some((model) => model.id === value)) {
+        modelOptions[provider].unshift({ id: value, label: value })
+    }
 }
 const load = async () => {
-    const [config, ...models] = await Promise.all([getConfig(), ...["gemini", "claude", "chatgpt"].map((p) => getModelsByProvider(p).catch(() => ({ models: [] })))])
+    allProviders.forEach((provider) => {
+        modelOptions[provider] = [...(defaultModelOptions[provider] || [])]
+    })
+    const [config, ...models] = await Promise.all([
+        getConfig(),
+        ...allProviders.map((p) => getModelsByProvider(p).catch(() => ({ models: [] }))),
+    ])
     providers.value = config.ai_providers?.length ? config.ai_providers.map((p) => ({ ...p, key: p.key || p.id })) : fallbackProviders
     Object.keys(form).forEach((key) => {
         if (config[key] !== undefined) form[key] = key === "openclaw_enabled" ? String(config[key]) === "true" : config[key]
     })
-    ;["gemini", "claude", "chatgpt"].forEach((provider, index) => {
-        modelOptions[provider] = normalizeModels(models[index]?.models)
-        ensureModel(provider, form[`${provider}_model`])
+    allProviders.forEach((provider, index) => {
+        const remote = normalizeModels(models[index]?.models)
+        if (remote.length > 0) {
+            const existingIds = new Set(remote.map((m) => m.id))
+            const defaults = (defaultModelOptions[provider] || []).filter((m) => !existingIds.has(m.id))
+            modelOptions[provider] = [...remote, ...defaults]
+        }
+        const val = form[`${provider}_model`]
+        if (val) ensureModel(provider, val)
     })
 }
 const save = async () => {
