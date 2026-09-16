@@ -60,7 +60,7 @@ class GeminiProvider extends AIProvider {
    * @param {string} systemPrompt
    */
   async #callGeminiWithTools(modelName, agentMessages, systemPrompt, options = {}) {
-    const ToolRegistry = require('@services/ToolRegistry');
+    const ToolRegistry = require('@services/ai/ToolRegistry');
     const allowed = options.allowedToolNames;
     const restricted = Array.isArray(allowed);
     const toolDefs = ToolRegistry.forGemini().filter((tool) => !restricted || allowed.includes(tool.name));
