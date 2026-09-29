@@ -16,7 +16,7 @@ data/wp-export/                    # export page, post, project
 Yêu cầu Docker Desktop hoặc Docker Engine có Compose plugin.
 
 ```bash
-cd ai_dan/hpdevdemo
+cd hpdev_wp
 docker compose up -d
 docker compose ps
 ```
