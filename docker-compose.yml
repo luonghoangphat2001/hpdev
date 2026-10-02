@@ -10,11 +10,12 @@ services:
       WORDPRESS_DB_NAME: hpdevdemo
       WORDPRESS_DB_USER: hpdevdemo
       WORDPRESS_DB_PASSWORD: hpdevdemo
-      WP_HOME: http://localhost:${WORDPRESS_PORT:-8085}/hpdevdemo
-      WP_SITEURL: http://localhost:${WORDPRESS_PORT:-8085}/hpdevdemo
+      WORDPRESS_TABLE_PREFIX: hp_
+      WP_HOME: http://localhost:${WORDPRESS_PORT:-8085}
+      WP_SITEURL: http://localhost:${WORDPRESS_PORT:-8085}
     volumes:
-      - ./:/var/www/html/hpdevdemo
-      - ./docker/wp-config.php:/var/www/html/hpdevdemo/wp-config.php:ro
+      - ./:/var/www/html
+      - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
     depends_on:
       - db
 
