@@ -1,6 +1,6 @@
 <?php
-define('WP_HOME', getenv('WP_HOME') ?: 'http://localhost:8080/hpdevdemo');
-define('WP_SITEURL', getenv('WP_SITEURL') ?: 'http://localhost:8080/hpdevdemo');
+define('WP_HOME', getenv('WP_HOME') ?: 'http://localhost:8085/hpdevdemo');
+define('WP_SITEURL', getenv('WP_SITEURL') ?: 'http://localhost:8085/hpdevdemo');
 
 define('DB_NAME', getenv('WORDPRESS_DB_NAME') ?: 'hpdevdemo');
 define('DB_USER', getenv('WORDPRESS_DB_USER') ?: 'hpdevdemo');

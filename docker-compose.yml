@@ -4,14 +4,14 @@ services:
     container_name: hpdevdemo-wordpress
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "${WORDPRESS_PORT:-8085}:80"
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_NAME: hpdevdemo
       WORDPRESS_DB_USER: hpdevdemo
       WORDPRESS_DB_PASSWORD: hpdevdemo
-      WP_HOME: http://localhost:8080/hpdevdemo
-      WP_SITEURL: http://localhost:8080/hpdevdemo
+      WP_HOME: http://localhost:${WORDPRESS_PORT:-8085}/hpdevdemo
+      WP_SITEURL: http://localhost:${WORDPRESS_PORT:-8085}/hpdevdemo
     volumes:
       - ./:/var/www/html/hpdevdemo
       - ./docker/wp-config.php:/var/www/html/hpdevdemo/wp-config.php:ro
